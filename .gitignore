@@ -19,3 +19,13 @@
 
 # Go workspace file
 go.work
+
+.vscode
+ent/**/*.go
+!ent/generate.go
+!ent/schema/*.go
+.env
+config/ck.encrypt.pub
+config/ck.encrypt.priv
+.env.testing
+
