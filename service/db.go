@@ -6,6 +6,8 @@ import (
 	"github.com/PromptPal/PromptPal/config"
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/sirupsen/logrus"
+
+	_ "modernc.org/sqlite"
 )
 
 var EntClient *ent.Client
