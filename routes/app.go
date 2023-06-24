@@ -49,15 +49,27 @@ func SetupGinRoutes(commitSha string) *gin.Engine {
 	adminRoutes := h.Group("/api/v1/admin")
 	adminRoutes.Use(authMiddleware)
 	{
-		// TODO
-		adminRoutes.POST("/login", authHandler)
+
+		adminRoutes.GET("/users", listUsers)
+		adminRoutes.POST("/users", createUsers)
+		adminRoutes.DELETE("/users/:id", removeUsers)
+
+		adminRoutes.GET("/projects", listProjects)
+		adminRoutes.GET("/projects/:id", getProject)
+		adminRoutes.POST("/projects", createProject)
+		adminRoutes.PUT("/projects/:id", updateProject)
+
+		adminRoutes.GET("/prompts", listPrompts)
+		adminRoutes.GET("/prompts/:id", getPrompt)
+		adminRoutes.POST("/prompts", createPrompt)
+		adminRoutes.PUT("/prompts/:id", updatePrompt)
 	}
 
 	apiRoutes := h.Group("/api/v1/public")
 	apiRoutes.Use(apiMiddleware)
 	{
-		// TODO
-		apiRoutes.POST("/login", authHandler)
+		apiRoutes.GET("/prompts", apiListPrompts)
+		apiRoutes.POST("/prompts/run/:id", apiRunPrompt)
 	}
 
 	return h

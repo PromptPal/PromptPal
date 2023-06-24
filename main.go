@@ -10,12 +10,14 @@ import (
 
 	"github.com/PromptPal/PromptPal/config"
 	"github.com/PromptPal/PromptPal/routes"
+	"github.com/PromptPal/PromptPal/service"
 	"github.com/sirupsen/logrus"
 )
 
 var GitCommit string
 
 func main() {
+	service.InitDB()
 	// updateOldImages()
 	startHTTPServer()
 }
@@ -42,6 +44,7 @@ func startHTTPServer() {
 	logrus.Println("Shutting down server...")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+	service.Close()
 
 	if err := server.Shutdown(ctx); err != nil {
 		logrus.Fatal("Server forced to shutdown:", err)

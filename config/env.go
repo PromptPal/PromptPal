@@ -7,6 +7,7 @@ import (
 
 type RuntimeConfig struct {
 	PublicDomain string `envconfig:"PUBLIC_DOMAIN" default:"localhost:7788"`
+	DbDSN        string `envconfig:"DB_DSN" required:"true"`
 }
 
 var runtimeConfig RuntimeConfig

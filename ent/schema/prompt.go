@@ -17,12 +17,19 @@ type PromptRow struct {
 	Role   string `json:"role"`
 }
 
+type PromptVariable struct {
+	Name string `json:"name"`
+	// string, number, bool
+	Type string `json:"type"`
+}
+
 // Fields of the Prompt.
 func (Prompt) Fields() []ent.Field {
 	return []ent.Field{
 		field.Bool("enabled").Default(true),
 		field.JSON("prompts", []PromptRow{}),
 		field.Int("tokenCount").Default(0),
+		field.JSON("variables", []PromptVariable{}),
 		field.Enum("publicLevel").Values("public", "protected", "private"),
 	}
 }
