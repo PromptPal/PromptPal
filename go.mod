@@ -12,6 +12,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/otiai10/openaigo v1.4.0
 	github.com/sirupsen/logrus v1.9.3
+	github.com/speps/go-hashids/v2 v2.0.1
 	modernc.org/sqlite v1.23.1
 )
 

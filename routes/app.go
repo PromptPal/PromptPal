@@ -17,14 +17,17 @@ type errorResponse struct {
 
 var web3Service service.Web3Service
 var openAIService service.OpenAIService
+var hashidService service.HashIDService
 
 func SetupGinRoutes(
 	commitSha string,
 	w3 service.Web3Service,
 	o service.OpenAIService,
+	hi service.HashIDService,
 ) *gin.Engine {
 	web3Service = w3
 	openAIService = o
+	hashidService = hi
 
 	h := gin.Default()
 
@@ -81,7 +84,7 @@ func SetupGinRoutes(
 	apiRoutes := h.Group("/api/v1/public")
 	apiRoutes.Use(apiMiddleware)
 	{
-		apiRoutes.GET("/prompts", apiListPrompts)
+		apiRoutes.GET("/:id/prompts", apiListPrompts)
 		apiRoutes.POST("/prompts/run/:id", apiRunPrompt)
 	}
 

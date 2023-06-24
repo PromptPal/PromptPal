@@ -28,8 +28,9 @@ func startHTTPServer() {
 
 	w3 := service.NewWeb3Service()
 	o := service.NewOpenAIService()
+	hi := service.NewHashIDService()
 
-	h := routes.SetupGinRoutes(GitCommit, w3, o)
+	h := routes.SetupGinRoutes(GitCommit, w3, o, hi)
 	server := &http.Server{
 		Addr:    publicDomain,
 		Handler: h,

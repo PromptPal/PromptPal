@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/PromptPal/PromptPal/ent"
+	"github.com/PromptPal/PromptPal/ent/project"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -15,7 +16,12 @@ type listProjectsResponse struct {
 }
 
 func listProjects(c *gin.Context) {
-	pjs, err := service.EntClient.Project.Query().All(c)
+	pjs, err := service.
+		EntClient.
+		Project.
+		Query().
+		Order(ent.Desc(project.FieldID)).
+		All(c)
 	if err != nil {
 		c.JSON(http.StatusNotFound, errorResponse{
 			ErrorCode:    http.StatusNotFound,
