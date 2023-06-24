@@ -26,7 +26,10 @@ func startHTTPServer() {
 	// Send buffered spans and free resources.
 	publicDomain := config.GetRuntimeConfig().PublicDomain
 
-	h := routes.SetupGinRoutes(GitCommit)
+	w3 := service.NewWeb3Service()
+	o := service.NewOpenAIService()
+
+	h := routes.SetupGinRoutes(GitCommit, w3, o)
 	server := &http.Server{
 		Addr:    publicDomain,
 		Handler: h,

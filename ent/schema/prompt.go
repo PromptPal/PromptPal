@@ -30,7 +30,7 @@ func (Prompt) Fields() []ent.Field {
 		field.JSON("prompts", []PromptRow{}),
 		field.Int("tokenCount").Default(0),
 		field.JSON("variables", []PromptVariable{}),
-		field.Enum("publicLevel").Values("public", "protected", "private"),
+		field.Enum("publicLevel").Values("public", "protected", "private").Default("protected"),
 	}
 }
 
@@ -40,6 +40,10 @@ func (Prompt) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.
 			From("creator", User.Type).
+			Ref("prompts").
+			Unique(),
+		edge.
+			From("project", Project.Type).
 			Ref("prompts").
 			Unique(),
 		edge.To("histories", Prompt.Type),

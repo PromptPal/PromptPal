@@ -16,10 +16,11 @@ type User struct {
 func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name"),
-		field.String("addr"),
+		field.String("addr").Unique(),
 		field.String("email"),
 		field.String("phone"),
 		field.String("lang"),
+		field.Uint8("level"), // 255: admin
 	}
 }
 

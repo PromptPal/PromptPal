@@ -1,10 +1,34 @@
 package routes
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
+	"strings"
+
+	"github.com/PromptPal/PromptPal/service"
+	"github.com/gin-gonic/gin"
+)
 
 func authMiddleware(c *gin.Context) {
-	// TODO
-	// do jwt token check
+	authKey := strings.Split(c.GetHeader("Authorization"), " ")
+	if len(authKey) != 2 || authKey[0] != "Bearer" {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse{
+			ErrorCode:    http.StatusUnauthorized,
+			ErrorMessage: "invalid token",
+		})
+		return
+	}
+
+	tk := authKey[1]
+
+	claims, err := service.ParseJWT(tk)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse{
+			ErrorCode:    http.StatusUnauthorized,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+	c.Set("uid", claims.Uid)
 	c.Next()
 }
 

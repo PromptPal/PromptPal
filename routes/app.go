@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/PromptPal/PromptPal/service"
 	brotli "github.com/anargu/gin-brotli"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,17 @@ type errorResponse struct {
 	ErrorMessage string `json:"error"`
 }
 
-func SetupGinRoutes(commitSha string) *gin.Engine {
+var web3Service service.Web3Service
+var openAIService service.OpenAIService
+
+func SetupGinRoutes(
+	commitSha string,
+	w3 service.Web3Service,
+	o service.OpenAIService,
+) *gin.Engine {
+	web3Service = w3
+	openAIService = o
+
 	h := gin.Default()
 
 	// with version
@@ -56,12 +67,14 @@ func SetupGinRoutes(commitSha string) *gin.Engine {
 
 		adminRoutes.GET("/projects", listProjects)
 		adminRoutes.GET("/projects/:id", getProject)
+		adminRoutes.GET("/projects/:id/prompts", listProjectPrompts)
 		adminRoutes.POST("/projects", createProject)
 		adminRoutes.PUT("/projects/:id", updateProject)
 
 		adminRoutes.GET("/prompts", listPrompts)
 		adminRoutes.GET("/prompts/:id", getPrompt)
 		adminRoutes.POST("/prompts", createPrompt)
+		adminRoutes.POST("/prompts/test", testPrompt)
 		adminRoutes.PUT("/prompts/:id", updatePrompt)
 	}
 
