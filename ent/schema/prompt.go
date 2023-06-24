@@ -2,7 +2,9 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/mixin"
 )
 
 // Prompt holds the schema definition for the Prompt entity.
@@ -18,7 +20,9 @@ type PromptRow struct {
 // Fields of the Prompt.
 func (Prompt) Fields() []ent.Field {
 	return []ent.Field{
+		field.Bool("enabled").Default(true),
 		field.JSON("prompts", []PromptRow{}),
+		field.Int("tokenCount").Default(0),
 		field.Enum("publicLevel").Values("public", "protected", "private"),
 	}
 }
@@ -26,5 +30,17 @@ func (Prompt) Fields() []ent.Field {
 // Edges of the Prompt.
 func (Prompt) Edges() []ent.Edge {
 	// creator, project
-	return nil
+	return []ent.Edge{
+		edge.
+			From("creator", User.Type).
+			Ref("prompts").
+			Unique(),
+		edge.To("histories", Prompt.Type),
+	}
+}
+
+func (Prompt) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		mixin.Time{},
+	}
 }
