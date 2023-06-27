@@ -6,9 +6,8 @@ import (
 
 	"github.com/PromptPal/PromptPal/config"
 	"github.com/PromptPal/PromptPal/ent"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/sirupsen/logrus"
-
-	_ "modernc.org/sqlite"
 )
 
 var EntClient *ent.Client
@@ -40,6 +39,7 @@ func initAdminFromEnv() {
 			Create().
 			SetEmail(admin).
 			SetAddr(strings.ToLower(admin)).
+			SetPhone("").
 			SetLang("en").
 			SetName(admin).
 			SetLevel(255)

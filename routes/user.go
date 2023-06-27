@@ -2,6 +2,7 @@ package routes
 
 import (
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -81,6 +82,48 @@ func authHandler(c *gin.Context) {
 
 func listUsers(c *gin.Context) {
 	// check signed data
+}
+
+func getUser(c *gin.Context) {
+	uidStr, ok := c.Params.Get("id")
+	if !ok {
+		c.JSON(http.StatusBadRequest, errorResponse{
+			ErrorCode:    http.StatusBadRequest,
+			ErrorMessage: "invalid id",
+		})
+		return
+	}
+
+	uid, err := strconv.Atoi(uidStr)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	if uid == -1 {
+		uid = c.GetInt("uid")
+	}
+
+	if uid <= 0 {
+		c.JSON(http.StatusBadRequest, errorResponse{
+			ErrorCode:    http.StatusBadRequest,
+			ErrorMessage: "invalid id",
+		})
+		return
+	}
+
+	u, err := service.EntClient.User.Get(c, uid)
+	if err != nil {
+		c.JSON(http.StatusNotFound, errorResponse{
+			ErrorCode:    http.StatusNotFound,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, u)
 }
 
 func createUsers(c *gin.Context) {

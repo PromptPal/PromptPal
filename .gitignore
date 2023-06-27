@@ -28,4 +28,4 @@ ent/**/*.go
 config/ck.encrypt.pub
 config/ck.encrypt.priv
 .env.testing
-
+db.db

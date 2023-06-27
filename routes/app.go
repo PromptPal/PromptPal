@@ -65,6 +65,7 @@ func SetupGinRoutes(
 	{
 
 		adminRoutes.GET("/users", listUsers)
+		adminRoutes.GET("/users/:id", getUser)
 		adminRoutes.POST("/users", createUsers)
 		adminRoutes.DELETE("/users/:id", removeUsers)
 

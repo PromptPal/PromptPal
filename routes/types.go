@@ -9,14 +9,3 @@ type Pagination struct {
 	Limit  int `json:"limit"`
 	Cursor int `json:"cursor"`
 }
-
-type PromptRow struct {
-	Prompt string `json:"prompt"`
-	Role   string `json:"role"`
-}
-
-type PromptVariable struct {
-	Name string `json:"name"`
-	// string, number, bool
-	Type string `json:"type"`
-}
