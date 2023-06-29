@@ -12,26 +12,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type listPromptsResponse struct {
-	Prompts    []*ent.Prompt `json:"prompts"`
-	Pagination Pagination    `json:"pagination"`
-}
-
 func listProjectPrompts(c *gin.Context) {
-
-	var payload paginationPayload
-	if err := c.Bind(&payload); err != nil {
+	var payload queryPagination
+	if err := c.BindQuery(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse{
 			ErrorCode:    http.StatusBadRequest,
 			ErrorMessage: err.Error(),
-		})
-		return
-	}
-
-	if payload.Pagination.Limit > 50 {
-		c.JSON(http.StatusBadRequest, errorResponse{
-			ErrorCode:    http.StatusBadRequest,
-			ErrorMessage: "limit must be less than 50",
 		})
 		return
 	}
@@ -40,7 +26,7 @@ func listProjectPrompts(c *gin.Context) {
 	if !ok {
 		c.JSON(http.StatusBadRequest, errorResponse{
 			ErrorCode:    http.StatusBadRequest,
-			ErrorMessage: "invalid id",
+			ErrorMessage: "invalid project id",
 		})
 		return
 	}
@@ -59,8 +45,8 @@ func listProjectPrompts(c *gin.Context) {
 		Prompt.
 		Query().
 		Where(prompt.HasProjectWith(project.ID(pid))).
-		Where(prompt.IDLT(payload.Pagination.Cursor)).
-		Limit(payload.Pagination.Limit).
+		Where(prompt.IDLT(payload.Cursor)).
+		Limit(payload.Limit).
 		Order(ent.Desc(prompt.FieldID)).
 		All(c)
 
@@ -72,31 +58,34 @@ func listProjectPrompts(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, listPromptsResponse{
-		Prompts: prompts,
-		Pagination: Pagination{
-			Count:  len(prompts),
-			Cursor: 0,
-		},
-	})
-}
-
-func listPrompts(c *gin.Context) {
-	// TODO: only admin can do this
-
-	var payload paginationPayload
-	if err := c.Bind(&payload); err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse{
-			ErrorCode:    http.StatusBadRequest,
+	count, err := service.
+		EntClient.
+		Prompt.
+		Query().
+		Where(prompt.HasProjectWith(project.ID(pid))).
+		Count(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
 			ErrorMessage: err.Error(),
 		})
 		return
 	}
 
-	if payload.Pagination.Limit > 50 {
+	c.JSON(http.StatusOK, ListResponse[*ent.Prompt]{
+		Count: count,
+		Data:  prompts,
+	})
+}
+
+func listPrompts(c *gin.Context) {
+	// TODO: only admin can list all prompts across projects
+
+	var payload queryPagination
+	if err := c.BindQuery(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse{
 			ErrorCode:    http.StatusBadRequest,
-			ErrorMessage: "limit must be less than 50",
+			ErrorMessage: err.Error(),
 		})
 		return
 	}
@@ -105,8 +94,8 @@ func listPrompts(c *gin.Context) {
 		EntClient.
 		Prompt.
 		Query().
-		Where(prompt.IDLT(payload.Pagination.Cursor)).
-		Limit(payload.Pagination.Limit).
+		Where(prompt.IDLT(payload.Cursor)).
+		Limit(payload.Limit).
 		Order(ent.Desc(prompt.FieldID)).
 		All(c)
 
@@ -118,12 +107,19 @@ func listPrompts(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, listPromptsResponse{
-		Prompts: prompts,
-		Pagination: Pagination{
-			Count:  len(prompts),
-			Cursor: 0,
-		},
+	count, err := service.EntClient.Prompt.Query().Count(c)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, ListResponse[*ent.Prompt]{
+		Count: count,
+		Data:  prompts,
 	})
 }
 
@@ -160,6 +156,8 @@ func getPrompt(c *gin.Context) {
 
 type createPromptPayload struct {
 	ProjectID   int                     `json:"projectId"`
+	Name        string                  `json:"name"`
+	Description string                  `json:"description"`
 	TokenCount  int                     `json:"tokenCount"`
 	Prompts     []schema.PromptRow      `json:"prompts"`
 	Variables   []schema.PromptVariable `json:"variables"`
@@ -180,6 +178,8 @@ func createPrompt(c *gin.Context) {
 		EntClient.
 		Prompt.
 		Create().
+		SetName(payload.Name).
+		SetDescription(payload.Description).
 		SetCreatorID(c.GetInt("uid")).
 		SetProjectID(payload.ProjectID).
 		SetPrompts(payload.Prompts).

@@ -26,6 +26,8 @@ type PromptVariable struct {
 // Fields of the Prompt.
 func (Prompt) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("name"),
+		field.String("description").Default(""),
 		field.Bool("enabled").Default(true),
 		field.JSON("prompts", []PromptRow{}),
 		field.Int("tokenCount").Default(0),

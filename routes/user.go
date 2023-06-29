@@ -81,7 +81,65 @@ func authHandler(c *gin.Context) {
 }
 
 func listUsers(c *gin.Context) {
+	var query queryPagination
+	if err := c.BindQuery(&query); err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse{
+			ErrorCode:    http.StatusBadRequest,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
 	// check signed data
+	uid := c.GetInt("uid")
+
+	u, err := service.EntClient.User.Get(c, uid)
+	if err != nil {
+		c.JSON(http.StatusNotFound, errorResponse{
+			ErrorCode:    http.StatusNotFound,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	// if < 255, which means it's a normal user
+	if u.Level < 255 {
+		c.JSON(http.StatusForbidden, errorResponse{
+			ErrorCode:    http.StatusForbidden,
+			ErrorMessage: "forbidden. only admin can get users",
+		})
+		return
+	}
+
+	us, err := service.
+		EntClient.
+		User.
+		Query().
+		Where(user.IDLT(query.Cursor)).
+		Limit(query.Limit).
+		Order(ent.Desc(user.FieldID)).
+		All(c)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, errorResponse{
+			ErrorCode:    http.StatusNotFound,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	count, err := service.EntClient.User.Query().Count(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, ListResponse[*ent.User]{
+		Count: count,
+		Data:  us,
+	})
 }
 
 func getUser(c *gin.Context) {

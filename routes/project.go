@@ -10,16 +10,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type listProjectsResponse struct {
-	Projects   []*ent.Project `json:"projects"`
-	Pagination Pagination     `json:"pagination"`
-}
-
 func listProjects(c *gin.Context) {
+	var query queryPagination
+	if err := c.BindQuery(&query); err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse{
+			ErrorCode:    http.StatusBadRequest,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
 	pjs, err := service.
 		EntClient.
 		Project.
 		Query().
+		Where(project.IDLT(query.Cursor)).
+		Limit(query.Limit).
 		Order(ent.Desc(project.FieldID)).
 		All(c)
 	if err != nil {
@@ -30,18 +36,18 @@ func listProjects(c *gin.Context) {
 		return
 	}
 
-	cursor := 0
-
-	if len(pjs) > 0 {
-		cursor = pjs[len(pjs)-1].ID
+	count, err := service.EntClient.Project.Query().Count(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
 	}
 
-	c.JSON(http.StatusOK, listProjectsResponse{
-		Projects: pjs,
-		Pagination: Pagination{
-			Count:  len(pjs),
-			Cursor: cursor,
-		},
+	c.JSON(http.StatusOK, ListResponse[*ent.Project]{
+		Count: count,
+		Data:  pjs,
 	})
 }
 

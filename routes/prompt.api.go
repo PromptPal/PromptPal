@@ -59,17 +59,28 @@ func apiListPrompts(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, listPromptsResponse{
-		Prompts: prompts,
-		Pagination: Pagination{
-			Count:  len(prompts),
-			Cursor: 0,
-		},
+	count, err := service.
+		EntClient.
+		Prompt.
+		Query().
+		Where(prompt.HasProjectWith(project.ID(pid))).
+		Count(c)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, ListResponse[*ent.Prompt]{
+		Count: count,
+		Data:  prompts,
 	})
 }
 
 func apiRunPrompt(c *gin.Context) {
-
 	hashedValue, ok := c.Params.Get("id")
 
 	if !ok {
