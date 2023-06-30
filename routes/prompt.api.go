@@ -80,7 +80,13 @@ func apiListPrompts(c *gin.Context) {
 	})
 }
 
+type apiRunPromptPayload struct {
+	Variables map[string]string `json:"variables"`
+	UserId    string            `json:"userId"`
+}
+
 func apiRunPrompt(c *gin.Context) {
+	// TODO: add metrics
 	hashedValue, ok := c.Params.Get("id")
 
 	if !ok {
@@ -101,6 +107,15 @@ func apiRunPrompt(c *gin.Context) {
 		return
 	}
 
+	var payload apiRunPromptPayload
+	if err := c.Bind(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse{
+			ErrorCode:    http.StatusBadRequest,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
 	prompt, err := service.EntClient.Prompt.Get(c, promptID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, errorResponse{
@@ -114,7 +129,7 @@ func apiRunPrompt(c *gin.Context) {
 
 	logrus.Println("executing prompt:", prompt, pj)
 
-	res, err := openAIService.Chat(c, pj, prompt.Prompts, prompt.Variables)
+	res, err := openAIService.Chat(c, pj, prompt.Prompts, payload.Variables, payload.UserId)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse{

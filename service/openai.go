@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/schema"
@@ -13,7 +14,8 @@ type OpenAIService interface {
 		ctx context.Context,
 		project *ent.Project,
 		prompts []schema.PromptRow,
-		promptsVariables []schema.PromptVariable,
+		variables map[string]string,
+		userId string,
 	) (reply openaigo.ChatCompletionResponse, err error)
 }
 
@@ -29,25 +31,36 @@ func (o openAIService) Chat(
 	ctx context.Context,
 	project *ent.Project,
 	prompts []schema.PromptRow,
-	promptsVariables []schema.PromptVariable,
+	variables map[string]string,
+	userId string,
 ) (reply openaigo.ChatCompletionResponse, err error) {
+	if project.OpenAIToken == "" {
+		return reply, errors.New("token is empty")
+	}
+
 	client := openaigo.NewClient(project.OpenAIToken)
-	client.BaseURL = project.OpenAIBaseURL
+	if project.OpenAIBaseURL != "" {
+		client.BaseURL = project.OpenAIBaseURL
+	}
 
 	req := openaigo.ChatRequest{
 		Model:       project.OpenAIModel,
 		Temperature: float32(project.OpenAITemperature),
 		TopP:        float32(project.OpenAITopP),
 	}
+	if userId != "" {
+		req.User = userId
+	}
 	if project.OpenAIMaxTokens > 0 {
 		req.MaxTokens = project.OpenAIMaxTokens
 	}
 
 	for _, prompt := range prompts {
+		content := replacePlaceholders(prompt.Prompt, variables)
 		// TODO: update with variables
 		pt := openaigo.Message{
 			Role:    prompt.Role,
-			Content: prompt.Prompt,
+			Content: content,
 		}
 		req.Messages = append(req.Messages, pt)
 	}

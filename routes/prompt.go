@@ -202,8 +202,15 @@ func createPrompt(c *gin.Context) {
 func updatePrompt(c *gin.Context) {
 }
 
+type testPromptPayload struct {
+	ProjectID int                `json:"projectId"`
+	Name      string             `json:"name"`
+	Prompts   []schema.PromptRow `json:"prompts"`
+	Variables map[string]string  `json:"variables"`
+}
+
 func testPrompt(c *gin.Context) {
-	var payload createPromptPayload
+	var payload testPromptPayload
 	if err := c.Bind(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse{
 			ErrorCode:    http.StatusBadRequest,
@@ -221,7 +228,7 @@ func testPrompt(c *gin.Context) {
 		return
 	}
 
-	res, err := openAIService.Chat(c, pj, payload.Prompts, payload.Variables)
+	res, err := openAIService.Chat(c, pj, payload.Prompts, payload.Variables, "")
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse{
