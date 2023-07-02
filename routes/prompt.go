@@ -12,6 +12,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type internalPromptItem struct {
+	ent.Prompt
+	HashID string `json:"hid"`
+}
+
 func listProjectPrompts(c *gin.Context) {
 	var payload queryPagination
 	if err := c.BindQuery(&payload); err != nil {
@@ -72,9 +77,26 @@ func listProjectPrompts(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, ListResponse[*ent.Prompt]{
+	result := make([]internalPromptItem, len(prompts))
+
+	for i, p := range prompts {
+		hid, err := hashidService.Encode(p.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errorResponse{
+				ErrorCode:    http.StatusInternalServerError,
+				ErrorMessage: err.Error(),
+			})
+			return
+		}
+		result[i] = internalPromptItem{
+			Prompt: *p,
+			HashID: hid,
+		}
+	}
+
+	c.JSON(http.StatusOK, ListResponse[internalPromptItem]{
 		Count: count,
-		Data:  prompts,
+		Data:  result,
 	})
 }
 
@@ -117,9 +139,26 @@ func listPrompts(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, ListResponse[*ent.Prompt]{
+	result := make([]internalPromptItem, len(prompts))
+
+	for i, p := range prompts {
+		hid, err := hashidService.Encode(p.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errorResponse{
+				ErrorCode:    http.StatusInternalServerError,
+				ErrorMessage: err.Error(),
+			})
+			return
+		}
+		result[i] = internalPromptItem{
+			Prompt: *p,
+			HashID: hid,
+		}
+	}
+
+	c.JSON(http.StatusOK, ListResponse[internalPromptItem]{
 		Count: count,
-		Data:  prompts,
+		Data:  result,
 	})
 }
 
@@ -151,7 +190,19 @@ func getPrompt(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, prompt)
+	hid, err := hashidService.Encode(prompt.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, internalPromptItem{
+		Prompt: *prompt,
+		HashID: hid,
+	})
 }
 
 type createPromptPayload struct {
@@ -196,7 +247,19 @@ func createPrompt(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, p)
+	hid, err := hashidService.Encode(p.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, internalPromptItem{
+		Prompt: *p,
+		HashID: hid,
+	})
 }
 
 func updatePrompt(c *gin.Context) {

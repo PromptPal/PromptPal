@@ -7,6 +7,7 @@ import (
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/schema"
 	"github.com/otiai10/openaigo"
+	"github.com/sirupsen/logrus"
 )
 
 type OpenAIService interface {
@@ -64,6 +65,8 @@ func (o openAIService) Chat(
 		}
 		req.Messages = append(req.Messages, pt)
 	}
+
+	logrus.Println("req", req)
 
 	return client.Chat(ctx, req)
 }

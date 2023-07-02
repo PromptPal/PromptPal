@@ -31,6 +31,7 @@ func (User) Edges() []ent.Edge {
 		edge.To("prompts", Prompt.Type),
 		edge.To("activities", Activity.Type),
 		edge.To("histories", History.Type),
+		edge.To("openTokens", OpenToken.Type),
 	}
 }
 

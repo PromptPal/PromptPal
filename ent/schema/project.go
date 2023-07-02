@@ -18,7 +18,7 @@ func (Project) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name"),
 		field.Bool("enabled").Default(true),
-		field.String("OpenAIBaseURL").Default("https://api.openai.com/v1"),
+		field.String("openAIBaseURL").Default("https://api.openai.com/v1"),
 		field.String("openAIModel").Default("gpt-3.5-turbo"),
 		field.String("openAIToken").Default("").Sensitive(),
 		field.Float("openAITemperature").Default(1),
@@ -36,6 +36,7 @@ func (Project) Edges() []ent.Edge {
 			Unique(),
 		edge.To("prompts", Prompt.Type),
 		edge.To("activities", Activity.Type),
+		edge.To("openTokens", OpenToken.Type),
 	}
 }
 

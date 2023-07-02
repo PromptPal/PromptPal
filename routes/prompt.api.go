@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/project"
@@ -11,6 +12,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
+
+type publicPromptItem struct {
+	HashID      string    `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	TokenCount  int       `json:"tokenCount"`
+	CreatedAt   time.Time `json:"createdAt"`
+}
 
 func apiListPrompts(c *gin.Context) {
 	pidStr, ok := c.Params.Get("id")
@@ -74,15 +83,40 @@ func apiListPrompts(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, ListResponse[*ent.Prompt]{
+	result := make([]publicPromptItem, len(prompts))
+	for i, prompt := range prompts {
+		hid, err := hashidService.Encode(prompt.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errorResponse{
+				ErrorCode:    http.StatusInternalServerError,
+				ErrorMessage: err.Error(),
+			})
+			return
+		}
+
+		result[i] = publicPromptItem{
+			HashID:      hid,
+			Name:        prompt.Name,
+			Description: prompt.Description,
+			TokenCount:  prompt.TokenCount,
+			CreatedAt:   prompt.CreateTime,
+		}
+	}
+	c.JSON(http.StatusOK, ListResponse[publicPromptItem]{
 		Count: count,
-		Data:  prompts,
+		Data:  result,
 	})
 }
 
 type apiRunPromptPayload struct {
 	Variables map[string]string `json:"variables"`
 	UserId    string            `json:"userId"`
+}
+
+type apiRunPromptResponse struct {
+	PromptID           string `json:"id"`
+	ResponseMessage    string `json:"message"`
+	ResponseTokenCount int    `json:"tokenCount"`
 }
 
 func apiRunPrompt(c *gin.Context) {
@@ -139,6 +173,17 @@ func apiRunPrompt(c *gin.Context) {
 		return
 	}
 
-	// TODO: update response to a very simple one
-	c.JSON(http.StatusOK, res)
+	if len(res.Choices) == 0 {
+		c.JSON(http.StatusBadRequest, errorResponse{
+			ErrorCode:    http.StatusBadRequest,
+			ErrorMessage: "no choices",
+		})
+		return
+	}
+
+	result := apiRunPromptResponse{}
+	result.PromptID = hashedValue
+	result.ResponseMessage = res.Choices[0].Message.Content
+	result.ResponseTokenCount = res.Usage.CompletionTokens
+	c.JSON(http.StatusOK, result)
 }

@@ -71,8 +71,10 @@ func SetupGinRoutes(
 
 		adminRoutes.GET("/projects", listProjects)
 		adminRoutes.GET("/projects/:id", getProject)
+		adminRoutes.GET("/projects/:id/open-tokens", listOpenToken)
 		adminRoutes.GET("/projects/:id/prompts", listProjectPrompts)
 		adminRoutes.POST("/projects", createProject)
+		adminRoutes.GET("/projects/:id/open-tokens", createOpenToken)
 		adminRoutes.PUT("/projects/:id", updateProject)
 
 		adminRoutes.GET("/prompts", listPrompts)
@@ -80,6 +82,8 @@ func SetupGinRoutes(
 		adminRoutes.POST("/prompts", createPrompt)
 		adminRoutes.POST("/prompts/test", testPrompt)
 		adminRoutes.PUT("/prompts/:id", updatePrompt)
+
+		adminRoutes.DELETE("/open-tokens", deleteOpenToken)
 	}
 
 	apiRoutes := h.Group("/api/v1/public")

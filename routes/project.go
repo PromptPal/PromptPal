@@ -119,6 +119,79 @@ func createProject(c *gin.Context) {
 	c.JSON(http.StatusOK, pj)
 }
 
+type updateProjectPayload struct {
+	Enabled           *bool    `json:"enabled"`
+	OpenAIBaseURL     *string  `json:"openAIBaseURL"`
+	OpenAIModel       *string  `json:"openAIModel"`
+	OpenAIToken       *string  `json:"openAIToken"`
+	OpenAITemperature *float64 `json:"openAITemperature"`
+	OpenAITopP        *float64 `json:"openAITopP"`
+	OpenAIMaxTokens   *int     `json:"openAIMaxTokens"`
+}
+
 // TODO: update project
 func updateProject(c *gin.Context) {
+	var payload updateProjectPayload
+	if err := c.Bind(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse{
+			ErrorCode:    http.StatusBadRequest,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	pidStr, ok := c.Params.Get("id")
+	if !ok {
+		c.JSON(http.StatusBadRequest, errorResponse{
+			ErrorCode:    http.StatusBadRequest,
+			ErrorMessage: "invalid id",
+		})
+		return
+	}
+
+	pid, err := strconv.Atoi(pidStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse{
+			ErrorCode:    http.StatusBadRequest,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	// TODO: check permission
+
+	updater := service.EntClient.Project.UpdateOneID(pid)
+
+	if payload.Enabled != nil {
+		updater = updater.SetEnabled(*payload.Enabled)
+	}
+	if payload.OpenAIBaseURL != nil {
+		updater = updater.SetOpenAIBaseURL(*payload.OpenAIBaseURL)
+	}
+	if payload.OpenAIModel != nil {
+		updater = updater.SetOpenAIModel(*payload.OpenAIModel)
+	}
+	if payload.OpenAIToken != nil {
+		updater = updater.SetOpenAIToken(*payload.OpenAIToken)
+	}
+	if payload.OpenAITemperature != nil {
+		updater = updater.SetOpenAITemperature(*payload.OpenAITemperature)
+	}
+	if payload.OpenAITopP != nil {
+		updater = updater.SetOpenAITopP(*payload.OpenAITopP)
+	}
+	if payload.OpenAIMaxTokens != nil {
+		updater = updater.SetOpenAIMaxTokens(*payload.OpenAIMaxTokens)
+	}
+
+	pj, err := updater.Save(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, pj)
 }
