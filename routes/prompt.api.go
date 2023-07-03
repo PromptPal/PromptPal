@@ -10,7 +10,6 @@ import (
 	"github.com/PromptPal/PromptPal/ent/prompt"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 type publicPromptItem struct {
@@ -159,9 +158,16 @@ func apiRunPrompt(c *gin.Context) {
 		return
 	}
 
+	pid := c.GetInt("pid")
 	pj := prompt.Edges.Project
 
-	logrus.Println("executing prompt:", prompt, pj)
+	if pj.ID != pid {
+		c.JSON(http.StatusForbidden, errorResponse{
+			ErrorCode:    http.StatusForbidden,
+			ErrorMessage: "prompt does not belong to the project",
+		})
+		return
+	}
 
 	res, err := openAIService.Chat(c, pj, prompt.Prompts, payload.Variables, payload.UserId)
 

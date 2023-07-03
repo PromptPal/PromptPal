@@ -126,7 +126,7 @@ func createOpenToken(c *gin.Context) {
 	tk := strings.Replace(uuid.New().String(), "-", "", -1)
 	expireAt := time.Now().Add(time.Second * time.Duration(payload.TTL))
 
-	openToken, err := service.
+	err = service.
 		EntClient.
 		OpenToken.
 		Create().
@@ -136,7 +136,7 @@ func createOpenToken(c *gin.Context) {
 		SetUserID(c.GetInt("uid")).
 		SetProjectID(pid).
 		SetExpireAt(expireAt).
-		Save(c)
+		Exec(c)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse{
@@ -145,7 +145,9 @@ func createOpenToken(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, openToken)
+	c.JSON(http.StatusOK, gin.H{
+		"token": tk,
+	})
 }
 
 func deleteOpenToken(c *gin.Context) {
