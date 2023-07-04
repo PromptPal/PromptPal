@@ -60,6 +60,15 @@ func apiMiddleware(c *gin.Context) {
 		return
 	}
 
-	c.Set("pid", ot.Edges.Project.ID)
+	pj, err := ot.QueryProject().Only(c)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	c.Set("pid", pj.ID)
 	c.Next()
 }

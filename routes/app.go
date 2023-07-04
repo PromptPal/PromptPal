@@ -89,7 +89,7 @@ func SetupGinRoutes(
 	apiRoutes := h.Group("/api/v1/public")
 	apiRoutes.Use(apiMiddleware)
 	{
-		apiRoutes.GET("/:id/prompts", apiListPrompts)
+		apiRoutes.GET("/prompts", apiListPrompts)
 		apiRoutes.POST("/prompts/run/:id", apiRunPrompt)
 	}
 

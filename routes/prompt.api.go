@@ -2,7 +2,6 @@ package routes
 
 import (
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/PromptPal/PromptPal/ent"
@@ -21,28 +20,9 @@ type publicPromptItem struct {
 }
 
 func apiListPrompts(c *gin.Context) {
-	pidStr, ok := c.Params.Get("id")
-
-	if !ok {
-		c.JSON(http.StatusBadRequest, errorResponse{
-			ErrorCode:    http.StatusBadRequest,
-			ErrorMessage: "invalid id",
-		})
-		return
-	}
-
-	pid, err := strconv.Atoi(pidStr)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse{
-			ErrorCode:    http.StatusBadRequest,
-			ErrorMessage: err.Error(),
-		})
-		return
-	}
-
-	var payload paginationPayload
-	if err := c.Bind(&payload); err != nil {
+	pid := c.GetInt("pid")
+	var query queryPagination
+	if err := c.BindQuery(&query); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse{
 			ErrorCode:    http.StatusBadRequest,
 			ErrorMessage: err.Error(),
@@ -54,8 +34,8 @@ func apiListPrompts(c *gin.Context) {
 		Prompt.
 		Query().
 		Where(prompt.HasProjectWith(project.ID(pid))).
-		Where(prompt.IDLT(payload.Pagination.Cursor)).
-		Limit(payload.Pagination.Limit).
+		Where(prompt.IDLT(query.Cursor)).
+		Limit(query.Limit).
 		Order(ent.Desc(prompt.FieldID)).
 		All(c)
 
