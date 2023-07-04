@@ -74,7 +74,7 @@ func SetupGinRoutes(
 		adminRoutes.GET("/projects/:id/open-tokens", listOpenToken)
 		adminRoutes.GET("/projects/:id/prompts", listProjectPrompts)
 		adminRoutes.POST("/projects", createProject)
-		adminRoutes.GET("/projects/:id/open-tokens", createOpenToken)
+		adminRoutes.POST("/projects/:id/open-tokens", createOpenToken)
 		adminRoutes.PUT("/projects/:id", updateProject)
 
 		adminRoutes.GET("/prompts", listPrompts)
