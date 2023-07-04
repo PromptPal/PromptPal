@@ -7,16 +7,18 @@ import (
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/project"
 	"github.com/PromptPal/PromptPal/ent/prompt"
+	"github.com/PromptPal/PromptPal/ent/schema"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/gin-gonic/gin"
 )
 
 type publicPromptItem struct {
-	HashID      string    `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	TokenCount  int       `json:"tokenCount"`
-	CreatedAt   time.Time `json:"createdAt"`
+	HashID      string                  `json:"id"`
+	Name        string                  `json:"name"`
+	Description string                  `json:"description"`
+	TokenCount  int                     `json:"tokenCount"`
+	Variables   []schema.PromptVariable `json:"variables"`
+	CreatedAt   time.Time               `json:"createdAt"`
 }
 
 func apiListPrompts(c *gin.Context) {
@@ -77,6 +79,7 @@ func apiListPrompts(c *gin.Context) {
 			HashID:      hid,
 			Name:        prompt.Name,
 			Description: prompt.Description,
+			Variables:   prompt.Variables,
 			TokenCount:  prompt.TokenCount,
 			CreatedAt:   prompt.CreateTime,
 		}
