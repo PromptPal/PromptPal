@@ -142,7 +142,15 @@ func apiRunPrompt(c *gin.Context) {
 	}
 
 	pid := c.GetInt("pid")
-	pj := prompt.Edges.Project
+	pj, err := prompt.QueryProject().Only(c)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, errorResponse{
+			ErrorCode:    http.StatusNotFound,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
 
 	if pj.ID != pid {
 		c.JSON(http.StatusForbidden, errorResponse{
