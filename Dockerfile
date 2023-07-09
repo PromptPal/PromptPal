@@ -5,6 +5,7 @@ RUN apk --no-cache --update add ca-certificates gcc musl-dev
 WORKDIR /usr/app
 
 COPY up-pp-api .
+COPY public .
 
 EXPOSE 9654
 CMD ["/usr/app/up-pp-api"]
