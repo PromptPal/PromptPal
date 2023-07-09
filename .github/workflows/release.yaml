@@ -44,6 +44,18 @@ jobs:
       run: |
         make release
         chmod +x up-pp-api
+
+    - uses: dsaltares/fetch-gh-release-asset@master
+      if: ${{ steps.release.outputs.release_created }}
+      with:
+        repo: 'PromptPal/web'
+        file: 'dist.zip'
+        target: 'dist.zip'
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: montudor/action-zip@v1
+      if: ${{ steps.release.outputs.release_created }}
+      with:
+        args: unzip -qq -j dist.zip -d public
     - name: Extract metadata (tags, labels) for Docker
       id: meta
       uses: docker/metadata-action@v4
@@ -63,5 +75,5 @@ jobs:
         context: .
         file: ./Dockerfile
         push: ${{ github.event_name != 'pull_request' && steps.release.outputs.release_created }}
-        tags: ${{ steps.meta.outputs.tags }}
+        tags: ${{ steps.release.outputs.tag_name }}
         labels: ${{ steps.meta.outputs.labels }}

@@ -93,5 +93,14 @@ func SetupGinRoutes(
 		apiRoutes.POST("/prompts/run/:id", apiRunPrompt)
 	}
 
+	h.LoadHTMLFiles("./public/index.html")
+	h.Static("/public", "./public")
+	h.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", nil)
+	})
+	h.NoRoute(func(c *gin.Context) {
+		c.HTML(http.StatusNotFound, "index.html", nil)
+	})
+
 	return h
 }
