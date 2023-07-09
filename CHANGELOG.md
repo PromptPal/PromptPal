@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/PromptPal/PromptPal/compare/v1.0.0...v1.0.1) (2023-07-09)
+
+
+### Bug Fixes
+
+* **ci:** get ready for emmbed fe assets to public folder ([d2774c2](https://github.com/PromptPal/PromptPal/commit/d2774c232b188494dccf9798b8cac48a27a4f1f3))
+
 ## 1.0.0 (2023-07-09)
 
 
