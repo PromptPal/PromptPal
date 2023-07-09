@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/PromptPal/PromptPal/compare/v1.0.1...v1.0.2) (2023-07-09)
+
+
+### Bug Fixes
+
+* **ci:** fix ci token ([838db08](https://github.com/PromptPal/PromptPal/commit/838db08918628c3ca4d693422b6a425d0c251d0d))
+
 ## [1.0.1](https://github.com/PromptPal/PromptPal/compare/v1.0.0...v1.0.1) (2023-07-09)
 
 
