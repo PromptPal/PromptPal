@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/PromptPal/PromptPal/compare/v1.0.2...v1.0.3) (2023-07-09)
+
+
+### Bug Fixes
+
+* **app:** fix docker push tag name ([b66342f](https://github.com/PromptPal/PromptPal/commit/b66342f68965304daf5a028acc691a2c02047bf6))
+
 ## [1.0.2](https://github.com/PromptPal/PromptPal/compare/v1.0.1...v1.0.2) (2023-07-09)
 
 
