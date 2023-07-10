@@ -57,6 +57,7 @@ jobs:
       with:
         args: unzip -qq -j dist.zip -d public
     - name: Adjust Assets
+      if: ${{ steps.release.outputs.release_created }}
       run: mv public/dist/* public/
     - name: Extract metadata (tags, labels) for Docker
       id: meta
