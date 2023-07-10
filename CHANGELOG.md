@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.5](https://github.com/PromptPal/PromptPal/compare/v1.0.4...v1.0.5) (2023-07-10)
+
+
+### Bug Fixes
+
+* **ci:** fix ci ([bda7d58](https://github.com/PromptPal/PromptPal/commit/bda7d58e252f6519b9ff678f0910e01ec4bac3ba))
+* **ci:** fix static assets ([e815abc](https://github.com/PromptPal/PromptPal/commit/e815abc11c5763724f54abde0d00b03edab9a351))
+
 ## [1.0.4](https://github.com/PromptPal/PromptPal/compare/v1.0.3...v1.0.4) (2023-07-10)
 
 
