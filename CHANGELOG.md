@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.6](https://github.com/PromptPal/PromptPal/compare/v1.0.5...v1.0.6) (2023-07-10)
+
+
+### Bug Fixes
+
+* **ci:** fix ci ([379e02d](https://github.com/PromptPal/PromptPal/commit/379e02dacac9bf1194f7026a8b26c099e35782c3))
+
 ## [1.0.5](https://github.com/PromptPal/PromptPal/compare/v1.0.4...v1.0.5) (2023-07-10)
 
 
