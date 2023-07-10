@@ -46,19 +46,21 @@ jobs:
         chmod +x up-pp-api
 
     - uses: dsaltares/fetch-gh-release-asset@master
-      if: ${{ steps.release.outputs.release_created }}
+      # if: ${{ steps.release.outputs.release_created }}
       with:
         repo: 'PromptPal/web'
         file: 'dist.zip'
         target: 'dist.zip'
         token: ${{ secrets.GH_PERSONAL_TOKEN }}
     - uses: montudor/action-zip@v1
-      if: ${{ steps.release.outputs.release_created }}
+      # if: ${{ steps.release.outputs.release_created }}
       with:
         args: unzip -qq dist.zip -d public
     - name: Adjust Assets
-      if: ${{ steps.release.outputs.release_created }}
-      run: mv public/dist/* public/
+      # if: ${{ steps.release.outputs.release_created }}
+      run: |
+        ls public
+        mv public/dist/* public/
     - name: Extract metadata (tags, labels) for Docker
       id: meta
       uses: docker/metadata-action@v4
