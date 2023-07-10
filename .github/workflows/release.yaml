@@ -55,7 +55,7 @@ jobs:
     - uses: montudor/action-zip@v1
       if: ${{ steps.release.outputs.release_created }}
       with:
-        args: unzip -qq -j dist.zip -d public
+        args: unzip -qq dist.zip -d public
     - name: Adjust Assets
       if: ${{ steps.release.outputs.release_created }}
       run: mv public/dist/* public/
