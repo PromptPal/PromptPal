@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/PromptPal/PromptPal/compare/v1.0.3...v1.0.4) (2023-07-10)
+
+
+### Bug Fixes
+
+* **ci:** fix ci to build final assets ([84ec93e](https://github.com/PromptPal/PromptPal/commit/84ec93e6b9c106da5846627b330d059777034e0e))
+
 ## [1.0.3](https://github.com/PromptPal/PromptPal/compare/v1.0.2...v1.0.3) (2023-07-09)
 
 
