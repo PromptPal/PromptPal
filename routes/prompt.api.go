@@ -180,7 +180,7 @@ func apiRunPrompt(c *gin.Context) {
 			SetTotalToken(res.Usage.TotalTokens).
 			SetMessage(message).
 			SetUserId(payload.UserId).
-			SetDuration(int(endTime.Sub(startTime).Milliseconds())).
+			SetDuration(endTime.Sub(startTime).Milliseconds()).
 			Exec(c)
 		if exp != nil {
 			logrus.Errorln(exp)
