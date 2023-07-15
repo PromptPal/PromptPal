@@ -8,6 +8,7 @@ import (
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/project"
+	"github.com/PromptPal/PromptPal/ent/prompt"
 	"github.com/PromptPal/PromptPal/ent/promptcall"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/gin-gonic/gin"
@@ -199,6 +200,12 @@ func updateProject(c *gin.Context) {
 	c.JSON(http.StatusOK, pj)
 }
 
+type getTopPromptsMetricOfProjectResponse struct {
+	Prompt *ent.Prompt `json:"prompt"`
+	Count  int         `json:"count"`
+	// TODO: add more metrics later
+}
+
 func getTopPromptsMetricOfProject(c *gin.Context) {
 	pidStr, ok := c.Params.Get("id")
 	if !ok {
@@ -218,14 +225,19 @@ func getTopPromptsMetricOfProject(c *gin.Context) {
 		return
 	}
 
-	pc := make([]any, 0)
+	pc := make([]struct {
+		PromptID int `json:"prompt_calls"`
+		Count    int `json:"count"`
+	}, 0)
 
 	err = service.
 		EntClient.
 		PromptCall.
 		Query().
 		Where(promptcall.HasProjectWith(project.ID(pid))).
-		GroupBy(promptcall.EdgePrompt).
+		Where(promptcall.CreateTimeGT(time.Now().Add(-24*7*time.Hour))).
+		Limit(5).
+		GroupBy("prompt_calls").
 		Aggregate(ent.Count()).
 		Scan(c, &pc)
 
@@ -237,5 +249,44 @@ func getTopPromptsMetricOfProject(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, pc)
+	pidList := make([]int, 0)
+	for _, p := range pc {
+		pidList = append(pidList, p.PromptID)
+	}
+
+	prompts, err := service.EntClient.
+		Prompt.
+		Query().
+		Where(prompt.IDIn(pidList...)).
+		All(c)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	result := make([]getTopPromptsMetricOfProjectResponse, len(prompts))
+	for i, p := range prompts {
+		count := 0
+
+		for _, pc := range pc {
+			if pc.PromptID == p.ID {
+				count = pc.Count
+				break
+			}
+		}
+
+		result[i] = getTopPromptsMetricOfProjectResponse{
+			Prompt: p,
+			Count:  count,
+		}
+	}
+
+	c.JSON(http.StatusOK, ListResponse[getTopPromptsMetricOfProjectResponse]{
+		Count: len(result),
+		Data:  result,
+	})
 }

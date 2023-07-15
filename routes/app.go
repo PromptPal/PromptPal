@@ -69,6 +69,7 @@ func SetupGinRoutes(
 
 		// TODO: add this API
 		// adminRoutes.GET("/projects/:id/calls", listProjectCalls)
+		adminRoutes.GET("/projects/:id/top-prompts", getTopPromptsMetricOfProject)
 
 		adminRoutes.POST("/projects", createProject)
 		adminRoutes.POST("/projects/:id/open-tokens", createOpenToken)
