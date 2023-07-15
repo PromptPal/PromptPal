@@ -10,6 +10,7 @@ import (
 	"github.com/PromptPal/PromptPal/ent/schema"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 type publicPromptItem struct {
@@ -160,9 +161,34 @@ func apiRunPrompt(c *gin.Context) {
 		return
 	}
 
+	startTime := time.Now()
+	responseResult := 0
 	res, err := openAIService.Chat(c, pj, prompt.Prompts, payload.Variables, payload.UserId)
+	endTime := time.Now()
+
+	defer func() {
+		message := ""
+		if len(res.Choices) > 0 {
+			message = res.Choices[0].Message.Content
+		}
+		exp := service.EntClient.
+			PromptCall.
+			Create().
+			SetPromptID(promptID).
+			SetResult(responseResult).
+			SetResponseToken(res.Usage.CompletionTokens).
+			SetTotalToken(res.Usage.TotalTokens).
+			SetMessage(message).
+			SetUserId(payload.UserId).
+			SetDuration(int(endTime.Sub(startTime).Milliseconds())).
+			Exec(c)
+		if exp != nil {
+			logrus.Errorln(exp)
+		}
+	}()
 
 	if err != nil {
+		responseResult = 1
 		c.JSON(http.StatusInternalServerError, errorResponse{
 			ErrorCode:    http.StatusInternalServerError,
 			ErrorMessage: err.Error(),
@@ -182,5 +208,6 @@ func apiRunPrompt(c *gin.Context) {
 	result.PromptID = hashedValue
 	result.ResponseMessage = res.Choices[0].Message.Content
 	result.ResponseTokenCount = res.Usage.CompletionTokens
+
 	c.JSON(http.StatusOK, result)
 }

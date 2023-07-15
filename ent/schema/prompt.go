@@ -29,6 +29,7 @@ func (Prompt) Fields() []ent.Field {
 		field.String("name"),
 		field.String("description").Default(""),
 		field.Bool("enabled").Default(true),
+		field.Bool("debug").Default(false),
 		field.JSON("prompts", []PromptRow{}),
 		field.Int("tokenCount").Default(0),
 		field.JSON("variables", []PromptVariable{}),
@@ -48,6 +49,7 @@ func (Prompt) Edges() []ent.Edge {
 			From("project", Project.Type).
 			Ref("prompts").
 			Unique(),
+		edge.To("calls", PromptCall.Type),
 		edge.To("histories", Prompt.Type),
 	}
 }

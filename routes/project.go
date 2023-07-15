@@ -129,7 +129,6 @@ type updateProjectPayload struct {
 	OpenAIMaxTokens   *int     `json:"openAIMaxTokens"`
 }
 
-// TODO: update project
 func updateProject(c *gin.Context) {
 	var payload updateProjectPayload
 	if err := c.Bind(&payload); err != nil {

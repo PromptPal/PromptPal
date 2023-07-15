@@ -6,7 +6,6 @@ import (
 	"entgo.io/ent/schema/mixin"
 )
 
-// Activity holds the schema definition for the Activity entity.
 type Activity struct {
 	ent.Schema
 }

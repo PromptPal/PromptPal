@@ -262,7 +262,131 @@ func createPrompt(c *gin.Context) {
 	})
 }
 
+type updatePromptPayload struct {
+	Debug       bool                    `json:"debug"`
+	Description string                  `json:"description"`
+	TokenCount  int                     `json:"tokenCount"`
+	Prompts     []schema.PromptRow      `json:"prompts"`
+	Variables   []schema.PromptVariable `json:"variables"`
+	PublicLevel prompt.PublicLevel      `json:"publicLevel"`
+}
+
 func updatePrompt(c *gin.Context) {
+	pidStr, ok := c.Params.Get("id")
+	if !ok {
+		c.JSON(http.StatusBadRequest, errorResponse{
+			ErrorCode:    http.StatusBadRequest,
+			ErrorMessage: "invalid prompt id",
+		})
+		return
+	}
+
+	pid, err := strconv.Atoi(pidStr)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	var payload updatePromptPayload
+	if err := c.Bind(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse{
+			ErrorCode:    http.StatusBadRequest,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	tx, err := service.EntClient.Tx(c)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	oldPrompt, err := tx.Prompt.Get(c, pid)
+	if err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusNotFound, errorResponse{
+			ErrorCode:    http.StatusNotFound,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	snapshotData := schema.PromptComplete{
+		Name:        oldPrompt.Name,
+		Enabled:     oldPrompt.Enabled,
+		Debug:       oldPrompt.Debug,
+		Description: oldPrompt.Description,
+		TokenCount:  oldPrompt.TokenCount,
+		Prompts:     oldPrompt.Prompts,
+		Variables:   oldPrompt.Variables,
+		PublicLevel: oldPrompt.PublicLevel.String(),
+	}
+
+	err = tx.History.
+		Create().
+		AddModifierIDs(c.GetInt("uid")).
+		SetPromptID(pid).
+		SetSnapshot(snapshotData).
+		Exec(c)
+
+	if err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	updatedPrompt, err := tx.Prompt.
+		UpdateOneID(pid).
+		SetDescription(payload.Description).
+		SetTokenCount(payload.TokenCount).
+		SetPrompts(payload.Prompts).
+		SetDebug(payload.Debug).
+		SetPublicLevel(payload.PublicLevel).
+		Save(c)
+
+	if err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	hid, err := hashidService.Encode(pid)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, internalPromptItem{
+		Prompt: *updatedPrompt,
+		HashID: hid,
+	})
 }
 
 type testPromptPayload struct {

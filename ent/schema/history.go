@@ -12,10 +12,21 @@ type History struct {
 	ent.Schema
 }
 
+type PromptComplete struct {
+	Name        string
+	Description string
+	Enabled     bool
+	Debug       bool
+	Prompts     []PromptRow
+	TokenCount  int
+	Variables   []PromptVariable
+	PublicLevel string
+}
+
 // Fields of the History.
 func (History) Fields() []ent.Field {
 	return []ent.Field{
-		field.JSON("snapshot", []Prompt{}),
+		field.JSON("snapshot", PromptComplete{}),
 	}
 }
 

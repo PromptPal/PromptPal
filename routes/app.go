@@ -41,7 +41,7 @@ func SetupGinRoutes(
 	h.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:8080", "http://*.annatarhe.com", "http://*.annatarhe.cn"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "X-Token", "Content-Type", "Authorization", "Content-Encoding", "Date", "X-RSA-Auth", "X-RSA-Nonce"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Content-Encoding", "Date", "X-RSA-Auth", "X-RSA-Nonce"},
 		ExposeHeaders:    []string{"Content-Length", "Content-Encoding", "Date"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
@@ -49,13 +49,6 @@ func SetupGinRoutes(
 		},
 		MaxAge: 12 * time.Hour,
 	}))
-
-	h.NoRoute(func(c *gin.Context) {
-		c.JSON(http.StatusNotFound, errorResponse{
-			ErrorCode:    http.StatusNotFound,
-			ErrorMessage: "page not found",
-		})
-	})
 
 	authRoutes := h.Group("/api/v1/auth")
 	authRoutes.POST("/login", authHandler)
@@ -73,24 +66,22 @@ func SetupGinRoutes(
 		adminRoutes.GET("/projects/:id", getProject)
 		adminRoutes.GET("/projects/:id/open-tokens", listOpenToken)
 		adminRoutes.GET("/projects/:id/prompts", listProjectPrompts)
+
+		// TODO: add this API
+		// adminRoutes.GET("/projects/:id/calls", listProjectCalls)
+
 		adminRoutes.POST("/projects", createProject)
 		adminRoutes.POST("/projects/:id/open-tokens", createOpenToken)
 		adminRoutes.PUT("/projects/:id", updateProject)
 
 		adminRoutes.GET("/prompts", listPrompts)
 		adminRoutes.GET("/prompts/:id", getPrompt)
+		adminRoutes.GET("/prompts/:id/calls", getPromptCalls)
 		adminRoutes.POST("/prompts", createPrompt)
 		adminRoutes.POST("/prompts/test", testPrompt)
 		adminRoutes.PUT("/prompts/:id", updatePrompt)
 
 		adminRoutes.DELETE("/open-tokens", deleteOpenToken)
-	}
-
-	apiRoutes := h.Group("/api/v1/public")
-	apiRoutes.Use(apiMiddleware)
-	{
-		apiRoutes.GET("/prompts", apiListPrompts)
-		apiRoutes.POST("/prompts/run/:id", apiRunPrompt)
 	}
 
 	h.LoadHTMLFiles("./public/index.html")
@@ -101,6 +92,13 @@ func SetupGinRoutes(
 	h.NoRoute(func(c *gin.Context) {
 		c.HTML(http.StatusNotFound, "index.html", nil)
 	})
+
+	apiRoutes := h.Group("/api/v1/public")
+	apiRoutes.Use(apiMiddleware)
+	{
+		apiRoutes.GET("/prompts", apiListPrompts)
+		apiRoutes.POST("/prompts/run/:id", apiRunPrompt)
+	}
 
 	return h
 }
