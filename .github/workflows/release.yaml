@@ -34,8 +34,14 @@ jobs:
     - name: Generate
       run: |
         echo "GH_TAG=$(echo $GITHUB_REF | awk -F / '{print $3}')" >> $GITHUB_ENV
+        go install github.com/vektra/mockery/v2@v2.32.0
         go generate ./...
-
+    - name: Test
+      run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
     - name: Build
       env:
         GOARCH: amd64

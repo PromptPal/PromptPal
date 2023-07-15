@@ -1,7 +1,7 @@
 package config
 
 import (
-	_ "github.com/joho/godotenv/autoload"
+	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/sirupsen/logrus"
 )
@@ -22,8 +22,12 @@ func GetRuntimeConfig() RuntimeConfig {
 	return runtimeConfig
 }
 
-func init() {
+func SetupConfig(isTesting bool) {
 	var rc RuntimeConfig
+	godotenv.Load(".env")
+	if isTesting {
+		godotenv.Load(".env.testing")
+	}
 	err := envconfig.Process("pp", &rc)
 	if err != nil {
 		logrus.Panicln(err)

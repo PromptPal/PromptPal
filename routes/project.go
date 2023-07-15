@@ -8,6 +8,7 @@ import (
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/project"
+	"github.com/PromptPal/PromptPal/ent/promptcall"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -196,4 +197,45 @@ func updateProject(c *gin.Context) {
 
 	projectCache.Set(pj.ID, *pj, cache.WithExpiration(time.Hour*24))
 	c.JSON(http.StatusOK, pj)
+}
+
+func getTopPromptsMetricOfProject(c *gin.Context) {
+	pidStr, ok := c.Params.Get("id")
+	if !ok {
+		c.JSON(http.StatusBadRequest, errorResponse{
+			ErrorCode:    http.StatusBadRequest,
+			ErrorMessage: "invalid id",
+		})
+		return
+	}
+
+	pid, err := strconv.Atoi(pidStr)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	pc := make([]any, 0)
+
+	err = service.
+		EntClient.
+		PromptCall.
+		Query().
+		Where(promptcall.HasProjectWith(project.ID(pid))).
+		GroupBy(promptcall.EdgePrompt).
+		Aggregate(ent.Count()).
+		Scan(c, &pc)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, pc)
 }

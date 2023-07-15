@@ -31,6 +31,7 @@ func (PromptCall) Fields() []ent.Field {
 func (PromptCall) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("prompt", Prompt.Type).Ref("calls").Unique(),
+		edge.From("project", Project.Type).Ref("calls").Unique(),
 	}
 }
 

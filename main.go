@@ -17,8 +17,8 @@ import (
 var GitCommit string
 
 func main() {
+	config.SetupConfig(false)
 	service.InitDB()
-	// updateOldImages()
 	startHTTPServer()
 }
 

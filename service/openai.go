@@ -9,6 +9,7 @@ import (
 	"github.com/otiai10/openaigo"
 )
 
+//go:generate mockery --name OpenAIService
 type OpenAIService interface {
 	Chat(
 		ctx context.Context,

@@ -12,6 +12,7 @@ import (
 type web3Service struct {
 }
 
+//go:generate mockery --name Web3Service
 type Web3Service interface {
 	VerifySignature(address, data, signatureData string) (bool, error)
 }

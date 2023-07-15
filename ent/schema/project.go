@@ -37,6 +37,7 @@ func (Project) Edges() []ent.Edge {
 		edge.To("prompts", Prompt.Type),
 		edge.To("activities", Activity.Type),
 		edge.To("openTokens", OpenToken.Type),
+		edge.To("calls", PromptCall.Type),
 	}
 }
 

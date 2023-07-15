@@ -199,6 +199,7 @@ func apiRunPrompt(c *gin.Context) {
 			SetMessage(message).
 			SetUserId(payload.UserId).
 			SetDuration(endTime.Sub(startTime).Milliseconds()).
+			SetProjectID(pj.ID).
 			Exec(c)
 		if exp != nil {
 			logrus.Errorln(exp)

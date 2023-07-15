@@ -27,8 +27,8 @@ ent/**/*.go
 .env
 config/ck.encrypt.pub
 config/ck.encrypt.priv
-.env.testing
 db.db
 public/*
 !public/.gitkeep
 dist.zip
+service/mocks
