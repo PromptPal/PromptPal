@@ -17,7 +17,7 @@ type adminTokenClaim struct {
 }
 
 func SignJWT(u *ent.User, ttl time.Duration) (string, error) {
-	key := config.GetRuntimeConfig().JwtToken
+	key := config.GetRuntimeConfig().JwtTokenKey
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		adminTokenClaim{
 			u.ID,
@@ -36,7 +36,7 @@ func SignJWT(u *ent.User, ttl time.Duration) (string, error) {
 }
 func ParseJWT(token string) (*adminTokenClaim, error) {
 	parsed, err := jwt.ParseWithClaims(token, &adminTokenClaim{}, func(token *jwt.Token) (interface{}, error) {
-		return config.GetRuntimeConfig().JwtToken, nil
+		return config.GetRuntimeConfig().JwtTokenKey, nil
 	})
 
 	if err != nil {

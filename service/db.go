@@ -6,6 +6,8 @@ import (
 
 	"github.com/PromptPal/PromptPal/config"
 	"github.com/PromptPal/PromptPal/ent"
+	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/sirupsen/logrus"
 )
@@ -13,7 +15,8 @@ import (
 var EntClient *ent.Client
 
 func InitDB() {
-	client, err := ent.Open("sqlite3", config.GetRuntimeConfig().DbDSN)
+	dsn := config.GetRuntimeConfig().DbDSN
+	client, err := ent.Open(config.GetRuntimeConfig().DbType, dsn)
 	if err != nil {
 		logrus.Fatalf("failed opening connection to sqlite: %v", err)
 	}
