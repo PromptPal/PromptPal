@@ -3,7 +3,9 @@ package routes
 import (
 	"net/http"
 	"strconv"
+	"time"
 
+	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/project"
 	"github.com/PromptPal/PromptPal/service"
@@ -192,5 +194,6 @@ func updateProject(c *gin.Context) {
 		return
 	}
 
+	projectCache.Set(pj.ID, *pj, cache.WithExpiration(time.Hour*24))
 	c.JSON(http.StatusOK, pj)
 }

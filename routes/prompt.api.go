@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/project"
 	"github.com/PromptPal/PromptPal/ent/prompt"
@@ -102,8 +103,15 @@ type apiRunPromptResponse struct {
 	ResponseTokenCount int    `json:"tokenCount"`
 }
 
+var apiPromptCache *cache.Cache[string, ent.Prompt]
+var projectCache *cache.Cache[int, ent.Project]
+
+func init() {
+	apiPromptCache = cache.New[string, ent.Prompt]()
+	projectCache = cache.New[int, ent.Project]()
+}
+
 func apiRunPrompt(c *gin.Context) {
-	// TODO: add metrics
 	hashedValue, ok := c.Params.Get("id")
 
 	if !ok {
@@ -114,14 +122,27 @@ func apiRunPrompt(c *gin.Context) {
 		return
 	}
 
-	promptID, err := hashidService.Decode(hashedValue)
+	prompt, ok := apiPromptCache.Get(hashedValue)
+	if !ok {
+		promptID, err := hashidService.Decode(hashedValue)
 
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, errorResponse{
-			ErrorCode:    http.StatusInternalServerError,
-			ErrorMessage: err.Error(),
-		})
-		return
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errorResponse{
+				ErrorCode:    http.StatusInternalServerError,
+				ErrorMessage: err.Error(),
+			})
+			return
+		}
+		promptData, err := service.EntClient.Prompt.Get(c, promptID)
+		if err != nil {
+			c.JSON(http.StatusNotFound, errorResponse{
+				ErrorCode:    http.StatusNotFound,
+				ErrorMessage: err.Error(),
+			})
+			return
+		}
+		apiPromptCache.Set(hashedValue, *promptData, cache.WithExpiration(24*time.Hour))
+		prompt = *promptData
 	}
 
 	var payload apiRunPromptPayload
@@ -133,24 +154,21 @@ func apiRunPrompt(c *gin.Context) {
 		return
 	}
 
-	prompt, err := service.EntClient.Prompt.Get(c, promptID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, errorResponse{
-			ErrorCode:    http.StatusNotFound,
-			ErrorMessage: err.Error(),
-		})
-		return
-	}
-
+	// check the API token and prompt.projectID is equal
 	pid := c.GetInt("pid")
-	pj, err := prompt.QueryProject().Only(c)
+	pj, ok := projectCache.Get(pid)
 
-	if err != nil {
-		c.JSON(http.StatusNotFound, errorResponse{
-			ErrorCode:    http.StatusNotFound,
-			ErrorMessage: err.Error(),
-		})
-		return
+	if !ok {
+		pjt, err := prompt.QueryProject().Only(c)
+		if err != nil {
+			c.JSON(http.StatusNotFound, errorResponse{
+				ErrorCode:    http.StatusNotFound,
+				ErrorMessage: err.Error(),
+			})
+			return
+		}
+		projectCache.Set(pid, *pjt, cache.WithExpiration(24*time.Hour))
+		pj = *pjt
 	}
 
 	if pj.ID != pid {
@@ -174,7 +192,7 @@ func apiRunPrompt(c *gin.Context) {
 		exp := service.EntClient.
 			PromptCall.
 			Create().
-			SetPromptID(promptID).
+			SetPromptID(prompt.ID).
 			SetResult(responseResult).
 			SetResponseToken(res.Usage.CompletionTokens).
 			SetTotalToken(res.Usage.TotalTokens).

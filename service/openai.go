@@ -12,7 +12,7 @@ import (
 type OpenAIService interface {
 	Chat(
 		ctx context.Context,
-		project *ent.Project,
+		project ent.Project,
 		prompts []schema.PromptRow,
 		variables map[string]string,
 		userId string,
@@ -29,7 +29,7 @@ func NewOpenAIService() OpenAIService {
 // just for mock
 func (o openAIService) Chat(
 	ctx context.Context,
-	project *ent.Project,
+	project ent.Project,
 	prompts []schema.PromptRow,
 	variables map[string]string,
 	userId string,

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/opentoken"
 	"github.com/PromptPal/PromptPal/ent/project"
@@ -145,6 +146,9 @@ func createOpenToken(c *gin.Context) {
 		})
 		return
 	}
+
+	publicAPIAuthCache.Set(tk, pid, cache.WithExpiration(24*time.Hour))
+
 	c.JSON(http.StatusOK, gin.H{
 		"token": tk,
 	})
@@ -171,8 +175,7 @@ func deleteOpenToken(c *gin.Context) {
 
 	// TODO:
 	// check permission
-
-	err = service.EntClient.OpenToken.DeleteOneID(id).Exec(c)
+	tx, err := service.EntClient.Tx(c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse{
 			ErrorCode:    http.StatusInternalServerError,
@@ -180,5 +183,34 @@ func deleteOpenToken(c *gin.Context) {
 		})
 		return
 	}
+	ot, err := tx.OpenToken.Get(c, id)
+	if err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusNotFound, errorResponse{
+			ErrorCode:    http.StatusNotFound,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	err = tx.OpenToken.DeleteOne(ot).Exec(c)
+	if err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	if err := tx.Commit(); err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	publicAPIAuthCache.Delete(ot.Token)
 	c.JSON(http.StatusOK, gin.H{})
 }

@@ -3,7 +3,9 @@ package routes
 import (
 	"net/http"
 	"strconv"
+	"time"
 
+	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/project"
 	"github.com/PromptPal/PromptPal/ent/prompt"
@@ -255,7 +257,8 @@ func createPrompt(c *gin.Context) {
 		})
 		return
 	}
-
+	// set cache
+	apiPromptCache.Set(hid, *p, cache.WithExpiration(time.Hour*24))
 	c.JSON(http.StatusOK, internalPromptItem{
 		Prompt: *p,
 		HashID: hid,
@@ -383,6 +386,9 @@ func updatePrompt(c *gin.Context) {
 		return
 	}
 
+	// refresh cache
+	apiPromptCache.Set(hid, *updatedPrompt, cache.WithExpiration(time.Hour*24))
+
 	c.JSON(http.StatusOK, internalPromptItem{
 		Prompt: *updatedPrompt,
 		HashID: hid,
@@ -415,7 +421,7 @@ func testPrompt(c *gin.Context) {
 		return
 	}
 
-	res, err := openAIService.Chat(c, pj, payload.Prompts, payload.Variables, "")
+	res, err := openAIService.Chat(c, *pj, payload.Prompts, payload.Variables, "")
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse{
