@@ -1,4 +1,4 @@
-# PromptPal[![Build and Release](https://github.com/PromptPal/PromptPal/actions/workflows/release.yaml/badge.svg)](https://github.com/PromptPal/PromptPal/actions/workflows/release.yaml)
+# PromptPal[![Build and Release](https://github.com/PromptPal/PromptPal/actions/workflows/release.yaml/badge.svg)](https://github.com/PromptPal/PromptPal/actions/workflows/release.yaml)[![codecov](https://codecov.io/gh/PromptPal/PromptPal/branch/master/graph/badge.svg?token=E6VR5K084W)](https://codecov.io/gh/PromptPal/PromptPal)
 
 > **Warning**
 > This project is currently in an early stage of development and may not be suitable for production use. Use with caution and expect frequent updates and changes.

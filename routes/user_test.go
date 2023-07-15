@@ -1,6 +1,5 @@
 package routes
 
-// Basic imports
 import (
 	"encoding/json"
 	"net/http"
@@ -16,8 +15,6 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-// Define the suite, and absorb the built-in basic suite
-// functionality from testify - including assertion methods.
 type userTestSuite struct {
 	suite.Suite
 	router *gin.Engine
@@ -44,20 +41,20 @@ func (s *userTestSuite) SetupTest() {
 	s.router = SetupGinRoutes("test", w3, oi, hs)
 }
 
-// All methods that begin with "Test" are run as tests within a
-// suite.
-func (s *userTestSuite) TestAuthMethod() {
+func (s *userTestSuite) GetAuthToken() (result authResponse, err error) {
 	w := httptest.NewRecorder()
 	payload := `{"address": "0x4910c609fBC895434a0A5E3E46B1Eb4b64Cff2B8", "signature": "signature", "message": "message"}`
 	req, _ := http.NewRequest("POST", "/api/v1/auth/login", strings.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	s.router.ServeHTTP(w, req)
 	assert.Equal(s.T(), 200, w.Code)
+	err = json.Unmarshal(w.Body.Bytes(), &result)
+	return
+}
 
-	result := authResponse{}
-	err := json.Unmarshal(w.Body.Bytes(), &result)
+func (s *userTestSuite) TestAuthMethod() {
+	result, err := s.GetAuthToken()
 	assert.Nil(s.T(), err)
-
 	assert.Equal(s.T(), "0x4910c609fbc895434a0a5e3e46b1eb4b64cff2b8", result.User.Addr)
 	assert.NotEmpty(s.T(), result.Token)
 }
