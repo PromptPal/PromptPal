@@ -43,6 +43,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
     - name: Build
+      if: ${{ steps.release.outputs.release_created }}
       env:
         GOARCH: amd64
         CGO_ENABLED: 1
