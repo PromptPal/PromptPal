@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.1.0](https://github.com/PromptPal/PromptPal/compare/v1.0.7...v1.1.0) (2023-07-17)
+
+
+### Features
+
+* **calls:** add function call ([3394450](https://github.com/PromptPal/PromptPal/commit/339445037e0f1ab8e2bf49b52fc7741fc73d9e78))
+* **db:** support mysql and postgres ([835b877](https://github.com/PromptPal/PromptPal/commit/835b877465e0b7bf5478065ba59a3a892cff421d))
+* **project:** add top prompts metrics ([c7dbaa0](https://github.com/PromptPal/PromptPal/commit/c7dbaa0a7e866ee3768c25f77e63f2b62fbae3da))
+* **tests:** setup tests and add project prompts metrics api ([2f9c90b](https://github.com/PromptPal/PromptPal/commit/2f9c90bb31612537b4061e1fb561726bc99e240a))
+
+
+### Bug Fixes
+
+* **calls:** fix int convertion ([a21403b](https://github.com/PromptPal/PromptPal/commit/a21403baa44c9577d236453a849558c271642bde))
+* **ci:** skip build if not a release in CI ([7a0f07f](https://github.com/PromptPal/PromptPal/commit/7a0f07f874d9e1309c0ccd546853d24ea9329390))
+
+
+### Performance Improvements
+
+* **api:** add cache for public api ([e8dacee](https://github.com/PromptPal/PromptPal/commit/e8daceeb3c19df1a902be5a59f6f87da2c717cc3))
+
 ## [1.0.7](https://github.com/PromptPal/PromptPal/compare/v1.0.6...v1.0.7) (2023-07-10)
 
 
