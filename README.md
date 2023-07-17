@@ -6,11 +6,11 @@
 PromptPal is an exceptional prompts management tool designed specifically for startups and individual contributors in the field of AI. It serves as a centralized platform to effortlessly manage prompts within your AI projects, enabling seamless collaboration and workflow optimization. With PromptPal, you can ensure efficient prompt tracking, simplify project management, and never miss a critical prompt.
 
 # Features
-- **On-Premise and Cloud-Native**: PromptPal excels in both on-premise and cloud-native environments, making it a versatile solution for AI projects. Its lightweight architecture guarantees efficient resource utilization, ensuring optimal performance.
+- **On-Premise and Cloud-Native**: PromptPal excels in both on-premise and cloud-native environments, making it a versatile solution for AI projects. Its lightweight architecture guarantees efficient resource utilization, ensuring optimal performance. And all this feature only need 12.3MB[^1] memory!
 
 - **Effortless Setup**: Experience the ease of setup with PromptPal. A simple one-line Docker run command sets up the entire application, ensuring a swift and hassle-free onboarding process.
 
-- **SQLite Support**: PromptPal seamlessly integrates with SQLite, a robust and scalable database solution. This ensures seamless prompt management, offering reliability and efficiency.
+- **Comprehensive Database Support**: PromptPal integrates with SQLite, PostgreSQL, and MySQL database solutions for robust and scalable prompt management. SQLite support allows for simple local testing and offline use cases. For public deployment, PostgreSQL and MySQL are fully supported to enable multi-user efficiency, reliability, and flexibility at scale.
 
 - **SDK Support**: Enjoy the convenience of SDK support with PromptPal. Whether you choose Golang or Node.js, our well-crafted SDKs simplify the integration process, making it effortless to incorporate PromptPal's capabilities into your AI applications.
 
@@ -40,6 +40,33 @@ These instructions will guide you through the process of setting up PromptPal on
 - Setup Metamask Wallet: Set up a Metamask wallet and copy the public address associated with it.
 
 - Run Docker Image: Use Docker to run the PromptPal image. Execute the following command, replacing {PUBLIC_ADDRESS} with your Metamask wallet's public address:
+
+```bash
+docker run -v $(pwd)/.env:/usr/app/.env -p 7788:7788 annatarhe/prompt-pal:master
+```
+
+the .env file should be like this:
+
+```yaml
+JWT_TOKEN_KEY="A_RANDOM_KEY_HERE"
+HASHID_SALT="A_RANDOM_SALT_HERE"
+PUBLIC_DOMAIN="0.0.0.0:7788"
+# uncomment and change next 2 lines for postgres
+# DB_TYPE="postgres"
+# DB_DSN="host=localhost user=postgres password=PASSWORD port=5432 dbname=promptpal sslmode=disable"
+
+# uncomment and change next 2 lines for mysql
+# DB_TYPE="mysql"
+# DB_DSN="root:pass@tcp(localhost:3306)/promptpal"
+
+# only for sqlite3
+DB_TYPE="sqlite3"
+DB_DSN="file:./db.db?cache=shared&_fk=1"
+
+# your public address here(from metamask.)
+ADMIN_LIST=0x4910c609fBC895434a0A5E3E46B1Eb4b64Cff2B8,0x7E63d899676756711d29DD989bb9F5a868C20e1D
+OPENAI_BASE_URL="https://api.openai.com/v1"
+```
 
 ```bash
 docker run -e ADMIN_LIST={PUBLIC_ADDRESS} -p 7788:7788 annatarhe/prompt-pal:master
@@ -80,3 +107,6 @@ We warmly welcome contributions from the community to enhance PromptPal. To cont
 # Contact
 If you have any questions, suggestions, or issues, please don't hesitate to reach out to us at annatar.he@gmail.com.
 
+-------
+
+[^1]: For testing purposes, the 12.3MB was only evaluated on an M1 Pro MacBook during startup. Readers should be aware that performance may vary across different hardware configurations and operating conditions.
