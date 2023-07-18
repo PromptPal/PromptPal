@@ -7,6 +7,7 @@ WORKDIR /usr/app
 COPY up-pp-api .
 COPY public ./public
 
+RUN touch .env
 EXPOSE 9654
 CMD ["/usr/app/up-pp-api"]
 ENTRYPOINT ["/usr/app/up-pp-api"]
