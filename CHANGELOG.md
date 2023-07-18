@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/PromptPal/PromptPal/compare/v1.1.0...v1.1.1) (2023-07-18)
+
+
+### Bug Fixes
+
+* **docker:** fix docker .env mapping ([348745b](https://github.com/PromptPal/PromptPal/commit/348745b14b7fc0ec2b48d87d95b57053602e3715))
+
 ## [1.1.0](https://github.com/PromptPal/PromptPal/compare/v1.0.7...v1.1.0) (2023-07-17)
 
 
