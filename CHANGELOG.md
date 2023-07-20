@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/PromptPal/PromptPal/compare/v1.1.1...v1.1.2) (2023-07-20)
+
+
+### Bug Fixes
+
+* **prompt:** fix history and prompt relation in db ([d182a07](https://github.com/PromptPal/PromptPal/commit/d182a0701b3ca00926953a5038d70d0e6a526530))
+
 ## [1.1.1](https://github.com/PromptPal/PromptPal/compare/v1.1.0...v1.1.1) (2023-07-18)
 
 
