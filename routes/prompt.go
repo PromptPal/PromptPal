@@ -336,7 +336,7 @@ func updatePrompt(c *gin.Context) {
 
 	err = tx.History.
 		Create().
-		AddModifierIDs(c.GetInt("uid")).
+		SetModifierID(c.GetInt("uid")).
 		SetPromptID(pid).
 		SetSnapshot(snapshotData).
 		Exec(c)

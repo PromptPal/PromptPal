@@ -26,6 +26,8 @@ type PromptComplete struct {
 // Fields of the History.
 func (History) Fields() []ent.Field {
 	return []ent.Field{
+		field.Int("modifierId"),
+		field.Int("promptId"),
 		field.JSON("snapshot", PromptComplete{}),
 	}
 }
@@ -35,11 +37,16 @@ func (History) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.
 			From("modifier", User.Type).
-			Ref("histories"),
-		edge.
-			From("prompt", User.Type).
 			Ref("histories").
-			Unique(),
+			Unique().
+			Required().
+			Field("modifierId"),
+		edge.
+			From("prompt", Prompt.Type).
+			Ref("histories").
+			Unique().
+			Required().
+			Field("promptId"),
 	}
 }
 

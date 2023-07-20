@@ -50,7 +50,7 @@ func (Prompt) Edges() []ent.Edge {
 			Ref("prompts").
 			Unique(),
 		edge.To("calls", PromptCall.Type),
-		edge.To("histories", Prompt.Type),
+		edge.To("histories", History.Type),
 	}
 }
 

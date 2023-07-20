@@ -185,22 +185,22 @@ func apiRunPrompt(c *gin.Context) {
 	endTime := time.Now()
 
 	defer func() {
-		message := ""
-		if len(res.Choices) > 0 {
-			message = res.Choices[0].Message.Content
-		}
-		exp := service.EntClient.
+		stat := service.EntClient.
 			PromptCall.
 			Create().
 			SetPromptID(prompt.ID).
 			SetResult(responseResult).
 			SetResponseToken(res.Usage.CompletionTokens).
 			SetTotalToken(res.Usage.TotalTokens).
-			SetMessage(message).
 			SetUserId(payload.UserId).
 			SetDuration(endTime.Sub(startTime).Milliseconds()).
-			SetProjectID(pj.ID).
-			Exec(c)
+			SetProjectID(pj.ID)
+
+		if prompt.Debug && len(res.Choices) > 0 {
+			stat.SetMessage(res.Choices[0].Message.Content)
+		}
+
+		exp := stat.Exec(c)
 		if exp != nil {
 			logrus.Errorln(exp)
 		}
