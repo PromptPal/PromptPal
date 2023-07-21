@@ -1,6 +1,8 @@
 package service
 
-import "regexp"
+import (
+	"regexp"
+)
 
 func replacePlaceholders(sentence string, replacements map[string]string) string {
 	re := regexp.MustCompile(`{{\s*([a-zA-Z][a-zA-Z0-9]*)\s*}}`)

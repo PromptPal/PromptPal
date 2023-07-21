@@ -355,6 +355,7 @@ func updatePrompt(c *gin.Context) {
 		SetDescription(payload.Description).
 		SetTokenCount(payload.TokenCount).
 		SetPrompts(payload.Prompts).
+		SetVariables(payload.Variables).
 		SetDebug(payload.Debug).
 		SetPublicLevel(payload.PublicLevel).
 		Save(c)

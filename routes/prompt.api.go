@@ -93,7 +93,7 @@ func apiListPrompts(c *gin.Context) {
 }
 
 type apiRunPromptPayload struct {
-	Variables map[string]string `json:"variables"`
+	Variables map[string]string `json:"variables" binding:"required"`
 	UserId    string            `json:"userId"`
 }
 
@@ -159,7 +159,7 @@ func apiRunPrompt(c *gin.Context) {
 	pj, ok := projectCache.Get(pid)
 
 	if !ok {
-		pjt, err := prompt.QueryProject().Only(c)
+		pjt, err := service.EntClient.Project.Get(c, prompt.ProjectId)
 		if err != nil {
 			c.JSON(http.StatusNotFound, errorResponse{
 				ErrorCode:    http.StatusNotFound,
