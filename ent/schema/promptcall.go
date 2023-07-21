@@ -23,7 +23,7 @@ func (PromptCall) Fields() []ent.Field {
 		// 0: success, 1: fail
 		field.Int("result"),
 		// only available when prompt.debug is true
-		field.String("message"),
+		field.String("message").Optional().Nillable(),
 	}
 }
 
