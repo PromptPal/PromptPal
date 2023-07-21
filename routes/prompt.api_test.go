@@ -29,6 +29,7 @@ type promptPublicAPITestSuite struct {
 	apiToken  string
 	pjName    string
 	promptHid string
+	promptId  int
 }
 
 func (s *promptPublicAPITestSuite) SetupTest() {
@@ -111,6 +112,7 @@ func (s *promptPublicAPITestSuite) TestCreateProjectAndPrompt() {
 	assert.NotEmpty(s.T(), result2.Prompt.ID)
 	assert.NotEmpty(s.T(), result2.HashID)
 	s.promptHid = result2.HashID
+	s.promptId = result2.Prompt.ID
 
 	// 3. get api token
 	w3 := httptest.NewRecorder()
@@ -226,6 +228,31 @@ func (s *promptPublicAPITestSuite) TestPublicAPIRunPrompt() {
 
 	assert.Equal(s.T(), 8888, result.ResponseTokenCount)
 	assert.Equal(s.T(), "ji ni tai mei", result.ResponseMessage)
+}
+
+func (s *promptPublicAPITestSuite) TearViewPromptCalls() {
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(
+		"GET",
+		fmt.Sprintf("/api/v1/admin/prompts/%d/calls?limit=10&cursor=9999999", s.promptId),
+		nil,
+	)
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Set("Authorization", "API "+s.apiToken)
+	s.router.ServeHTTP(w, req)
+	assert.Equal(s.T(), 200, w.Code)
+
+	result := ListResponse[*ent.PromptCall]{}
+
+	err := json.Unmarshal(w.Body.Bytes(), &result)
+	assert.Nil(s.T(), err)
+
+	assert.Equal(s.T(), 1, result.Count)
+	assert.Equal(s.T(), 1, len(result.Data))
+	d := result.Data[0]
+	assert.Equal(s.T(), 1<<16, d.TotalToken)
+	assert.Greater(s.T(), d.Duration, 0)
+	assert.Equal(s.T(), nil, d.Message)
 }
 
 func (s *promptPublicAPITestSuite) TearDownSuite() {
