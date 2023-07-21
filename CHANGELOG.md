@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/PromptPal/PromptPal/compare/v1.1.2...v1.1.3) (2023-07-21)
+
+
+### Bug Fixes
+
+* **prompt:** fix prompt call recording issue and make the project of ([c4d40f1](https://github.com/PromptPal/PromptPal/commit/c4d40f12875fe278ecbb4d655f655e86c0f1d2e7))
+
 ## [1.1.2](https://github.com/PromptPal/PromptPal/compare/v1.1.1...v1.1.2) (2023-07-20)
 
 
