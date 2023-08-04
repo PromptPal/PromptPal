@@ -1,4 +1,4 @@
-#import * from './types/books.graphql'
+#import * from './types/project.gql'
 
 schema {
   query: Query
@@ -10,5 +10,5 @@ type Query {
 }
 
 type Mutation {
-  createProject(): Project!
+  createProject(id: Int!): Project!
 }
