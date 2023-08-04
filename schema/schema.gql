@@ -1,0 +1,14 @@
+#import * from './types/books.graphql'
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  project(id: Int!): Project!
+}
+
+type Mutation {
+  createProject(): Project!
+}

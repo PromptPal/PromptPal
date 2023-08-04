@@ -31,6 +31,8 @@ func SetupGinRoutes(
 
 	h := gin.Default()
 
+	// h.Use(brotli.Brotli(brotli.DefaultCompression))
+
 	// with version
 	h.Use(func(c *gin.Context) {
 		c.Writer.Header().Add("X-PP-VER", commitSha)
@@ -56,7 +58,6 @@ func SetupGinRoutes(
 	adminRoutes := h.Group("/api/v1/admin")
 	adminRoutes.Use(authMiddleware)
 	{
-
 		adminRoutes.GET("/users", listUsers)
 		adminRoutes.GET("/users/:id", getUser)
 		adminRoutes.POST("/users", createUsers)
@@ -84,6 +85,11 @@ func SetupGinRoutes(
 
 		adminRoutes.DELETE("/open-tokens", deleteOpenToken)
 	}
+
+	if true {
+		h.GET("/api/v2/graphql", graphqlPlaygroundHandler)
+	}
+	h.POST("/api/v2/graphql", authMiddleware, graphqlExecuteHandler)
 
 	h.LoadHTMLFiles("./public/index.html")
 	h.Static("/public", "./public")

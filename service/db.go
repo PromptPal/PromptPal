@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 
-	"entgo.io/ent/dialect/sql/schema"
 	"github.com/PromptPal/PromptPal/config"
 	"github.com/PromptPal/PromptPal/ent"
 	_ "github.com/go-sql-driver/mysql"
@@ -22,7 +21,7 @@ func InitDB() {
 		logrus.Fatalf("failed opening connection to sqlite: %v", err)
 	}
 	// Run the auto migration tool.
-	if err := client.Schema.Create(context.Background(), schema.WithAtlas(true)); err != nil {
+	if err := client.Schema.Create(context.Background()); err != nil {
 		logrus.Fatalf("failed creating schema resources: %v", err)
 	}
 
