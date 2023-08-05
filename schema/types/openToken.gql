@@ -16,3 +16,8 @@ type openToken {
   description: String!
   expireAt: String!
 }
+
+type openTokenList {
+  count: Int!
+  edges: [openToken!]!
+}

@@ -7,21 +7,8 @@ import (
 	"time"
 
 	cache "github.com/Code-Hex/go-generics-cache"
-	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/service"
 )
-
-type projectResponse struct {
-	p *ent.Project
-}
-
-type projectArgs struct {
-	ID int32
-}
-
-func (q QueryResolver) Project(ctx context.Context, args projectArgs) (projectResponse, error) {
-	return projectResponse{}, GraphQLHttpError{}
-}
 
 type createProjectData struct {
 	Name              *string
@@ -119,32 +106,4 @@ func (q QueryResolver) DeleteProject(ctx context.Context, args deleteProjectArgs
 		return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
 	return true, nil
-}
-
-func (p projectResponse) ID() int32 {
-	return int32(p.p.ID)
-}
-func (p projectResponse) Name() string {
-	return p.p.Name
-}
-func (p projectResponse) Enabled() bool {
-	return p.p.Enabled
-}
-func (p projectResponse) OpenAIBaseURL() string {
-	return p.p.OpenAIBaseURL
-}
-func (p projectResponse) OpenAIModel() string {
-	return p.p.OpenAIModel
-}
-func (p projectResponse) OpenAIToken() string {
-	return p.p.OpenAIToken
-}
-func (p projectResponse) OpenAITemperature() float64 {
-	return p.p.OpenAITemperature
-}
-func (p projectResponse) OpenAITopP() float64 {
-	return p.p.OpenAITopP
-}
-func (p projectResponse) OpenAIMaxTokens() int32 {
-	return int32(p.p.OpenAIMaxTokens)
 }

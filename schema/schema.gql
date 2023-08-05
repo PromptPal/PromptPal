@@ -1,6 +1,8 @@
+#import * from './types/common.gql'
 #import * from './types/project.gql'
 #import * from './types/prompt.gql'
 #import * from './types/openToken.gql'
+#import * from './types/user.gql'
 
 schema {
   query: Query
@@ -9,6 +11,9 @@ schema {
 
 type Query {
   project(id: Int!): Project!
+  projects(pagination: PaginationInput!): ProjectList!
+
+  prompts(projectId: Int!, pagination: PaginationInput!): PromptList!
 }
 
 type Mutation {

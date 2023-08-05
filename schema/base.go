@@ -9,6 +9,11 @@ import (
 
 var hashidService service.HashIDService
 
+type paginationInput struct {
+	Limit  int32
+	Offset int32
+}
+
 type QueryResolver struct{}
 
 //go:embed schema.gql types/*.gql
@@ -16,6 +21,8 @@ var graphqlSchema embed.FS
 
 var fileNames = []string{
 	"schema.gql",
+	"types/common.gql",
+	"types/user.gql",
 	"types/project.gql",
 	"types/openToken.gql",
 	"types/prompt.gql",

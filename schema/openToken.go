@@ -100,6 +100,23 @@ func (q QueryResolver) DeleteOpenToken(ctx context.Context, args deleteOpenToken
 	return true, nil
 }
 
+type openTokenListResponse struct {
+	openTokens []*ent.OpenToken
+}
+
+func (o openTokenListResponse) Count() int32 {
+	return int32(len(o.openTokens))
+}
+
+func (o openTokenListResponse) Edges() (result []openTokenResponse) {
+	for _, ot := range o.openTokens {
+		result = append(result, openTokenResponse{
+			openToken: ot,
+		})
+	}
+	return
+}
+
 func (o createOpenTokenResponse) Token() string {
 	return o.token
 }

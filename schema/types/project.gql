@@ -1,3 +1,6 @@
+#import * from './user.gql'
+#import * from './openToken.gql'
+
 input ProjectPayload {
   name: String
   openAIToken: String
@@ -21,6 +24,10 @@ type Project {
 	openAITemperature: Float!
 	openAITopP: Float!
 	openAIMaxTokens: Int!
+  createdAt: String!
+  updatedAt: String!
+  creator: User!
+  openTokens: openTokenList!
 }
 
 type ProjectList {
