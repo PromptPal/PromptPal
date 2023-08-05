@@ -15,12 +15,12 @@ type Project {
   name: String!
   openAIToken: String!
   enabled: Boolean!
-  openAIBaseURL: String
+  openAIBaseURL: String!
   openAIModel: String!
-	openAIToken: String
-	openAITemperature: Float
-	openAITopP: Float
-	openAIMaxTokens: Int
+	openAIToken: String!
+	openAITemperature: Float!
+	openAITopP: Float!
+	openAIMaxTokens: Int!
 }
 
 type ProjectList {

@@ -145,6 +145,6 @@ func (p projectResponse) OpenAITemperature() float64 {
 func (p projectResponse) OpenAITopP() float64 {
 	return p.p.OpenAITopP
 }
-func (p projectResponse) OpenAIMaxTokens() int {
-	return p.p.OpenAIMaxTokens
+func (p projectResponse) OpenAIMaxTokens() int32 {
+	return int32(p.p.OpenAIMaxTokens)
 }

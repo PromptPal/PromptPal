@@ -20,6 +20,6 @@ type Mutation {
   updatePrompt(id: Int!, data: PromptPayload!): Prompt!
   deletePrompt(id: Int!): Boolean!
 
-  createOpenToken(data: openTokenInput!): openToken!
+  createOpenToken(data: openTokenInput!): CreateOpenToken!
   deleteOpenToken(id: Int!): Boolean!
 }

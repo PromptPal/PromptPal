@@ -14,6 +14,16 @@ input PromptVariableInput {
   type: String!
 }
 
+type PromptRow {
+	prompt: String!
+	role: String!
+}
+
+type PromptVariable {
+  name: String!
+  type: String!
+}
+
 input PromptPayload {
   projectId: Int!
   name: String!
@@ -29,7 +39,6 @@ input PromptPayload {
 type Prompt {
   id: Int!
   hashId: String!
-  projectId: Int!
   name: String!
   description: String!
   enabled: Boolean!

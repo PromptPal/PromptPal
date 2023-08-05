@@ -15,10 +15,10 @@ import (
 )
 
 type createPromptData struct {
-	ProjectID   int
+	ProjectID   int32
 	Name        string
 	Description string
-	TokenCount  int
+	TokenCount  int32
 	Debug       *bool
 	Enabled     *bool
 	Prompts     []dbSchema.PromptRow
@@ -44,11 +44,11 @@ func (q QueryResolver) CreatePrompt(ctx context.Context, args createPromptArgs) 
 		SetName(payload.Name).
 		SetDescription(payload.Description).
 		SetCreatorID(ctxValue.UserID).
-		SetProjectID(payload.ProjectID).
+		SetProjectID(int(payload.ProjectID)).
 		SetPrompts(payload.Prompts).
 		SetVariables(payload.Variables).
 		SetPublicLevel(payload.PublicLevel).
-		SetTokenCount(payload.TokenCount).
+		SetTokenCount(int(payload.TokenCount)).
 		SetNillableDebug(payload.Debug).
 		SetNillableEnabled(payload.Enabled).
 		Save(ctx)
@@ -116,7 +116,7 @@ func (q QueryResolver) UpdatePrompt(ctx context.Context, args updatePromptArgs) 
 
 	updator := tx.Prompt.UpdateOneID(int(args.ID)).
 		SetDescription(payload.Description).
-		SetTokenCount(payload.TokenCount).
+		SetTokenCount(int(payload.TokenCount)).
 		SetPrompts(payload.Prompts).
 		SetVariables(payload.Variables).
 		SetPublicLevel(payload.PublicLevel)
@@ -181,16 +181,63 @@ func (p promptResponse) Description() string {
 	return p.Prompt.Description
 }
 
-func (p promptResponse) TokenCount() int {
-	return p.Prompt.TokenCount
+func (p promptResponse) TokenCount() int32 {
+	return int32(p.Prompt.TokenCount)
 }
 
 func (p promptResponse) CreatedAt() string {
 	return p.Prompt.CreateTime.Format(time.RFC3339)
+}
+func (p promptResponse) UpdatedAt() string {
+	return p.Prompt.UpdateTime.Format(time.RFC3339)
 }
 func (p promptResponse) Enabled() bool {
 	return p.Prompt.Enabled
 }
 func (p promptResponse) Debug() bool {
 	return p.Prompt.Debug
+}
+
+func (p promptResponse) PublicLevel() prompt.PublicLevel {
+	return prompt.PublicLevel(p.Prompt.PublicLevel)
+}
+
+type promptRowResponse struct {
+	p dbSchema.PromptRow
+}
+
+func (p promptResponse) Prompts() (result []promptRowResponse) {
+	for _, v := range p.Prompt.Prompts {
+		result = append(result, promptRowResponse{
+			p: v,
+		})
+	}
+	return
+}
+
+func (p promptRowResponse) Prompt() string {
+	return p.p.Prompt
+}
+func (p promptRowResponse) Role() string {
+	return p.p.Role
+}
+
+type promptVariableResponse struct {
+	p dbSchema.PromptVariable
+}
+
+func (p promptResponse) Variables() (result []promptVariableResponse) {
+	for _, v := range p.Prompt.Variables {
+		result = append(result, promptVariableResponse{
+			p: v,
+		})
+	}
+	return
+}
+
+func (p promptVariableResponse) Name() string {
+	return p.p.Name
+}
+func (p promptVariableResponse) Type() string {
+	return p.p.Type
 }

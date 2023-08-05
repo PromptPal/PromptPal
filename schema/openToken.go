@@ -87,14 +87,41 @@ type deleteOpenTokenArgs struct {
 	ID int32
 }
 
-func (q QueryResolver) DeleteOpenToken(ctx context.Context, args deleteOpenTokenArgs) (result openTokenResponse, err error) {
-	err = service.
+func (q QueryResolver) DeleteOpenToken(ctx context.Context, args deleteOpenTokenArgs) (bool, error) {
+	err := service.
 		EntClient.
 		OpenToken.
 		DeleteOneID(int(args.ID)).
 		Exec(ctx)
 	if err != nil {
 		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return false, err
 	}
-	return
+	return true, nil
+}
+
+func (o createOpenTokenResponse) Token() string {
+	return o.token
+}
+
+func (o createOpenTokenResponse) Data() openTokenResponse {
+	return openTokenResponse{
+		openToken: o.openToken,
+	}
+}
+
+func (o openTokenResponse) ID() int32 {
+	return int32(o.openToken.ID)
+}
+
+func (o openTokenResponse) Name() string {
+	return o.openToken.Name
+}
+
+func (o openTokenResponse) Description() string {
+	return o.openToken.Description
+}
+
+func (o openTokenResponse) ExpireAt() string {
+	return o.openToken.ExpireAt.Format(time.RFC3339)
 }

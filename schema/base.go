@@ -17,6 +17,8 @@ var graphqlSchema embed.FS
 var fileNames = []string{
 	"schema.gql",
 	"types/project.gql",
+	"types/openToken.gql",
+	"types/prompt.gql",
 }
 
 func String() string {

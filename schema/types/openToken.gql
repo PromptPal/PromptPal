@@ -1,19 +1,18 @@
 input openTokenInput {
   projectId: Int!
-  name: string!
-  description: string!
+  name: String!
+  description: String!
   ttl: Int!
 }
 
-type createOpenToken {
+type CreateOpenToken {
   token: String!
   data: openToken!
 }
 
 type openToken {
   id: Int!
-  projectId: Int!
-  name: string!
-  description: string!
-  ttl: Int!
+  name: String!
+  description: String!
+  expireAt: String!
 }
