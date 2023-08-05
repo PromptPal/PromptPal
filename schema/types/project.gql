@@ -1,3 +1,29 @@
+input ProjectPayload {
+  name: String
+  openAIToken: String
+  enabled: Boolean
+  openAIBaseURL: String
+  openAIModel: String
+	openAIToken: String
+	openAITemperature: Float
+	openAITopP: Float
+	openAIMaxTokens: Int
+}
+
 type Project {
   id: Int!
+  name: String!
+  openAIToken: String!
+  enabled: Boolean!
+  openAIBaseURL: String
+  openAIModel: String!
+	openAIToken: String
+	openAITemperature: Float
+	openAITopP: Float
+	openAIMaxTokens: Int
+}
+
+type ProjectList {
+  count: Int!
+  edges: [Project!]!
 }

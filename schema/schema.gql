@@ -1,4 +1,6 @@
 #import * from './types/project.gql'
+#import * from './types/prompt.gql'
+#import * from './types/openToken.gql'
 
 schema {
   query: Query
@@ -10,5 +12,14 @@ type Query {
 }
 
 type Mutation {
-  createProject(id: Int!): Project!
+  createProject(data: ProjectPayload!): Project!
+  updateProject(id: Int!, data: ProjectPayload!): Project!
+  deleteProject(id: Int!): Boolean!
+
+  createPrompt(data: PromptPayload!): Prompt!
+  updatePrompt(id: Int!, data: PromptPayload!): Prompt!
+  deletePrompt(id: Int!): Boolean!
+
+  createOpenToken(data: openTokenInput!): openToken!
+  deleteOpenToken(id: Int!): Boolean!
 }

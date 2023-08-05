@@ -103,14 +103,6 @@ type apiRunPromptResponse struct {
 	ResponseTokenCount int    `json:"tokenCount"`
 }
 
-var apiPromptCache *cache.Cache[string, ent.Prompt]
-var projectCache *cache.Cache[int, ent.Project]
-
-func init() {
-	apiPromptCache = cache.New[string, ent.Prompt]()
-	projectCache = cache.New[int, ent.Project]()
-}
-
 func apiRunPrompt(c *gin.Context) {
 	hashedValue, ok := c.Params.Get("id")
 
@@ -122,7 +114,7 @@ func apiRunPrompt(c *gin.Context) {
 		return
 	}
 
-	prompt, ok := apiPromptCache.Get(hashedValue)
+	prompt, ok := service.ApiPromptCache.Get(hashedValue)
 	if !ok {
 		promptID, err := hashidService.Decode(hashedValue)
 
@@ -141,7 +133,7 @@ func apiRunPrompt(c *gin.Context) {
 			})
 			return
 		}
-		apiPromptCache.Set(hashedValue, *promptData, cache.WithExpiration(24*time.Hour))
+		service.ApiPromptCache.Set(hashedValue, *promptData, cache.WithExpiration(24*time.Hour))
 		prompt = *promptData
 	}
 
@@ -156,7 +148,7 @@ func apiRunPrompt(c *gin.Context) {
 
 	// check the API token and prompt.projectID is equal
 	pid := c.GetInt("pid")
-	pj, ok := projectCache.Get(pid)
+	pj, ok := service.ProjectCache.Get(pid)
 
 	if !ok {
 		pjt, err := service.EntClient.Project.Get(c, prompt.ProjectId)
@@ -167,7 +159,7 @@ func apiRunPrompt(c *gin.Context) {
 			})
 			return
 		}
-		projectCache.Set(pid, *pjt, cache.WithExpiration(24*time.Hour))
+		service.ProjectCache.Set(pid, *pjt, cache.WithExpiration(24*time.Hour))
 		pj = *pjt
 	}
 

@@ -10,6 +10,7 @@ import (
 
 	"github.com/PromptPal/PromptPal/config"
 	"github.com/PromptPal/PromptPal/routes"
+	"github.com/PromptPal/PromptPal/schema"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/sirupsen/logrus"
 )
@@ -30,6 +31,7 @@ func startHTTPServer() {
 	o := service.NewOpenAIService()
 	hi := service.NewHashIDService()
 
+	schema.Setup(hi)
 	h := routes.SetupGinRoutes(GitCommit, w3, o, hi)
 	server := &http.Server{
 		Addr:    publicDomain,

@@ -3,8 +3,11 @@ package schema
 import (
 	"embed"
 
+	"github.com/PromptPal/PromptPal/service"
 	"github.com/sirupsen/logrus"
 )
+
+var hashidService service.HashIDService
 
 type QueryResolver struct{}
 
@@ -28,4 +31,10 @@ func String() string {
 	}
 
 	return string(files)
+}
+
+func Setup(
+	hi service.HashIDService,
+) {
+	hashidService = hi
 }

@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strings"
 
-	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/PromptPal/PromptPal/ent/opentoken"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/gin-gonic/gin"
@@ -34,8 +33,6 @@ func authMiddleware(c *gin.Context) {
 	c.Next()
 }
 
-var publicAPIAuthCache *cache.Cache[string, int] = cache.New[string, int]()
-
 // the header must be like this: `Authorization: API <token>`
 func apiMiddleware(c *gin.Context) {
 	authKey := strings.Split(c.GetHeader("Authorization"), " ")
@@ -48,7 +45,7 @@ func apiMiddleware(c *gin.Context) {
 	}
 
 	tk := authKey[1]
-	pid, ok := publicAPIAuthCache.Get(tk)
+	pid, ok := service.PublicAPIAuthCache.Get(tk)
 	if !ok {
 		ot, err := service.
 			EntClient.

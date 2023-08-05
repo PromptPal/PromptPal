@@ -1,0 +1,49 @@
+enum PublicLevel {
+  public
+  protected
+  private
+}
+
+input PromptRowInput {
+	prompt: String!
+	role: String!
+}
+
+input PromptVariableInput {
+  name: String!
+  type: String!
+}
+
+input PromptPayload {
+  projectId: Int!
+  name: String!
+  description: String!
+  enabled: Boolean!
+  debug: Boolean!
+  tokenCount: Int!
+  prompts: [PromptRowInput!]!
+  variables: [PromptVariableInput!]!
+  publicLevel: PublicLevel!
+}
+
+type Prompt {
+  id: Int!
+  hashId: String!
+  projectId: Int!
+  name: String!
+  description: String!
+  enabled: Boolean!
+  debug: Boolean!
+  tokenCount: Int!
+  prompts: [PromptRow!]!
+  variables: [PromptVariable!]!
+  publicLevel: PublicLevel!
+
+  createdAt: String!
+  updatedAt: String!
+}
+
+type PromptList {
+  count: Int!
+  edges: [Prompt!]!
+}

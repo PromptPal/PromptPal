@@ -258,7 +258,7 @@ func createPrompt(c *gin.Context) {
 		return
 	}
 	// set cache
-	apiPromptCache.Set(hid, *p, cache.WithExpiration(time.Hour*24))
+	service.ApiPromptCache.Set(hid, *p, cache.WithExpiration(time.Hour*24))
 	c.JSON(http.StatusOK, internalPromptItem{
 		Prompt: *p,
 		HashID: hid,
@@ -388,7 +388,7 @@ func updatePrompt(c *gin.Context) {
 	}
 
 	// refresh cache
-	apiPromptCache.Set(hid, *updatedPrompt, cache.WithExpiration(time.Hour*24))
+	service.ApiPromptCache.Set(hid, *updatedPrompt, cache.WithExpiration(time.Hour*24))
 
 	c.JSON(http.StatusOK, internalPromptItem{
 		Prompt: *updatedPrompt,
