@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.2.0](https://github.com/PromptPal/PromptPal/compare/v1.1.3...v1.2.0) (2023-08-06)
+
+
+### Features
+
+* **api:** support graphql as v2 api ([47d063a](https://github.com/PromptPal/PromptPal/commit/47d063af0796e1b7350fb97380ad8a2b22b5ea02))
+* **calls:** add prompt calls for graphql api ([7530967](https://github.com/PromptPal/PromptPal/commit/7530967c54f40685ecb6224a4f789f53afcab5a2))
+* **gql:** fix gql ([cd6c6e9](https://github.com/PromptPal/PromptPal/commit/cd6c6e974110bc83927894ff564aec3cc67c059b))
+* **graphql:** update graphql api ([f8449dd](https://github.com/PromptPal/PromptPal/commit/f8449dd43c949dce8c2f6463bc37ab6761b0f371))
+* **graphql:** update project and prompts list api in graphql ([48ca977](https://github.com/PromptPal/PromptPal/commit/48ca97785ff9a6c84436b2e15ee7a6c364af9a29))
+* **graphql:** upgrade to graphql api ([f492455](https://github.com/PromptPal/PromptPal/commit/f492455ee36939417d02573dec0b8c745d6e1a12))
+* **http:** add project, prompt and openToken graphql api ([254c4c7](https://github.com/PromptPal/PromptPal/commit/254c4c7fa5012cf866816e2d6538eb9c07f65ed6))
+
+
+### Bug Fixes
+
+* **graphql:** update user graphql api and update release tag ([e090789](https://github.com/PromptPal/PromptPal/commit/e0907892a78ed48b93bdc64487dfe2ff34c931e3))
+
 ## [1.1.3](https://github.com/PromptPal/PromptPal/compare/v1.1.2...v1.1.3) (2023-07-21)
 
 
