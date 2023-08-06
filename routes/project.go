@@ -196,7 +196,7 @@ func updateProject(c *gin.Context) {
 		return
 	}
 
-	projectCache.Set(pj.ID, *pj, cache.WithExpiration(time.Hour*24))
+	service.ProjectCache.Set(pj.ID, *pj, cache.WithExpiration(time.Hour*24))
 	c.JSON(http.StatusOK, pj)
 }
 

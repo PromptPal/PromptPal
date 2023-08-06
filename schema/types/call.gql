@@ -1,0 +1,22 @@
+#import * from './prompt.gql'
+
+enum PromptCallResult {
+  success,
+  fail
+}
+
+type PromptCall {
+  id: Int!
+  userId: String!
+  responseToken: Int!
+  totalToken: Int!
+  duration: Int!
+  result: PromptCallResult!
+  message: String
+  createdAt: String!
+}
+
+type PromptCallList {
+  count: Int!
+  edges: [PromptCall!]!
+}

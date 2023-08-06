@@ -32,6 +32,7 @@ func (Prompt) Fields() []ent.Field {
 		field.Bool("debug").Default(false),
 		field.JSON("prompts", []PromptRow{}),
 		field.Int("tokenCount").Default(0),
+		field.Int("version").Default(0),
 		field.JSON("variables", []PromptVariable{}),
 		field.Int("projectId").StorageKey("project_prompts"),
 		field.Enum("publicLevel").Values("public", "protected", "private").Default("protected"),

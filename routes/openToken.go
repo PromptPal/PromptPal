@@ -147,7 +147,7 @@ func createOpenToken(c *gin.Context) {
 		return
 	}
 
-	publicAPIAuthCache.Set(tk, pid, cache.WithExpiration(24*time.Hour))
+	service.PublicAPIAuthCache.Set(tk, pid, cache.WithExpiration(24*time.Hour))
 
 	c.JSON(http.StatusOK, gin.H{
 		"token": tk,
@@ -211,6 +211,6 @@ func deleteOpenToken(c *gin.Context) {
 		return
 	}
 
-	publicAPIAuthCache.Delete(ot.Token)
+	service.PublicAPIAuthCache.Delete(ot.Token)
 	c.JSON(http.StatusOK, gin.H{})
 }

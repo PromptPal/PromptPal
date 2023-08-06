@@ -3,8 +3,16 @@ package schema
 import (
 	"embed"
 
+	"github.com/PromptPal/PromptPal/service"
 	"github.com/sirupsen/logrus"
 )
+
+var hashidService service.HashIDService
+
+type paginationInput struct {
+	Limit  int32
+	Offset int32
+}
 
 type QueryResolver struct{}
 
@@ -13,7 +21,12 @@ var graphqlSchema embed.FS
 
 var fileNames = []string{
 	"schema.gql",
+	"types/common.gql",
+	"types/user.gql",
+	"types/call.gql",
 	"types/project.gql",
+	"types/openToken.gql",
+	"types/prompt.gql",
 }
 
 func String() string {
@@ -28,4 +41,10 @@ func String() string {
 	}
 
 	return string(files)
+}
+
+func Setup(
+	hi service.HashIDService,
+) {
+	hashidService = hi
 }

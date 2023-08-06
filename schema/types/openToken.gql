@@ -1,0 +1,23 @@
+input openTokenInput {
+  projectId: Int!
+  name: String!
+  description: String!
+  ttl: Int!
+}
+
+type CreateOpenToken {
+  token: String!
+  data: openToken!
+}
+
+type openToken {
+  id: Int!
+  name: String!
+  description: String!
+  expireAt: String!
+}
+
+type openTokenList {
+  count: Int!
+  edges: [openToken!]!
+}

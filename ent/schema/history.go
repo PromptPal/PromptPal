@@ -21,6 +21,7 @@ type PromptComplete struct {
 	TokenCount  int
 	Variables   []PromptVariable
 	PublicLevel string
+	Version     int
 }
 
 // Fields of the History.

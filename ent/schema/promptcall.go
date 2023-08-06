@@ -15,6 +15,7 @@ type PromptCall struct {
 // Fields of the Metric.
 func (PromptCall) Fields() []ent.Field {
 	return []ent.Field{
+		field.Int("promptId").StorageKey("prompt_calls"),
 		field.String("userId").Optional(),
 		field.Int("responseToken"),
 		field.Int("totalToken"),
@@ -30,7 +31,11 @@ func (PromptCall) Fields() []ent.Field {
 // Edges of the Metric.
 func (PromptCall) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("prompt", Prompt.Type).Ref("calls").Unique(),
+		edge.From("prompt", Prompt.Type).
+			Ref("calls").
+			Unique().
+			Field("promptId").
+			Required(),
 		edge.From("project", Project.Type).Ref("calls").Unique(),
 	}
 }

@@ -1,4 +1,9 @@
-#import * from './types/books.graphql'
+#import * from './types/common.gql'
+#import * from './types/project.gql'
+#import * from './types/prompt.gql'
+#import * from './types/openToken.gql'
+#import * from './types/user.gql'
+#import * from './types/call.gql'
 
 schema {
   query: Query
@@ -7,8 +12,23 @@ schema {
 
 type Query {
   project(id: Int!): Project!
+  projects(pagination: PaginationInput!): ProjectList!
+
+  prompts(projectId: Int!, pagination: PaginationInput!): PromptList!
+  prompt(id: Int!): Prompt!
+  user(id: Int!): User!
+  calls(promptId: Int!, pagination: PaginationInput!): PromptCallList!
 }
 
 type Mutation {
-  createProject(): Project!
+  createProject(data: ProjectPayload!): Project!
+  updateProject(id: Int!, data: ProjectPayload!): Project!
+  deleteProject(id: Int!): Boolean!
+
+  createPrompt(data: PromptPayload!): Prompt!
+  updatePrompt(id: Int!, data: PromptPayload!): Prompt!
+  deletePrompt(id: Int!): Boolean!
+
+  createOpenToken(data: openTokenInput!): CreateOpenToken!
+  deleteOpenToken(id: Int!): Boolean!
 }

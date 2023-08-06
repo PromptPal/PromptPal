@@ -1,0 +1,67 @@
+#import * from './call.gql'
+
+enum PromptRole {
+  system
+  user
+  assistant
+}
+
+enum PublicLevel {
+  public
+  protected
+  private
+}
+
+input PromptRowInput {
+	prompt: String!
+	role: PromptRole!
+}
+
+input PromptVariableInput {
+  name: String!
+  type: String!
+}
+
+type PromptRow {
+	prompt: String!
+	role: PromptRole!
+}
+
+type PromptVariable {
+  name: String!
+  type: String!
+}
+
+input PromptPayload {
+  projectId: Int!
+  name: String!
+  description: String!
+  enabled: Boolean!
+  debug: Boolean!
+  tokenCount: Int!
+  prompts: [PromptRowInput!]!
+  variables: [PromptVariableInput!]!
+  publicLevel: PublicLevel!
+}
+
+type Prompt {
+  id: Int!
+  hashId: String!
+  name: String!
+  description: String!
+  enabled: Boolean!
+  debug: Boolean!
+  tokenCount: Int!
+  prompts: [PromptRow!]!
+  variables: [PromptVariable!]!
+  publicLevel: PublicLevel!
+
+  createdAt: String!
+  updatedAt: String!
+  latestCalls: PromptCallList!
+}
+
+type PromptList {
+  count: Int!
+  edges: [Prompt!]!
+}

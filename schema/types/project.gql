@@ -1,3 +1,49 @@
+#import * from './user.gql'
+#import * from './openToken.gql'
+#import * from './prompt.gql'
+#import * from './call.gql'
+
+input ProjectPayload {
+  name: String
+  openAIToken: String
+  enabled: Boolean
+  openAIBaseURL: String
+  openAIModel: String
+	openAIToken: String
+	openAITemperature: Float
+	openAITopP: Float
+	openAIMaxTokens: Int
+}
+
+type ProjectPromptMetricsRecentCount {
+  prompt: Prompt!
+  count: Int!
+}
+type ProjectPromptMetrics {
+  recentCounts: [ProjectPromptMetricsRecentCount!]!
+}
+
 type Project {
   id: Int!
+  name: String!
+  openAIToken: String!
+  enabled: Boolean!
+  openAIBaseURL: String!
+  openAIModel: String!
+	openAIToken: String!
+	openAITemperature: Float!
+	openAITopP: Float!
+	openAIMaxTokens: Int!
+  createdAt: String!
+  updatedAt: String!
+  creator: User!
+  openTokens: openTokenList!
+  latestPrompts: PromptList!
+
+  promptMetrics: ProjectPromptMetrics!
+}
+
+type ProjectList {
+  count: Int!
+  edges: [Project!]!
 }
