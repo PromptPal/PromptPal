@@ -38,7 +38,6 @@ func (p promptsResponse) Count(ctx context.Context) (int32, error) {
 }
 
 func (p promptsResponse) Edges(ctx context.Context) (res []promptResponse, err error) {
-
 	ps, err := p.stat.Clone().
 		Limit(int(p.pagination.Limit)).
 		Offset(int(p.pagination.Offset)).

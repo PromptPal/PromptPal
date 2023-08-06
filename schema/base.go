@@ -23,6 +23,7 @@ var fileNames = []string{
 	"schema.gql",
 	"types/common.gql",
 	"types/user.gql",
+	"types/call.gql",
 	"types/project.gql",
 	"types/openToken.gql",
 	"types/prompt.gql",

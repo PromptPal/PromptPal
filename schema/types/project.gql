@@ -1,5 +1,6 @@
 #import * from './user.gql'
 #import * from './openToken.gql'
+#import * from './call.gql'
 
 input ProjectPayload {
   name: String
@@ -28,6 +29,7 @@ type Project {
   updatedAt: String!
   creator: User!
   openTokens: openTokenList!
+  latestPrompts: PromptList!
 }
 
 type ProjectList {

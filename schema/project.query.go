@@ -8,6 +8,7 @@ import (
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/opentoken"
 	"github.com/PromptPal/PromptPal/ent/project"
+	"github.com/PromptPal/PromptPal/ent/prompt"
 	"github.com/PromptPal/PromptPal/ent/user"
 	"github.com/PromptPal/PromptPal/service"
 )
@@ -135,5 +136,20 @@ func (p projectResponse) OpenTokens(ctx context.Context) (result openTokenListRe
 	}
 
 	result.openTokens = ots
+	return
+}
+
+func (p projectResponse) LatestPrompts(ctx context.Context) (result promptsResponse) {
+	stat := service.
+		EntClient.
+		Prompt.
+		Query().
+		Where(prompt.HasProjectWith(project.ID(p.p.ID))).
+		Order(ent.Asc(prompt.FieldID))
+	result.stat = stat
+	result.pagination = paginationInput{
+		Limit:  10,
+		Offset: 0,
+	}
 	return
 }

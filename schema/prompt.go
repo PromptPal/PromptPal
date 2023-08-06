@@ -9,6 +9,7 @@ import (
 	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/prompt"
+	"github.com/PromptPal/PromptPal/ent/promptcall"
 	"github.com/PromptPal/PromptPal/ent/schema"
 	dbSchema "github.com/PromptPal/PromptPal/ent/schema"
 	"github.com/PromptPal/PromptPal/service"
@@ -240,4 +241,18 @@ func (p promptVariableResponse) Name() string {
 }
 func (p promptVariableResponse) Type() string {
 	return p.p.Type
+}
+
+func (p promptResponse) LatestCalls(ctx context.Context) (res promptCallListResponse) {
+	stat := service.EntClient.PromptCall.Query().
+		Where(
+			promptcall.HasPromptWith(prompt.ID(int(p.Prompt.ID))),
+		).Order(ent.Desc(promptcall.FieldID))
+
+	res.stat = stat
+	res.pagination = paginationInput{
+		Limit:  10,
+		Offset: 0,
+	}
+	return
 }

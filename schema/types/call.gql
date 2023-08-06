@@ -1,0 +1,19 @@
+enum PromptCallResult {
+  success,
+  fail
+}
+
+type PromptCall {
+  id: Int!
+  userId: String!
+  responseToken: Int!
+  totalToken: Int!
+  duration: Int!
+  result: PromptCallResult!
+  message: String
+}
+
+type PromptCallList {
+  count: Int!
+  edges: [PromptCall!]!
+}

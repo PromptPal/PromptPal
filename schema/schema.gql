@@ -3,6 +3,7 @@
 #import * from './types/prompt.gql'
 #import * from './types/openToken.gql'
 #import * from './types/user.gql'
+#import * from './types/call.gql'
 
 schema {
   query: Query
@@ -15,6 +16,7 @@ type Query {
 
   prompts(projectId: Int!, pagination: PaginationInput!): PromptList!
   user(id: Int!): User!
+  calls(promptId: Int!, pagination: PaginationInput!): PromptCallList!
 }
 
 type Mutation {

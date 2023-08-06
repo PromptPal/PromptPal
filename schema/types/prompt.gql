@@ -50,6 +50,7 @@ type Prompt {
 
   createdAt: String!
   updatedAt: String!
+  latestCalls: PromptCallList!
 }
 
 type PromptList {
