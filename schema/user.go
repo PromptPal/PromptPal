@@ -14,11 +14,16 @@ type userArgs struct {
 }
 
 func (q QueryResolver) User(ctx context.Context, args userArgs) (result userResponse, err error) {
+	uid := int(args.ID)
+	if uid == -1 {
+		ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+		uid = ctxValue.UserID
+	}
 	u, err := service.
 		EntClient.
 		User.
 		Query().
-		Where(user.ID(int(args.ID))).
+		Where(user.ID(uid)).
 		Only(ctx)
 	if err != nil {
 		err = NewGraphQLHttpError(http.StatusInternalServerError, err)

@@ -3,6 +3,7 @@ package schema
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/prompt"
@@ -86,4 +87,7 @@ func (p promptCallResponse) Result(ctx context.Context) string {
 }
 func (p promptCallResponse) Message(ctx context.Context) *string {
 	return p.pc.Message
+}
+func (p promptCallResponse) CreatedAt(ctx context.Context) string {
+	return p.pc.CreateTime.Format(time.RFC3339)
 }

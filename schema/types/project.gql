@@ -1,5 +1,6 @@
 #import * from './user.gql'
 #import * from './openToken.gql'
+#import * from './prompt.gql'
 #import * from './call.gql'
 
 input ProjectPayload {
@@ -12,6 +13,14 @@ input ProjectPayload {
 	openAITemperature: Float
 	openAITopP: Float
 	openAIMaxTokens: Int
+}
+
+type ProjectPromptMetricsRecentCount {
+  prompt: Prompt!
+  count: Int!
+}
+type ProjectPromptMetrics {
+  recentCounts: [ProjectPromptMetricsRecentCount!]!
 }
 
 type Project {
@@ -30,6 +39,8 @@ type Project {
   creator: User!
   openTokens: openTokenList!
   latestPrompts: PromptList!
+
+  promptMetrics: ProjectPromptMetrics!
 }
 
 type ProjectList {

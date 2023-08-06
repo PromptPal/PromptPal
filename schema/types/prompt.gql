@@ -1,3 +1,11 @@
+#import * from './call.gql'
+
+enum PromptRole {
+  system
+  user
+  assistant
+}
+
 enum PublicLevel {
   public
   protected
@@ -6,7 +14,7 @@ enum PublicLevel {
 
 input PromptRowInput {
 	prompt: String!
-	role: String!
+	role: PromptRole!
 }
 
 input PromptVariableInput {
@@ -16,7 +24,7 @@ input PromptVariableInput {
 
 type PromptRow {
 	prompt: String!
-	role: String!
+	role: PromptRole!
 }
 
 type PromptVariable {

@@ -15,6 +15,7 @@ type Query {
   projects(pagination: PaginationInput!): ProjectList!
 
   prompts(projectId: Int!, pagination: PaginationInput!): PromptList!
+  prompt(id: Int!): Prompt!
   user(id: Int!): User!
   calls(promptId: Int!, pagination: PaginationInput!): PromptCallList!
 }

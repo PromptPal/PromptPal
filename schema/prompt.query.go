@@ -28,6 +28,20 @@ func (q QueryResolver) Prompts(ctx context.Context, args promptsArgs) (res promp
 	return
 }
 
+type promptArgs struct {
+	ID int32
+}
+
+func (q QueryResolver) Prompt(ctx context.Context, args promptArgs) (res promptResponse, err error) {
+	p, err := service.EntClient.Prompt.Get(ctx, int(args.ID))
+	if err != nil {
+		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return
+	}
+	res.prompt = p
+	return
+}
+
 func (p promptsResponse) Count(ctx context.Context) (int32, error) {
 	count, err := p.stat.Clone().Count(ctx)
 	if err != nil {

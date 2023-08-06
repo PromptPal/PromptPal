@@ -32,7 +32,7 @@ type createPromptArgs struct {
 }
 
 type promptResponse struct {
-	Prompt *ent.Prompt
+	prompt *ent.Prompt
 }
 
 func (q QueryResolver) CreatePrompt(ctx context.Context, args createPromptArgs) (promptResponse, error) {
@@ -65,7 +65,7 @@ func (q QueryResolver) CreatePrompt(ctx context.Context, args createPromptArgs) 
 	// set cache
 	service.ApiPromptCache.Set(hid, *p, cache.WithExpiration(time.Hour*24))
 	return promptResponse{
-		Prompt: p,
+		prompt: p,
 	}, nil
 }
 
@@ -151,7 +151,7 @@ func (q QueryResolver) UpdatePrompt(ctx context.Context, args updatePromptArgs) 
 
 	// refresh cache
 	service.ApiPromptCache.Set(hid, *updatedPrompt, cache.WithExpiration(time.Hour*24))
-	result.Prompt = updatedPrompt
+	result.prompt = updatedPrompt
 	return
 }
 
@@ -164,43 +164,43 @@ func (q QueryResolver) DeletePrompt(ctx context.Context, args deletePromptArgs) 
 }
 
 func (p promptResponse) ID() int32 {
-	return int32(p.Prompt.ID)
+	return int32(p.prompt.ID)
 }
 
 func (p promptResponse) HashID() (string, error) {
-	hid, err := hashidService.Encode(p.Prompt.ID)
+	hid, err := hashidService.Encode(p.prompt.ID)
 	if err != nil {
 		return "", NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
 	return hid, nil
 }
 func (p promptResponse) Name() string {
-	return p.Prompt.Name
+	return p.prompt.Name
 }
 
 func (p promptResponse) Description() string {
-	return p.Prompt.Description
+	return p.prompt.Description
 }
 
 func (p promptResponse) TokenCount() int32 {
-	return int32(p.Prompt.TokenCount)
+	return int32(p.prompt.TokenCount)
 }
 
 func (p promptResponse) CreatedAt() string {
-	return p.Prompt.CreateTime.Format(time.RFC3339)
+	return p.prompt.CreateTime.Format(time.RFC3339)
 }
 func (p promptResponse) UpdatedAt() string {
-	return p.Prompt.UpdateTime.Format(time.RFC3339)
+	return p.prompt.UpdateTime.Format(time.RFC3339)
 }
 func (p promptResponse) Enabled() bool {
-	return p.Prompt.Enabled
+	return p.prompt.Enabled
 }
 func (p promptResponse) Debug() bool {
-	return p.Prompt.Debug
+	return p.prompt.Debug
 }
 
 func (p promptResponse) PublicLevel() prompt.PublicLevel {
-	return prompt.PublicLevel(p.Prompt.PublicLevel)
+	return prompt.PublicLevel(p.prompt.PublicLevel)
 }
 
 type promptRowResponse struct {
@@ -208,7 +208,7 @@ type promptRowResponse struct {
 }
 
 func (p promptResponse) Prompts() (result []promptRowResponse) {
-	for _, v := range p.Prompt.Prompts {
+	for _, v := range p.prompt.Prompts {
 		result = append(result, promptRowResponse{
 			p: v,
 		})
@@ -220,7 +220,17 @@ func (p promptRowResponse) Prompt() string {
 	return p.p.Prompt
 }
 func (p promptRowResponse) Role() string {
-	return p.p.Role
+	r := p.p.Role
+	switch r {
+	case "system":
+		return "system"
+	case "assistant":
+		return "assistant"
+	case "user":
+		return "user"
+	default:
+		return "unknown"
+	}
 }
 
 type promptVariableResponse struct {
@@ -228,7 +238,7 @@ type promptVariableResponse struct {
 }
 
 func (p promptResponse) Variables() (result []promptVariableResponse) {
-	for _, v := range p.Prompt.Variables {
+	for _, v := range p.prompt.Variables {
 		result = append(result, promptVariableResponse{
 			p: v,
 		})
@@ -246,7 +256,7 @@ func (p promptVariableResponse) Type() string {
 func (p promptResponse) LatestCalls(ctx context.Context) (res promptCallListResponse) {
 	stat := service.EntClient.PromptCall.Query().
 		Where(
-			promptcall.HasPromptWith(prompt.ID(int(p.Prompt.ID))),
+			promptcall.HasPromptWith(prompt.ID(int(p.prompt.ID))),
 		).Order(ent.Desc(promptcall.FieldID))
 
 	res.stat = stat
