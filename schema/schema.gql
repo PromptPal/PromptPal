@@ -14,6 +14,7 @@ type Query {
   projects(pagination: PaginationInput!): ProjectList!
 
   prompts(projectId: Int!, pagination: PaginationInput!): PromptList!
+  user(id: Int!): User!
 }
 
 type Mutation {
