@@ -14,6 +14,7 @@ import (
 	"github.com/PromptPal/PromptPal/ent/schema"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/PromptPal/PromptPal/service/mocks"
+	"github.com/PromptPal/PromptPal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/otiai10/openaigo"
 	"github.com/stretchr/testify/assert"
@@ -56,7 +57,7 @@ func (s *promptPublicAPITestSuite) SetupTest() {
 func (s *promptPublicAPITestSuite) TestCreateProjectAndPrompt() {
 	// 1. create project
 	w := httptest.NewRecorder()
-	s.pjName = RandStringRunes(1 << 6)
+	s.pjName = utils.RandStringRunes(1 << 6)
 	payload := fmt.Sprintf(`{"name": "%s", "openaiToken": "openaiToken"}`, s.pjName)
 
 	req, _ := http.NewRequest("POST", "/api/v1/admin/projects", strings.NewReader(payload))
@@ -75,7 +76,7 @@ func (s *promptPublicAPITestSuite) TestCreateProjectAndPrompt() {
 
 	// 2. create prompt
 	w2 := httptest.NewRecorder()
-	promptName := RandStringRunes(1 << 5)
+	promptName := utils.RandStringRunes(1 << 5)
 	payload2 := fmt.Sprintf(`
 	{
 		"projectId": %d,
@@ -116,7 +117,7 @@ func (s *promptPublicAPITestSuite) TestCreateProjectAndPrompt() {
 
 	// 3. get api token
 	w3 := httptest.NewRecorder()
-	apiTokenName := RandStringRunes(1 << 4)
+	apiTokenName := utils.RandStringRunes(1 << 4)
 	payload3 := fmt.Sprintf(`
 	{
 		"name": "%s",

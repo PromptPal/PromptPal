@@ -30,7 +30,7 @@ func (q QueryResolver) CreateProject(ctx context.Context, args createProjectArgs
 	if data.Name == nil {
 		return projectResponse{}, NewGraphQLHttpError(http.StatusBadRequest, errors.New("name is required"))
 	}
-	if data.OpenAIMaxTokens == nil {
+	if data.OpenAIToken == nil {
 		return projectResponse{}, NewGraphQLHttpError(http.StatusBadRequest, errors.New("openAIToken is required"))
 	}
 	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
@@ -53,7 +53,7 @@ func (q QueryResolver) CreateProject(ctx context.Context, args createProjectArgs
 		return projectResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
 
-	return projectResponse{p: pj}, GraphQLHttpError{}
+	return projectResponse{p: pj}, nil
 }
 
 type updateProjectArgs struct {

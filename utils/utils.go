@@ -1,4 +1,4 @@
-package routes
+package utils
 
 import "math/rand"
 

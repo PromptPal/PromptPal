@@ -20,7 +20,9 @@ type promptsResponse struct {
 }
 
 func (q QueryResolver) Prompts(ctx context.Context, args promptsArgs) (res promptsResponse) {
-	res.stat = service.EntClient.Prompt.Query().
+	res.stat = service.EntClient.
+		Debug().
+		Prompt.Query().
 		Where(prompt.ProjectId(int(args.ProjectID))).
 		Order(ent.Desc(prompt.FieldID))
 
