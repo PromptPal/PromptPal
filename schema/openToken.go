@@ -16,7 +16,7 @@ import (
 )
 
 type createOpenTokenData struct {
-	ProjectId   int
+	ProjectID   int32
 	Name        string
 	Description string
 	TTL         int // in seconds
@@ -36,7 +36,7 @@ type openTokenResponse struct {
 }
 
 func (q QueryResolver) CreateOpenToken(ctx context.Context, args createOpenTokenArgs) (result createOpenTokenResponse, err error) {
-	pid := args.Data.ProjectId
+	pid := int(args.Data.ProjectID)
 	// TODO: put int tx
 	previousCount, err := service.
 		EntClient.
@@ -104,11 +104,11 @@ type openTokenListResponse struct {
 	openTokens []*ent.OpenToken
 }
 
-func (o openTokenListResponse) Count() int32 {
-	return int32(len(o.openTokens))
+func (o openTokenListResponse) Count(ctx context.Context) (int32, error) {
+	return int32(len(o.openTokens)), nil
 }
 
-func (o openTokenListResponse) Edges() (result []openTokenResponse) {
+func (o openTokenListResponse) Edges(ctx context.Context) (result []openTokenResponse, err error) {
 	for _, ot := range o.openTokens {
 		result = append(result, openTokenResponse{
 			openToken: ot,
