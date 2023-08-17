@@ -53,6 +53,6 @@ func (s *authTestSuite) TearDownSuite() {
 	service.Close()
 }
 
-func TestauthTestSuite(t *testing.T) {
+func TestAuthTestSuite(t *testing.T) {
 	suite.Run(t, new(authTestSuite))
 }
