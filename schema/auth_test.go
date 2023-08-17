@@ -2,6 +2,7 @@ package schema
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/PromptPal/PromptPal/config"
@@ -45,7 +46,10 @@ func (s *authTestSuite) TestAuth() {
 	})
 
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), "0x4910c609fBC895434a0A5E3E46B1Eb4b64Cff2B8", res.User().Addr())
+	assert.Equal(s.T(),
+		strings.ToLower("0x4910c609fBC895434a0A5E3E46B1Eb4b64Cff2B8"),
+		res.User().Addr(),
+	)
 	assert.NotEmpty(s.T(), res.Token())
 }
 
