@@ -122,6 +122,62 @@ func (s *promptTestSuite) TestGetPrompt() {
 	assert.Nil(s.T(), err)
 	pt := result
 	assert.Equal(s.T(), "test-prompt", pt.Name())
+
+	assert.NotEmpty(s.T(), pt.CreatedAt())
+	assert.NotEmpty(s.T(), pt.UpdatedAt())
+}
+
+func (s *promptTestSuite) TestUpdatePrompt() {
+	q := QueryResolver{}
+	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
+		UserID: 1,
+	})
+
+	truthy := true
+
+	result, err := q.UpdatePrompt(ctx, updatePromptArgs{
+		ID: int32(s.promptID),
+		Data: createPromptData{
+			ProjectID:   int32(s.pjID),
+			Name:        "test-prompt-podcast-AsyncTalk",
+			Description: "welcome to listen the podcast: `AsyncTalk`",
+			TokenCount:  9231,
+			Enabled:     &truthy,
+			Debug:       &truthy,
+			PublicLevel: prompt.PublicLevelPrivate,
+			Prompts: []dbSchema.PromptRow{
+				{
+					Prompt: "AsyncTalk podcast is a a good chinese podcast talk about frontend development {{ var88 }}",
+					Role:   "system",
+				},
+			},
+			Variables: []dbSchema.PromptVariable{
+				{
+					Name: "var88",
+					Type: "string",
+				},
+			},
+		},
+	})
+	assert.Nil(s.T(), err)
+	assert.True(s.T(), result.Debug())
+	assert.True(s.T(), result.Enabled())
+	assert.EqualValues(s.T(), "test-prompt", result.Name())
+	assert.EqualValues(s.T(), 9231, result.TokenCount())
+	assert.EqualValues(s.T(), s.promptID, result.ID())
+
+	pts := result.Prompts()
+	assert.Len(s.T(), pts, 1)
+	pt := pts[0]
+	assert.Equal(s.T(), "system", pt.Role())
+	assert.Equal(s.T(), "AsyncTalk podcast is a a good chinese podcast talk about frontend development {{ var88 }}", pt.Prompt())
+
+	vars := result.Variables()
+	assert.Len(s.T(), vars, 1)
+	var1 := vars[0]
+	assert.Equal(s.T(), "var88", var1.Name())
+	assert.Equal(s.T(), "string", var1.Type())
+
 }
 
 func (s *promptTestSuite) TearDownSuite() {

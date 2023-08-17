@@ -115,7 +115,7 @@ func (q QueryResolver) UpdatePrompt(ctx context.Context, args updatePromptArgs) 
 		return
 	}
 
-	updator := tx.Prompt.UpdateOneID(int(args.ID)).
+	updater := tx.Prompt.UpdateOneID(int(args.ID)).
 		SetDescription(payload.Description).
 		SetTokenCount(int(payload.TokenCount)).
 		SetPrompts(payload.Prompts).
@@ -123,13 +123,13 @@ func (q QueryResolver) UpdatePrompt(ctx context.Context, args updatePromptArgs) 
 		SetPublicLevel(payload.PublicLevel)
 
 	if args.Data.Enabled != nil {
-		updator = updator.SetEnabled(*args.Data.Enabled)
+		updater = updater.SetEnabled(*args.Data.Enabled)
 	}
 	if args.Data.Debug != nil {
-		updator = updator.SetNillableDebug(args.Data.Debug)
+		updater = updater.SetNillableDebug(args.Data.Debug)
 	}
 
-	updatedPrompt, err := updator.Save(ctx)
+	updatedPrompt, err := updater.Save(ctx)
 
 	if err != nil {
 		tx.Rollback()

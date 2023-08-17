@@ -2,6 +2,7 @@ package schema
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/PromptPal/PromptPal/config"
@@ -81,6 +82,37 @@ func (s *projectTestSuite) TestGetProject() {
 	assert.Nil(s.T(), err)
 	pj := result
 	assert.Equal(s.T(), s.projectName, pj.Name())
+	assert.Equal(s.T(), "https://api.openai.com/v1", pj.OpenAIBaseURL())
+	assert.Equal(s.T(), "gpt-3.5-turbo", pj.OpenAIModel())
+	assert.Equal(s.T(), "SOME_RANDOM_TOKEN_HERE", pj.OpenAIToken())
+	assert.EqualValues(s.T(), 1, pj.OpenAITemperature())
+	assert.EqualValues(s.T(), 0.9, pj.OpenAITopP())
+	assert.EqualValues(s.T(), 0, pj.OpenAIMaxTokens())
+	assert.NotEmpty(s.T(), pj.CreatedAt())
+	assert.NotEmpty(s.T(), pj.UpdatedAt())
+
+	creator, err := pj.Creator(ctx)
+	assert.Nil(s.T(), err)
+
+	assert.EqualValues(s.T(), 1, creator.ID())
+
+	lps := pj.LatestPrompts(ctx)
+	cs, err := lps.Count(ctx)
+	assert.Nil(s.T(), err)
+	assert.EqualValues(s.T(), cs, 0)
+	lps2, err := lps.Edges(ctx)
+	assert.Nil(s.T(), err)
+	assert.Len(s.T(), lps2, 0)
+
+	_, err = q.Project(ctx, projectArgs{
+		ID: int32(887771),
+	})
+	assert.Error(s.T(), err)
+
+	ge, ok := err.(GraphQLHttpError)
+	assert.True(s.T(), ok)
+	assert.EqualValues(s.T(), "[500]: ent: project not found", ge.Error())
+	assert.EqualValues(s.T(), errors.New("[500]: ent: project not found"), ge.Unwrap())
 }
 
 func (s *projectTestSuite) TearDownSuite() {
