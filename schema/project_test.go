@@ -113,6 +113,13 @@ func (s *projectTestSuite) TestGetProject() {
 	assert.True(s.T(), ok)
 	assert.EqualValues(s.T(), "[500]: ent: project not found", ge.Error())
 	assert.EqualValues(s.T(), errors.New("[500]: ent: project not found"), ge.Unwrap())
+	assert.EqualValues(s.T(),
+		map[string]interface{}{
+			"code":    500,
+			"message": "ent: project not found",
+		},
+		ge.Extensions(),
+	)
 }
 
 func (s *projectTestSuite) TestUpdateProject() {
@@ -122,18 +129,30 @@ func (s *projectTestSuite) TestUpdateProject() {
 	})
 
 	openAiMaxTokens := 78
+	temperature := float64(7.888888888)
+	burl := "https://api.openai.com/v8"
+	model := "annatarhe-35-turbo"
 	truthy := true
 	pj, err := q.UpdateProject(ctx, updateProjectArgs{
 		ID: int32(s.projectID),
 		Data: createProjectData{
-			Enabled:         &truthy,
-			OpenAIMaxTokens: &openAiMaxTokens,
+			Enabled:           &truthy,
+			OpenAIBaseURL:     &burl,
+			OpenAIModel:       &model,
+			OpenAIToken:       &s.projectName,
+			OpenAITemperature: &temperature,
+			OpenAIMaxTokens:   &openAiMaxTokens,
+			OpenAITopP:        &temperature,
 		},
 	})
 
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), s.projectName, pj.Name())
 	assert.EqualValues(s.T(), openAiMaxTokens, pj.OpenAIMaxTokens())
+	assert.EqualValues(s.T(), temperature, pj.OpenAITemperature())
+	assert.EqualValues(s.T(), burl, pj.OpenAIBaseURL())
+	assert.EqualValues(s.T(), model, pj.OpenAIModel())
+	assert.EqualValues(s.T(), s.projectName, pj.OpenAIToken())
 	assert.True(s.T(), pj.Enabled())
 
 	r, err := q.DeleteProject(ctx, deleteProjectArgs{

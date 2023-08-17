@@ -59,20 +59,6 @@ func SetupGinRoutes(
 	authRoutes := h.Group("/api/v1/auth")
 	authRoutes.POST("/login", authHandler)
 
-	adminRoutes := h.Group("/api/v1/admin")
-	adminRoutes.Use(authMiddleware)
-	{
-		adminRoutes.GET("/users", listUsers)
-		adminRoutes.GET("/users/:id", getUser)
-		adminRoutes.POST("/users", createUsers)
-		adminRoutes.DELETE("/users/:id", removeUsers)
-
-		// TODO: add this API
-		// adminRoutes.GET("/projects/:id/calls", listProjectCalls)
-		adminRoutes.GET("/projects/:id/top-prompts", getTopPromptsMetricOfProject)
-		adminRoutes.GET("/prompts/:id/calls", getPromptCalls)
-	}
-
 	if graphqlSchema != nil {
 		if true {
 			h.GET("/api/v2/graphql", graphqlPlaygroundHandler)
