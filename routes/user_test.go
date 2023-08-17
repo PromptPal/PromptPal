@@ -38,7 +38,7 @@ func (s *userTestSuite) SetupTest() {
 		Return(true, nil)
 
 	service.InitDB()
-	s.router = SetupGinRoutes("test", w3, oi, hs)
+	s.router = SetupGinRoutes("test", w3, oi, hs, nil)
 }
 
 func (s *userTestSuite) GetAuthToken() (result authResponse, err error) {

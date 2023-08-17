@@ -1,6 +1,16 @@
+input AuthInput {
+  address: String!
+  signature: String!
+  message: String!
+}
 
 type User {
   id: Int!
   name: String!
   addr: String!
+}
+
+type Auth {
+  token: String!
+  user: User!
 }

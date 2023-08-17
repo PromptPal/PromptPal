@@ -8,6 +8,7 @@ import (
 	"github.com/PromptPal/PromptPal/ent/prompt"
 	dbSchema "github.com/PromptPal/PromptPal/ent/schema"
 	"github.com/PromptPal/PromptPal/service"
+	"github.com/PromptPal/PromptPal/service/mocks"
 	"github.com/PromptPal/PromptPal/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -22,12 +23,12 @@ type promptTestSuite struct {
 
 func (s *promptTestSuite) SetupSuite() {
 	config.SetupConfig(true)
-	// w3 := mocks.NewWeb3Service(s.T())
-	// oi := mocks.NewOpenAIService(s.T())
+	w3 := mocks.NewWeb3Service(s.T())
+	oi := mocks.NewOpenAIService(s.T())
 	hs := service.NewHashIDService()
 
 	service.InitDB()
-	Setup(hs)
+	Setup(hs, oi, w3)
 
 	q := QueryResolver{}
 

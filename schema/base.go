@@ -7,6 +7,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var web3Service service.Web3Service
+var openaiService service.OpenAIService
 var hashidService service.HashIDService
 
 type paginationInput struct {
@@ -45,6 +47,10 @@ func String() string {
 
 func Setup(
 	hi service.HashIDService,
+	oi service.OpenAIService,
+	w3 service.Web3Service,
 ) {
 	hashidService = hi
+	openaiService = oi
+	web3Service = w3
 }

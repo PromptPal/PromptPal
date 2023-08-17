@@ -6,16 +6,17 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/PromptPal/PromptPal/schema"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/graph-gophers/graphql-go"
 )
 
-var s = graphql.MustParseSchema(
-	schema.String(),
-	&schema.QueryResolver{},
-)
+var s *graphql.Schema
+
+// var s = graphql.MustParseSchema(
+// 	schema.String(),
+// 	&schema.QueryResolver{},
+// )
 
 //go:embed graphql.html
 var graphqliTemplate []byte

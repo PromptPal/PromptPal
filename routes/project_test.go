@@ -39,7 +39,7 @@ func (s *projectTestSuite) SetupTest() {
 	hs := service.NewHashIDService()
 
 	service.InitDB()
-	s.router = SetupGinRoutes("test", w3, oi, hs)
+	s.router = SetupGinRoutes("test", w3, oi, hs, nil)
 }
 
 func (s *projectTestSuite) TestCreateProject() {

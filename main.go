@@ -12,6 +12,7 @@ import (
 	"github.com/PromptPal/PromptPal/routes"
 	"github.com/PromptPal/PromptPal/schema"
 	"github.com/PromptPal/PromptPal/service"
+	"github.com/graph-gophers/graphql-go"
 	"github.com/sirupsen/logrus"
 )
 
@@ -30,9 +31,13 @@ func startHTTPServer() {
 	w3 := service.NewWeb3Service()
 	o := service.NewOpenAIService()
 	hi := service.NewHashIDService()
+	var graphqlSchema = graphql.MustParseSchema(
+		schema.String(),
+		&schema.QueryResolver{},
+	)
 
-	schema.Setup(hi)
-	h := routes.SetupGinRoutes(GitCommit, w3, o, hi)
+	schema.Setup(hi, o, w3)
+	h := routes.SetupGinRoutes(GitCommit, w3, o, hi, graphqlSchema)
 	server := &http.Server{
 		Addr:    publicDomain,
 		Handler: h,

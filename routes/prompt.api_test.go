@@ -51,7 +51,7 @@ func (s *promptPublicAPITestSuite) SetupTest() {
 	s.oi = oi
 
 	service.InitDB()
-	s.router = SetupGinRoutes("test", w3, oi, hs)
+	s.router = SetupGinRoutes("test", w3, oi, hs, nil)
 }
 
 func (s *promptPublicAPITestSuite) TestCreateProjectAndPrompt() {

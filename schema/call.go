@@ -63,31 +63,31 @@ func (p promptCallListResponse) Edges(ctx context.Context) (res []promptCallResp
 	return
 }
 
-func (p promptCallResponse) ID(ctx context.Context) int32 {
+func (p promptCallResponse) ID() int32 {
 	return int32(p.pc.ID)
 }
-func (p promptCallResponse) UserId(ctx context.Context) string {
+func (p promptCallResponse) UserId() string {
 	return p.pc.UserId
 }
-func (p promptCallResponse) ResponseToken(ctx context.Context) int32 {
+func (p promptCallResponse) ResponseToken() int32 {
 	return int32(p.pc.ResponseToken)
 }
-func (p promptCallResponse) TotalToken(ctx context.Context) int32 {
+func (p promptCallResponse) TotalToken() int32 {
 	return int32(p.pc.TotalToken)
 }
-func (p promptCallResponse) Duration(ctx context.Context) int32 {
+func (p promptCallResponse) Duration() int32 {
 	return int32(p.pc.Duration)
 }
-func (p promptCallResponse) Result(ctx context.Context) string {
+func (p promptCallResponse) Result() string {
 	result := p.pc.Result
 	if result == 1 {
 		return "success"
 	}
 	return "fail"
 }
-func (p promptCallResponse) Message(ctx context.Context) *string {
+func (p promptCallResponse) Message() *string {
 	return p.pc.Message
 }
-func (p promptCallResponse) CreatedAt(ctx context.Context) string {
+func (p promptCallResponse) CreatedAt() string {
 	return p.pc.CreateTime.Format(time.RFC3339)
 }

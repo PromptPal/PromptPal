@@ -8,6 +8,7 @@ import (
 	brotli "github.com/anargu/gin-brotli"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/graph-gophers/graphql-go"
 )
 
 type errorResponse struct {
@@ -15,6 +16,7 @@ type errorResponse struct {
 	ErrorMessage string `json:"error"`
 }
 
+// var s
 var web3Service service.Web3Service
 var openAIService service.OpenAIService
 var hashidService service.HashIDService
@@ -24,10 +26,12 @@ func SetupGinRoutes(
 	w3 service.Web3Service,
 	o service.OpenAIService,
 	hi service.HashIDService,
+	graphqlSchema *graphql.Schema,
 ) *gin.Engine {
 	web3Service = w3
 	openAIService = o
 	hashidService = hi
+	s = graphqlSchema
 
 	h := gin.Default()
 
@@ -86,10 +90,12 @@ func SetupGinRoutes(
 		adminRoutes.DELETE("/open-tokens", deleteOpenToken)
 	}
 
-	if true {
-		h.GET("/api/v2/graphql", graphqlPlaygroundHandler)
+	if graphqlSchema != nil {
+		if true {
+			h.GET("/api/v2/graphql", graphqlPlaygroundHandler)
+		}
+		h.POST("/api/v2/graphql", authMiddleware, graphqlExecuteHandler)
 	}
-	h.POST("/api/v2/graphql", authMiddleware, graphqlExecuteHandler)
 
 	h.LoadHTMLFiles("./public/index.html")
 	h.Static("/public", "./public")
