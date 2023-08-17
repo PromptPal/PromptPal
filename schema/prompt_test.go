@@ -165,6 +165,7 @@ func (s *promptTestSuite) TestUpdatePrompt() {
 	assert.EqualValues(s.T(), "test-prompt", result.Name())
 	assert.EqualValues(s.T(), 9231, result.TokenCount())
 	assert.EqualValues(s.T(), s.promptID, result.ID())
+	assert.EqualValues(s.T(), "private", result.PublicLevel())
 
 	pts := result.Prompts()
 	assert.Len(s.T(), pts, 1)

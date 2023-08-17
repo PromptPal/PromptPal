@@ -272,6 +272,26 @@ func (s *callTestSuite) TestPerformCall() {
 	// assert.EqualValues(s.T(), "ji ni tai mei", edge.Message())
 	assert.Nil(s.T(), edge.Message())
 	assert.GreaterOrEqual(s.T(), edge.Duration(), int32(100))
+	assert.EqualValues(s.T(), "34", edge.UserId())
+	assert.EqualValues(s.T(), 8888, edge.ResponseToken())
+	assert.EqualValues(s.T(), "success", edge.Result())
+	assert.NotEmpty(s.T(), edge.CreatedAt())
+
+	cs := q.Calls(ctx, callsArgs{
+		PromptID: int32(s.promptID),
+		Pagination: paginationInput{
+			Limit:  10,
+			Offset: 0,
+		},
+	})
+
+	cCount, err := cs.Count(ctx)
+	assert.Nil(s.T(), err)
+	assert.EqualValues(s.T(), 1, cCount)
+
+	edges, err = cs.Edges(ctx)
+	assert.Nil(s.T(), err)
+	assert.Len(s.T(), edges, 1)
 }
 
 func (s *callTestSuite) TearDownSuite() {

@@ -80,7 +80,7 @@ func (p promptCallResponse) Duration() int32 {
 }
 func (p promptCallResponse) Result() string {
 	result := p.pc.Result
-	if result == 1 {
+	if result == 0 {
 		return "success"
 	}
 	return "fail"

@@ -115,6 +115,35 @@ func (s *projectTestSuite) TestGetProject() {
 	assert.EqualValues(s.T(), errors.New("[500]: ent: project not found"), ge.Unwrap())
 }
 
+func (s *projectTestSuite) TestUpdateProject() {
+	q := QueryResolver{}
+	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
+		UserID: 1,
+	})
+
+	openAiMaxTokens := 78
+	truthy := true
+	pj, err := q.UpdateProject(ctx, updateProjectArgs{
+		ID: int32(s.projectID),
+		Data: createProjectData{
+			Enabled:         &truthy,
+			OpenAIMaxTokens: &openAiMaxTokens,
+		},
+	})
+
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), s.projectName, pj.Name())
+	assert.EqualValues(s.T(), openAiMaxTokens, pj.OpenAIMaxTokens())
+	assert.True(s.T(), pj.Enabled())
+
+	r, err := q.DeleteProject(ctx, deleteProjectArgs{
+		ID: int32(s.projectID),
+	})
+
+	assert.Nil(s.T(), err)
+	assert.True(s.T(), r)
+}
+
 func (s *projectTestSuite) TearDownSuite() {
 	service.Close()
 }
