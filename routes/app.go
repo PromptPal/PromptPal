@@ -67,27 +67,10 @@ func SetupGinRoutes(
 		adminRoutes.POST("/users", createUsers)
 		adminRoutes.DELETE("/users/:id", removeUsers)
 
-		adminRoutes.GET("/projects", listProjects)
-		adminRoutes.GET("/projects/:id", getProject)
-		adminRoutes.GET("/projects/:id/open-tokens", listOpenToken)
-		adminRoutes.GET("/projects/:id/prompts", listProjectPrompts)
-
 		// TODO: add this API
 		// adminRoutes.GET("/projects/:id/calls", listProjectCalls)
 		adminRoutes.GET("/projects/:id/top-prompts", getTopPromptsMetricOfProject)
-
-		adminRoutes.POST("/projects", createProject)
-		adminRoutes.POST("/projects/:id/open-tokens", createOpenToken)
-		adminRoutes.PUT("/projects/:id", updateProject)
-
-		adminRoutes.GET("/prompts", listPrompts)
-		adminRoutes.GET("/prompts/:id", getPrompt)
 		adminRoutes.GET("/prompts/:id/calls", getPromptCalls)
-		adminRoutes.POST("/prompts", createPrompt)
-		adminRoutes.POST("/prompts/test", testPrompt)
-		adminRoutes.PUT("/prompts/:id", updatePrompt)
-
-		adminRoutes.DELETE("/open-tokens", deleteOpenToken)
 	}
 
 	if graphqlSchema != nil {
