@@ -9,7 +9,6 @@ input ProjectPayload {
   enabled: Boolean
   openAIBaseURL: String
   openAIModel: String
-	openAIToken: String
 	openAITemperature: Float
 	openAITopP: Float
 	openAIMaxTokens: Int
@@ -30,7 +29,6 @@ type Project {
   enabled: Boolean!
   openAIBaseURL: String!
   openAIModel: String!
-	openAIToken: String!
 	openAITemperature: Float!
 	openAITopP: Float!
 	openAIMaxTokens: Int!
