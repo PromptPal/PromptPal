@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/PromptPal/PromptPal/compare/v1.3.0...v1.3.1) (2023-08-24)
+
+
+### Bug Fixes
+
+* **graphql:** fix graphql struct types and add missing http route ([5c49f3c](https://github.com/PromptPal/PromptPal/commit/5c49f3cb316934d753a8ce1256bcc26f1c22bb38))
+
 ## [1.3.0](https://github.com/PromptPal/PromptPal/compare/v1.2.0...v1.3.0) (2023-08-23)
 
 
