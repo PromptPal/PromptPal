@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.3.0](https://github.com/PromptPal/PromptPal/compare/v1.2.0...v1.3.0) (2023-08-23)
+
+
+### Features
+
+* **graphql:** add more testcases ([14597d9](https://github.com/PromptPal/PromptPal/commit/14597d953a6ddd397dadfafdaf35a5aded2c37ce))
+* **graphql:** add some tests for graphql api ([9cef56b](https://github.com/PromptPal/PromptPal/commit/9cef56bfa0706713b843a565adb396f92afee41d))
+* **graphql:** update graphql test cases ([f79ff15](https://github.com/PromptPal/PromptPal/commit/f79ff1594bd283b768c0add2649dfa18c787cf3d))
+* **schema:** add more test case for project and prompt in graphql ([4496ed6](https://github.com/PromptPal/PromptPal/commit/4496ed6d2c89ac41c2fd315f465059fb861b84a0))
+
+
+### Bug Fixes
+
+* **graphql:** fix auth testcase ([0555de0](https://github.com/PromptPal/PromptPal/commit/0555de09f22f1d3b309abc8e2fd1b7ad97f17d52))
+* **project:** fix project args type ([55b545a](https://github.com/PromptPal/PromptPal/commit/55b545ac21ee439d88468d5bda496be87e488e87))
+
 ## [1.2.0](https://github.com/PromptPal/PromptPal/compare/v1.1.3...v1.2.0) (2023-08-06)
 
 
