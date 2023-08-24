@@ -36,8 +36,8 @@ input PromptPayload {
   projectId: Int!
   name: String!
   description: String!
-  enabled: Boolean!
-  debug: Boolean!
+  enabled: Boolean
+  debug: Boolean
   tokenCount: Int!
   prompts: [PromptRowInput!]!
   variables: [PromptVariableInput!]!

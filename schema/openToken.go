@@ -19,7 +19,7 @@ type createOpenTokenData struct {
 	ProjectID   int32
 	Name        string
 	Description string
-	TTL         int // in seconds
+	TTL         int32 // in seconds
 }
 
 type createOpenTokenArgs struct {
