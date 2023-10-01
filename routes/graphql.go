@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/gin-gonic/gin"
@@ -50,6 +51,15 @@ func graphqlExecuteHandler(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, errorResponse{
 			ErrorCode:    http.StatusBadRequest,
 			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	// skip auth check if is calling auth api
+	if !strings.Contains(params.Query, "auth") && uid == 0 {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse{
+			ErrorCode:    http.StatusUnauthorized,
+			ErrorMessage: "unauthorized",
 		})
 		return
 	}

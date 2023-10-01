@@ -22,6 +22,15 @@ type testPromptPayload struct {
 }
 
 func testPrompt(c *gin.Context) {
+	uid := c.GetInt("uid")
+	if uid == 0 {
+		c.JSON(http.StatusUnauthorized, errorResponse{
+			ErrorCode:    http.StatusUnauthorized,
+			ErrorMessage: "invalid uid",
+		})
+		return
+	}
+
 	var payload testPromptPayload
 	if err := c.Bind(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse{

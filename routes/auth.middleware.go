@@ -12,10 +12,12 @@ import (
 func authMiddleware(c *gin.Context) {
 	authKey := strings.Split(c.GetHeader("Authorization"), " ")
 	if len(authKey) != 2 || authKey[0] != "Bearer" {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse{
-			ErrorCode:    http.StatusUnauthorized,
-			ErrorMessage: "invalid token",
-		})
+		// c.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse{
+		// 	ErrorCode:    http.StatusUnauthorized,
+		// 	ErrorMessage: "invalid token",
+		// })
+		// return
+		c.Next()
 		return
 	}
 
@@ -23,14 +25,14 @@ func authMiddleware(c *gin.Context) {
 
 	claims, err := service.ParseJWT(tk)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse{
-			ErrorCode:    http.StatusUnauthorized,
-			ErrorMessage: err.Error(),
-		})
+		// c.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse{
+		// 	ErrorCode:    http.StatusUnauthorized,
+		// 	ErrorMessage: err.Error(),
+		// })
+		c.Next()
 		return
 	}
 	c.Set("uid", claims.Uid)
-	c.Next()
 }
 
 // the header must be like this: `Authorization: API <token>`

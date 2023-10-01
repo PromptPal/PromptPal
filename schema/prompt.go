@@ -216,6 +216,16 @@ func (p promptResponse) Prompts() (result []promptRowResponse) {
 	return
 }
 
+func (p promptResponse) Project(ctx context.Context) (result projectResponse) {
+	pj, err := service.EntClient.Project.Get(ctx, int(p.prompt.ProjectId))
+	if err != nil {
+		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return
+	}
+	result.p = pj
+	return
+}
+
 func (p promptRowResponse) Prompt() string {
 	return p.p.Prompt
 }
