@@ -75,7 +75,7 @@ func SetupGinRoutes(
 		c.HTML(http.StatusNotFound, "index.html", nil)
 	})
 
-	h.POST("/api/v1/admin/prompts/test", testPrompt)
+	h.POST("/api/v1/admin/prompts/test", authMiddleware, testPrompt)
 
 	apiRoutes := h.Group("/api/v1/public")
 	apiRoutes.Use(apiMiddleware)
