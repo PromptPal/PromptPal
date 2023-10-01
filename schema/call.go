@@ -2,6 +2,7 @@ package schema
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/PromptPal/PromptPal/ent/prompt"
 	"github.com/PromptPal/PromptPal/ent/promptcall"
 	"github.com/PromptPal/PromptPal/service"
+	"github.com/sirupsen/logrus"
 )
 
 //   calls(promptId: Int!, pagination: PaginationInput!): PromptCallList!
@@ -85,6 +87,18 @@ func (p promptCallResponse) Result() string {
 	}
 	return "fail"
 }
+func (p promptCallResponse) Payload() string {
+	if p.pc.Payload == nil {
+		return "{}"
+	}
+	result, err := json.Marshal(p.pc.Payload)
+	if err != nil {
+		logrus.Warnln("promptCall.payload", err)
+		return "{}"
+	}
+	return string(result)
+}
+
 func (p promptCallResponse) Message() *string {
 	return p.pc.Message
 }

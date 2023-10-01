@@ -23,6 +23,7 @@ func (PromptCall) Fields() []ent.Field {
 		field.Int64("duration"),
 		// 0: success, 1: fail
 		field.Int("result"),
+		field.JSON("payload", map[string]string{}).Optional(),
 		// only available when prompt.debug is true
 		field.String("message").Optional().Nillable(),
 	}

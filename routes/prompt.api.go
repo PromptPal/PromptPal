@@ -188,6 +188,9 @@ func apiRunPrompt(c *gin.Context) {
 			SetDuration(endTime.Sub(startTime).Milliseconds()).
 			SetProjectID(pj.ID)
 
+		if prompt.Debug {
+			stat.SetPayload(payload.Variables)
+		}
 		if prompt.Debug && len(res.Choices) > 0 {
 			stat.SetMessage(res.Choices[0].Message.Content)
 		}

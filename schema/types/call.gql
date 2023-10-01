@@ -12,6 +12,7 @@ type PromptCall {
   totalToken: Int!
   duration: Int!
   result: PromptCallResult!
+  payload: String!
   message: String
   createdAt: String!
 }
