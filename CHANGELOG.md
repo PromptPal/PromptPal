@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/PromptPal/PromptPal/compare/v1.3.2...v1.4.0) (2023-10-01)
+
+
+### Features
+
+* **promptcall:** add variables info when prompt debugging ([fba4c01](https://github.com/PromptPal/PromptPal/commit/fba4c014c4102e5adf0b19602596a4ef67ee9d15))
+
 ## [1.3.2](https://github.com/PromptPal/PromptPal/compare/v1.3.1...v1.3.2) (2023-10-01)
 
 
