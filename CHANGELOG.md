@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.2](https://github.com/PromptPal/PromptPal/compare/v1.3.1...v1.3.2) (2023-10-01)
+
+
+### Bug Fixes
+
+* **auth:** ignore route api middleware tests ([4e8f6ce](https://github.com/PromptPal/PromptPal/commit/4e8f6ce2b55704edc941ff32c38fba6b3282871e))
+* **prompt:** ignore auth middleware for some reason and add project to prompt ([1ce78ab](https://github.com/PromptPal/PromptPal/commit/1ce78ab29424a4b82e59dd6b68160fb6373af1d2))
+
 ## [1.3.1](https://github.com/PromptPal/PromptPal/compare/v1.3.0...v1.3.1) (2023-08-24)
 
 
