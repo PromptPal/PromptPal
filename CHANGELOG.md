@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/PromptPal/PromptPal/compare/v1.4.0...v1.4.1) (2023-10-19)
+
+
+### Bug Fixes
+
+* **app:** upgrade go version to latest ([3b0e84c](https://github.com/PromptPal/PromptPal/commit/3b0e84c161234cb09c2e1436beaee54b4cb21b2b))
+
 ## [1.4.0](https://github.com/PromptPal/PromptPal/compare/v1.3.2...v1.4.0) (2023-10-01)
 
 
