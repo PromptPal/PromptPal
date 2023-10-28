@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.3](https://github.com/PromptPal/PromptPal/compare/v1.4.2...v1.4.3) (2023-10-28)
+
+
+### Bug Fixes
+
+* **project:** fix project maxToken data ([df370a4](https://github.com/PromptPal/PromptPal/commit/df370a446c4b391c15faf3488f56823cf3a12bf4))
+
 ## [1.4.2](https://github.com/PromptPal/PromptPal/compare/v1.4.1...v1.4.2) (2023-10-26)
 
 
