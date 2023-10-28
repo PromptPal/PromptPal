@@ -128,7 +128,7 @@ func (s *projectTestSuite) TestUpdateProject() {
 		UserID: 1,
 	})
 
-	openAiMaxTokens := 78
+	openAiMaxTokens := int32(78)
 	temperature := float64(7.888888888)
 	burl := "https://api.openai.com/v8"
 	model := "annatarhe-35-turbo"

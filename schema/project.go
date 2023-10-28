@@ -18,7 +18,7 @@ type createProjectData struct {
 	OpenAIToken       *string
 	OpenAITemperature *float64
 	OpenAITopP        *float64
-	OpenAIMaxTokens   *int
+	OpenAIMaxTokens   *int32
 }
 
 type createProjectArgs struct {
@@ -34,7 +34,7 @@ func (q QueryResolver) CreateProject(ctx context.Context, args createProjectArgs
 		return projectResponse{}, NewGraphQLHttpError(http.StatusBadRequest, errors.New("openAIToken is required"))
 	}
 	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
-	pj, err := service.
+	stat := service.
 		EntClient.
 		Project.
 		Create().
@@ -44,8 +44,13 @@ func (q QueryResolver) CreateProject(ctx context.Context, args createProjectArgs
 		SetNillableOpenAIBaseURL(data.OpenAIBaseURL).
 		SetNillableOpenAIModel(data.OpenAIModel).
 		SetNillableOpenAITemperature(data.OpenAITemperature).
-		SetNillableOpenAITopP(data.OpenAITopP).
-		SetNillableOpenAIMaxTokens(data.OpenAIMaxTokens).
+		SetNillableOpenAITopP(data.OpenAITopP)
+
+	if data.OpenAIMaxTokens != nil {
+		stat = stat.SetOpenAIMaxTokens(int(*data.OpenAIMaxTokens))
+	}
+
+	pj, err := stat.
 		SetCreatorID(ctxValue.UserID).
 		Save(ctx)
 
@@ -83,7 +88,7 @@ func (q QueryResolver) UpdateProject(ctx context.Context, args updateProjectArgs
 		updater = updater.SetOpenAITopP(*args.Data.OpenAITopP)
 	}
 	if args.Data.OpenAIMaxTokens != nil {
-		updater = updater.SetOpenAIMaxTokens(*args.Data.OpenAIMaxTokens)
+		updater = updater.SetOpenAIMaxTokens(int(*args.Data.OpenAIMaxTokens))
 	}
 
 	pj, err := updater.Save(ctx)
