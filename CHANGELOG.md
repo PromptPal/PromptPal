@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.4](https://github.com/PromptPal/PromptPal/compare/v1.4.3...v1.4.4) (2023-10-29)
+
+
+### Bug Fixes
+
+* **app:** just update some information ([16d95fd](https://github.com/PromptPal/PromptPal/commit/16d95fd6fe1e89b19f843c885a42145656388821))
+
 ## [1.4.3](https://github.com/PromptPal/PromptPal/compare/v1.4.2...v1.4.3) (2023-10-28)
 
 
