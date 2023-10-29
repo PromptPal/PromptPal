@@ -25,9 +25,7 @@ func main() {
 }
 
 func startHTTPServer() {
-	// Send buffered spans and free resources.
 	publicDomain := config.GetRuntimeConfig().PublicDomain
-
 	w3 := service.NewWeb3Service()
 	o := service.NewOpenAIService()
 	hi := service.NewHashIDService()
@@ -60,5 +58,5 @@ func startHTTPServer() {
 	if err := server.Shutdown(ctx); err != nil {
 		logrus.Fatal("Server forced to shutdown:", err)
 	}
-	logrus.Println("Server exiting")
+	logrus.Println("PromptPal Server exiting")
 }
