@@ -5,6 +5,9 @@
 
 PromptPal is an exceptional prompts management tool designed specifically for startups and individual contributors in the field of AI. It serves as a centralized platform to effortlessly manage prompts within your AI projects, enabling seamless collaboration and workflow optimization. With PromptPal, you can ensure efficient prompt tracking, simplify project management, and never miss a critical prompt.
 
+
+[![video guide](https://i9.ytimg.com/vi_webp/IjfrQNRUg_I/maxresdefault.webp?v=653fe47c&sqp=CLCqiaoG&rs=AOn4CLACKB4LG800OmZQNda4k7Eyd0mTHg)](https://youtu.be/IjfrQNRUg_I "PromptPal - a Prompt management service focusing on enterprise development and developer experience")
+
 # Features
 - **On-Premise and Cloud-Native**: PromptPal excels in both on-premise and cloud-native environments, making it a versatile solution for AI projects. Its lightweight architecture guarantees efficient resource utilization, ensuring optimal performance. And all this feature only need 12.3MB[^1] memory!
 
@@ -107,6 +110,5 @@ We warmly welcome contributions from the community to enhance PromptPal. To cont
 # Contact
 If you have any questions, suggestions, or issues, please don't hesitate to reach out to us at annatar.he@gmail.com.
 
--------
 
 [^1]: For testing purposes, the 12.3MB was only evaluated on an M1 Pro MacBook during startup. Readers should be aware that performance may vary across different hardware configurations and operating conditions.
