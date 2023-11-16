@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.5.0](https://github.com/PromptPal/PromptPal/compare/v1.4.4...v1.5.0) (2023-11-16)
+
+
+### Features
+
+* **docs:** add video for readme ([91c8c12](https://github.com/PromptPal/PromptPal/commit/91c8c120a15d14984ad4aa9387a3d0fe9f2d8a31))
+
+
+### Bug Fixes
+
+* **docs:** update docs ([da8b9c3](https://github.com/PromptPal/PromptPal/commit/da8b9c37bff61b65d54522de3e63fc8c014071f1))
+* **openai:** use new package and support json reply ([3a08315](https://github.com/PromptPal/PromptPal/commit/3a083155730d1af009aed6f4e46c44517b23f67b))
+
 ## [1.4.4](https://github.com/PromptPal/PromptPal/compare/v1.4.3...v1.4.4) (2023-10-29)
 
 
