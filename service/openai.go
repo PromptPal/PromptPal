@@ -6,7 +6,7 @@ import (
 
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/schema"
-	"github.com/otiai10/openaigo"
+	openai "github.com/sashabaranov/go-openai"
 )
 
 //go:generate mockery --name OpenAIService
@@ -17,7 +17,7 @@ type OpenAIService interface {
 		prompts []schema.PromptRow,
 		variables map[string]string,
 		userId string,
-	) (reply openaigo.ChatCompletionResponse, err error)
+	) (reply openai.ChatCompletionResponse, err error)
 }
 
 type openAIService struct {
@@ -34,20 +34,25 @@ func (o openAIService) Chat(
 	prompts []schema.PromptRow,
 	variables map[string]string,
 	userId string,
-) (reply openaigo.ChatCompletionResponse, err error) {
+) (reply openai.ChatCompletionResponse, err error) {
 	if project.OpenAIToken == "" {
 		return reply, errors.New("token is empty")
 	}
+	cfg := openai.DefaultConfig(project.OpenAIToken)
 
-	client := openaigo.NewClient(project.OpenAIToken)
 	if project.OpenAIBaseURL != "" {
-		client.BaseURL = project.OpenAIBaseURL
+		cfg.BaseURL = project.OpenAIBaseURL
 	}
 
-	req := openaigo.ChatRequest{
+	client := openai.NewClientWithConfig(cfg)
+
+	req := openai.ChatCompletionRequest{
 		Model:       project.OpenAIModel,
 		Temperature: float32(project.OpenAITemperature),
 		TopP:        float32(project.OpenAITopP),
+		ResponseFormat: &openai.ChatCompletionResponseFormat{
+			Type: openai.ChatCompletionResponseFormatTypeJSONObject,
+		},
 	}
 	if userId != "" {
 		req.User = userId
@@ -59,12 +64,12 @@ func (o openAIService) Chat(
 	for _, prompt := range prompts {
 		content := replacePlaceholders(prompt.Prompt, variables)
 		// TODO: update with variables
-		pt := openaigo.Message{
+		pt := openai.ChatCompletionMessage{
 			Role:    prompt.Role,
 			Content: content,
 		}
 		req.Messages = append(req.Messages, pt)
 	}
 
-	return client.Chat(ctx, req)
+	return client.CreateChatCompletion(ctx, req)
 }

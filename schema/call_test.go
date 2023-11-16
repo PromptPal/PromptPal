@@ -19,7 +19,7 @@ import (
 	"github.com/PromptPal/PromptPal/service/mocks"
 	"github.com/PromptPal/PromptPal/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/otiai10/openaigo"
+	openai "github.com/sashabaranov/go-openai"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -104,20 +104,20 @@ func (s *callTestSuite) SetupSuite() {
 		"34",
 	).
 		After(time.Millisecond*100).
-		Return(openaigo.ChatCompletionResponse{
+		Return(openai.ChatCompletionResponse{
 			ID:      "j",
 			Object:  "completion",
 			Created: time.Now().Unix(),
-			Choices: []openaigo.Choice{
+			Choices: []openai.ChatCompletionChoice{
 				{
 					Index: 1,
-					Message: openaigo.Message{
+					Message: openai.ChatCompletionMessage{
 						Content: "ji ni tai mei",
 					},
 					FinishReason: "completed",
 				},
 			},
-			Usage: openaigo.Usage{
+			Usage: openai.Usage{
 				PromptTokens:     18,
 				CompletionTokens: 8888,
 				TotalTokens:      1 << 16,
