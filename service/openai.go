@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/schema"
@@ -50,9 +51,11 @@ func (o openAIService) Chat(
 		Model:       project.OpenAIModel,
 		Temperature: float32(project.OpenAITemperature),
 		TopP:        float32(project.OpenAITopP),
-		ResponseFormat: &openai.ChatCompletionResponseFormat{
+	}
+	if strings.Contains(req.Model, "-1106") {
+		req.ResponseFormat = &openai.ChatCompletionResponseFormat{
 			Type: openai.ChatCompletionResponseFormatTypeJSONObject,
-		},
+		}
 	}
 	if userId != "" {
 		req.User = userId
