@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/PromptPal/PromptPal/compare/v1.5.0...v1.5.1) (2023-11-17)
+
+
+### Bug Fixes
+
+* **openai:** remove json format in chat api if not qualified for model ([64d307a](https://github.com/PromptPal/PromptPal/commit/64d307aad1c506b942f00e1f6709f3124a2888c7))
+
 ## [1.5.0](https://github.com/PromptPal/PromptPal/compare/v1.4.4...v1.5.0) (2023-11-16)
 
 
