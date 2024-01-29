@@ -49,7 +49,7 @@ func testPrompt(c *gin.Context) {
 		return
 	}
 
-	res, err := openAIService.Chat(c, *pj, payload.Prompts, payload.Variables, "")
+	res, err := aiService.Chat(c, *pj, payload.Prompts, payload.Variables, "")
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse{

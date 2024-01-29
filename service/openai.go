@@ -21,15 +21,15 @@ type OpenAIService interface {
 	) (reply openai.ChatCompletionResponse, err error)
 }
 
-type openAIService struct {
+type aiService struct {
 }
 
 func NewOpenAIService() OpenAIService {
-	return &openAIService{}
+	return &aiService{}
 }
 
 // just for mock
-func (o openAIService) Chat(
+func (o aiService) Chat(
 	ctx context.Context,
 	project ent.Project,
 	prompts []schema.PromptRow,
@@ -39,6 +39,16 @@ func (o openAIService) Chat(
 	if project.OpenAIToken == "" {
 		return reply, errors.New("token is empty")
 	}
+
+	// if !strings.HasPrefix(project.OpenAIModel, "gpt-") {
+	// 	client, err := genai.NewClient(ctx, option.WithAPIKey(project.OpenAIToken), option.WithEndpoint(project.OpenAIBaseURL))
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 		return reply, err
+	// 	}
+	// 	defer client.Close()
+	// }
+
 	cfg := openai.DefaultConfig(project.OpenAIToken)
 
 	if project.OpenAIBaseURL != "" {

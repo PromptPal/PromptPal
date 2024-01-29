@@ -173,7 +173,7 @@ func apiRunPrompt(c *gin.Context) {
 
 	startTime := time.Now()
 	responseResult := 0
-	res, err := openAIService.Chat(c, pj, prompt.Prompts, payload.Variables, payload.UserId)
+	res, err := aiService.Chat(c, pj, prompt.Prompts, payload.Variables, payload.UserId)
 	endTime := time.Now()
 
 	defer func() {

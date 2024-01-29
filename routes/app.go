@@ -18,7 +18,7 @@ type errorResponse struct {
 
 // var s
 var web3Service service.Web3Service
-var openAIService service.OpenAIService
+var aiService service.OpenAIService
 var hashidService service.HashIDService
 
 func SetupGinRoutes(
@@ -29,7 +29,7 @@ func SetupGinRoutes(
 	graphqlSchema *graphql.Schema,
 ) *gin.Engine {
 	web3Service = w3
-	openAIService = o
+	aiService = o
 	hashidService = hi
 	s = graphqlSchema
 
