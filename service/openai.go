@@ -3,11 +3,15 @@ package service
 import (
 	"context"
 	"errors"
+	"log"
 	"strings"
 
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/schema"
+	"github.com/google/generative-ai-go/genai"
 	openai "github.com/sashabaranov/go-openai"
+	"github.com/sirupsen/logrus"
+	"google.golang.org/api/option"
 )
 
 //go:generate mockery --name OpenAIService
@@ -40,15 +44,69 @@ func (o aiService) Chat(
 		return reply, errors.New("token is empty")
 	}
 
-	// if !strings.HasPrefix(project.OpenAIModel, "gpt-") {
-	// 	client, err := genai.NewClient(ctx, option.WithAPIKey(project.OpenAIToken), option.WithEndpoint(project.OpenAIBaseURL))
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 		return reply, err
-	// 	}
-	// 	defer client.Close()
-	// }
+	// gemini support
+	if strings.HasPrefix(project.OpenAIModel, "gemini-") {
+		client, err := genai.NewClient(ctx, option.WithAPIKey(project.OpenAIToken), option.WithEndpoint(project.OpenAIBaseURL))
+		if err != nil {
+			log.Fatal(err)
+			return reply, err
+		}
+		defer client.Close()
+		genModel := client.GenerativeModel(project.OpenAIModel)
+		genModel.SetTemperature(float32(project.OpenAITemperature))
+		genModel.SetTopP(float32(project.OpenAITopP))
+		genModel.SetTopK(20)
+		if project.OpenAIMaxTokens > 0 {
+			genModel.SetMaxOutputTokens(int32(project.OpenAIMaxTokens))
+		}
+		pts := []genai.Part{}
 
+		for _, prompt := range prompts {
+			content := replacePlaceholders(prompt.Prompt, variables)
+			txt := genai.Text(content)
+			pts = append(pts, txt)
+		}
+		resp, err := genModel.GenerateContent(ctx, pts...)
+		if err != nil {
+			return reply, err
+		}
+
+		result := []openai.ChatCompletionChoice{}
+
+		completionTokenCount := int32(0)
+		for _, cand := range resp.Candidates {
+			if cand.Content == nil {
+				continue
+			}
+			completionTokenCount += cand.TokenCount
+			for _, part := range cand.Content.Parts {
+				content, ok := part.(genai.Text)
+				if !ok {
+					logrus.Warnln("not a text part in gemini api")
+					continue
+				}
+				// genai.Text(part.ContentType)
+				result = append(result, openai.ChatCompletionChoice{
+					Index: int(cand.Index),
+					Message: openai.ChatCompletionMessage{
+						Role:    cand.Content.Role,
+						Content: string(content),
+					},
+					FinishReason: openai.FinishReasonStop,
+				})
+			}
+		}
+		return openai.ChatCompletionResponse{
+			Choices: result,
+			Usage: openai.Usage{
+				CompletionTokens: int(completionTokenCount),
+				PromptTokens:     -1,
+				TotalTokens:      int(completionTokenCount),
+			},
+		}, nil
+	}
+
+	// openai support
 	cfg := openai.DefaultConfig(project.OpenAIToken)
 
 	if project.OpenAIBaseURL != "" {
@@ -76,7 +134,6 @@ func (o aiService) Chat(
 
 	for _, prompt := range prompts {
 		content := replacePlaceholders(prompt.Prompt, variables)
-		// TODO: update with variables
 		pt := openai.ChatCompletionMessage{
 			Role:    prompt.Role,
 			Content: content,
