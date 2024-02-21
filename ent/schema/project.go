@@ -21,7 +21,7 @@ func (Project) Fields() []ent.Field {
 		field.Int("creator_id").StorageKey("user_projects").Optional(),
 
 		// for OpenAI
-		field.String("openAIBaseURL").Default("https://api.openai.com/v1"),
+		field.String("openAIBaseURL").Default("https://api.openai.com"),
 		field.String("openAIToken").Default("").Sensitive(),
 
 		// for Google Gemini

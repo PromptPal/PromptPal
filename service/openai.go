@@ -45,8 +45,12 @@ func (o aiService) Chat(
 	}
 
 	// gemini support
-	if strings.HasPrefix(project.OpenAIModel, "gemini-") {
-		client, err := genai.NewClient(ctx, option.WithAPIKey(project.OpenAIToken), option.WithEndpoint(project.OpenAIBaseURL))
+	if strings.HasPrefix(project.OpenAIModel, "gemini") {
+		client, err := genai.NewClient(
+			ctx,
+			option.WithAPIKey(project.GeminiToken),
+			option.WithEndpoint(project.GeminiBaseURL),
+		)
 		if err != nil {
 			log.Fatal(err)
 			return reply, err
