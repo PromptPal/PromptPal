@@ -49,7 +49,8 @@ func (s *projectTestSuite) TestCreateProject() {
 	assert.Nil(s.T(), err)
 
 	assert.Equal(s.T(), s.projectName, result.Name())
-	assert.Equal(s.T(), "https://api.openai.com/v1", result.OpenAIBaseURL())
+	assert.Equal(s.T(), "https://api.openai.com", result.OpenAIBaseURL())
+	assert.Equal(s.T(), "https://generativelanguage.googleapis.com", result.GeminiBaseURL())
 	assert.NotEmpty(s.T(), result.ID())
 	s.projectID = int(result.ID())
 }
@@ -82,7 +83,8 @@ func (s *projectTestSuite) TestGetProject() {
 	assert.Nil(s.T(), err)
 	pj := result
 	assert.Equal(s.T(), s.projectName, pj.Name())
-	assert.Equal(s.T(), "https://api.openai.com/v1", pj.OpenAIBaseURL())
+	assert.Equal(s.T(), "https://api.openai.com", pj.OpenAIBaseURL())
+	assert.Equal(s.T(), "https://generativelanguage.googleapis.com", result.GeminiBaseURL())
 	assert.Equal(s.T(), "gpt-3.5-turbo", pj.OpenAIModel())
 	assert.Equal(s.T(), "SOME_RANDOM_TOKEN_HERE", pj.OpenAIToken())
 	assert.EqualValues(s.T(), 1, pj.OpenAITemperature())

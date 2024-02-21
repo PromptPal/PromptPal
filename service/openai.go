@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"net/url"
 	"strings"
 
 	"github.com/PromptPal/PromptPal/ent"
@@ -113,8 +114,18 @@ func (o aiService) Chat(
 	// openai support
 	cfg := openai.DefaultConfig(project.OpenAIToken)
 
+	// add `/v1` if the base url is `api.openai.com`
+	// for the client sdk reason
 	if project.OpenAIBaseURL != "" {
-		cfg.BaseURL = project.OpenAIBaseURL
+		baseUrl, err := url.Parse(project.OpenAIBaseURL)
+		if err != nil {
+			logrus.Errorln(err)
+			return reply, err
+		}
+		if strings.Contains(baseUrl.Host, "api.openai.com") && baseUrl.Path != "/v1" {
+			baseUrl.Path = "/v1"
+		}
+		cfg.BaseURL = baseUrl.String()
 	}
 
 	client := openai.NewClientWithConfig(cfg)
