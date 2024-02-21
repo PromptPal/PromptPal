@@ -11,11 +11,19 @@ import (
 )
 
 type createProjectData struct {
-	Name              *string
-	Enabled           *bool
-	OpenAIBaseURL     *string
+	Name    *string
+	Enabled *bool
+
+	// OpenAI
+	OpenAIBaseURL *string
+	OpenAIToken   *string
+
+	// gemini
+	GeminiBaseURL *string
+	GeminiToken   *string
+
+	// common
 	OpenAIModel       *string
-	OpenAIToken       *string
 	OpenAITemperature *float64
 	OpenAITopP        *float64
 	OpenAIMaxTokens   *int32
@@ -30,7 +38,7 @@ func (q QueryResolver) CreateProject(ctx context.Context, args createProjectArgs
 	if data.Name == nil {
 		return projectResponse{}, NewGraphQLHttpError(http.StatusBadRequest, errors.New("name is required"))
 	}
-	if data.OpenAIToken == nil {
+	if data.OpenAIToken == nil && data.GeminiToken == nil {
 		return projectResponse{}, NewGraphQLHttpError(http.StatusBadRequest, errors.New("openAIToken is required"))
 	}
 	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
@@ -39,9 +47,11 @@ func (q QueryResolver) CreateProject(ctx context.Context, args createProjectArgs
 		Project.
 		Create().
 		SetName(*data.Name).
-		SetNillableOpenAIToken(data.OpenAIToken).
-		SetNillableEnabled(data.Enabled).
 		SetNillableOpenAIBaseURL(data.OpenAIBaseURL).
+		SetNillableOpenAIToken(data.OpenAIToken).
+		SetNillableGeminiBaseURL(data.GeminiBaseURL).
+		SetNillableGeminiToken(data.GeminiToken).
+		SetNillableEnabled(data.Enabled).
 		SetNillableOpenAIModel(data.OpenAIModel).
 		SetNillableOpenAITemperature(data.OpenAITemperature).
 		SetNillableOpenAITopP(data.OpenAITopP)
@@ -75,11 +85,17 @@ func (q QueryResolver) UpdateProject(ctx context.Context, args updateProjectArgs
 	if args.Data.OpenAIBaseURL != nil {
 		updater = updater.SetOpenAIBaseURL(*args.Data.OpenAIBaseURL)
 	}
-	if args.Data.OpenAIModel != nil {
-		updater = updater.SetOpenAIModel(*args.Data.OpenAIModel)
-	}
 	if args.Data.OpenAIToken != nil {
 		updater = updater.SetOpenAIToken(*args.Data.OpenAIToken)
+	}
+	if args.Data.GeminiBaseURL != nil {
+		updater = updater.SetGeminiBaseURL(*args.Data.GeminiBaseURL)
+	}
+	if args.Data.GeminiToken != nil {
+		updater = updater.SetGeminiToken(*args.Data.GeminiToken)
+	}
+	if args.Data.OpenAIModel != nil {
+		updater = updater.SetOpenAIModel(*args.Data.OpenAIModel)
 	}
 	if args.Data.OpenAITemperature != nil {
 		updater = updater.SetOpenAITemperature(*args.Data.OpenAITemperature)

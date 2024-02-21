@@ -86,11 +86,19 @@ func (p projectResponse) Enabled() bool {
 func (p projectResponse) OpenAIBaseURL() string {
 	return p.p.OpenAIBaseURL
 }
-func (p projectResponse) OpenAIModel() string {
-	return p.p.OpenAIModel
-}
 func (p projectResponse) OpenAIToken() string {
 	return p.p.OpenAIToken
+}
+
+func (p projectResponse) GeminiBaseURL() string {
+	return p.p.GeminiBaseURL
+}
+func (p projectResponse) GeminiToken() string {
+	return p.p.GeminiToken
+}
+
+func (p projectResponse) OpenAIModel() string {
+	return p.p.OpenAIModel
 }
 func (p projectResponse) OpenAITemperature() float64 {
 	return p.p.OpenAITemperature

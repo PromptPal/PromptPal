@@ -5,13 +5,18 @@
 
 input ProjectPayload {
   name: String
-  openAIToken: String
   enabled: Boolean
+
   openAIBaseURL: String
+  openAIToken: String
+
+  geminiBaseURL: String
+  geminiToken: String
+
   openAIModel: String
-	openAITemperature: Float
-	openAITopP: Float
-	openAIMaxTokens: Int
+  openAITemperature: Float
+  openAITopP: Float
+  openAIMaxTokens: Int
 }
 
 type ProjectPromptMetricsRecentCount {
@@ -25,13 +30,19 @@ type ProjectPromptMetrics {
 type Project {
   id: Int!
   name: String!
-  openAIToken: String!
   enabled: Boolean!
+
   openAIBaseURL: String!
+  openAIToken: String!
+
+  geminiBaseURL: String!
+  geminiToken: String!
+
   openAIModel: String!
-	openAITemperature: Float!
-	openAITopP: Float!
-	openAIMaxTokens: Int!
+  openAITemperature: Float!
+  openAITopP: Float!
+  openAIMaxTokens: Int!
+
   createdAt: String!
   updatedAt: String!
   creator: User!

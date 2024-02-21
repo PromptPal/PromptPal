@@ -19,9 +19,17 @@ func (Project) Fields() []ent.Field {
 		field.String("name"),
 		field.Bool("enabled").Default(true),
 		field.Int("creator_id").StorageKey("user_projects").Optional(),
-		field.String("openAIBaseURL").Default("https://api.openai.com/v1"),
-		field.String("openAIModel").Default("gpt-3.5-turbo"),
+
+		// for OpenAI
+		field.String("openAIBaseURL").Default("https://api.openai.com"),
 		field.String("openAIToken").Default("").Sensitive(),
+
+		// for Google Gemini
+		field.String("geminiBaseURL").Default("https://generativelanguage.googleapis.com"),
+		field.String("geminiToken").Default("").Sensitive(),
+
+		// the 4 below are for common use. the name just because of legacy design
+		field.String("openAIModel").Default("gpt-3.5-turbo"),
 		field.Float("openAITemperature").Default(1),
 		field.Float("openAITopP").Default(0.9),
 		field.Int("openAIMaxTokens").Default(0),
