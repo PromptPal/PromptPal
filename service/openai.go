@@ -122,7 +122,7 @@ func (o aiService) Chat(
 			logrus.Errorln(err)
 			return reply, err
 		}
-		if strings.Contains(baseUrl.Host, "api.openai.com") && baseUrl.Path != "/v1" {
+		if baseUrl.Path != "/v1" {
 			baseUrl.Path = "/v1"
 		}
 		cfg.BaseURL = baseUrl.String()
