@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.6.0](https://github.com/PromptPal/PromptPal/compare/v1.5.1...v1.6.0) (2024-02-24)
+
+
+### Features
+
+* **db:** add gemini support ([efb0c70](https://github.com/PromptPal/PromptPal/commit/efb0c7082f2ddafe7e35fd7d9cea702a0b0f66d9))
+* **gemini:** add gemini support ([6cfd442](https://github.com/PromptPal/PromptPal/commit/6cfd442d792f663cd4a2781c072a2d8fafd89947))
+* **gemini:** update gemini support ([00cf12a](https://github.com/PromptPal/PromptPal/commit/00cf12a071c22c099753f3141f3a2f85f4f3d992))
+
+
+### Bug Fixes
+
+* always set base URL path to "/v1" for API requests to ensure compatibility with OpenAI API ([ecc60b5](https://github.com/PromptPal/PromptPal/commit/ecc60b58a1d3396db845c0ef98497b811fb98f3a))
+* **ci:** upgrade ci action versions ([4287528](https://github.com/PromptPal/PromptPal/commit/428752871993bdb2388e31192e88a5fd5e6575e0))
+* **ci:** upgrade mockery to latest ([fff2b7c](https://github.com/PromptPal/PromptPal/commit/fff2b7ccf04fb30f7aa10d5395fe717a989f790d))
+* **deps:** update deps ([0bbde18](https://github.com/PromptPal/PromptPal/commit/0bbde186a7214978228fce51b83d9f97eca15aa6))
+* **git:** add DS_Store to gitignore ([70c215c](https://github.com/PromptPal/PromptPal/commit/70c215cb1b4611b8a001a096ec6c394c428bc7c8))
+* **openai:** fix openai fetcher ([9efc15b](https://github.com/PromptPal/PromptPal/commit/9efc15b9639b6caf1e23e83432592ede1e70d2c7))
+
 ## [1.5.1](https://github.com/PromptPal/PromptPal/compare/v1.5.0...v1.5.1) (2023-11-17)
 
 
