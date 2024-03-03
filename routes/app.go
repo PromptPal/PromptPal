@@ -115,6 +115,7 @@ func SetupGinRoutes(
 	// !!! IMPORTANT !!!
 	// this feature should only available for enterprise
 	sso := h.Group("/api/v1/sso")
+	sso.GET("/settings", authSettings)
 	sso.Use(ssoProviderCheck)
 	{
 		sso.GET("/login/:provider", ssoLogin)

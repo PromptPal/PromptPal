@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/PromptPal/PromptPal/config"
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/user"
 	"github.com/PromptPal/PromptPal/service"
@@ -18,6 +17,17 @@ type ssoProviders string
 const (
 	SsoProviderGoogle ssoProviders = "google"
 )
+
+type authSettingsResponse struct {
+	EnableSsoGoogle bool `json:"enableSsoGoogle"`
+}
+
+func authSettings(c *gin.Context) {
+	enableSsoGoogle := ssoGoogle != nil
+	c.JSON(http.StatusOK, authSettingsResponse{
+		EnableSsoGoogle: enableSsoGoogle,
+	})
+}
 
 func ssoProviderCheck(c *gin.Context) {
 	provider, ok := c.Params.Get("provider")
@@ -238,5 +248,5 @@ func ssoCallback(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(http.StatusTemporaryRedirect, config.GetRuntimeConfig().PublicDomain+"/sso/cb?token="+token)
+	c.Redirect(http.StatusTemporaryRedirect, "/auth/sso/cb?token="+token)
 }
