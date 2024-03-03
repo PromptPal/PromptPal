@@ -22,6 +22,7 @@ func (User) Fields() []ent.Field {
 		field.String("phone"),
 		field.String("lang"),
 		field.Uint8("level"), // 255: admin
+		field.String("source").Default("web3"),
 		field.Text("ssoInfo").Default("{}"),
 	}
 }

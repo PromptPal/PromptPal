@@ -8,6 +8,7 @@ require (
 	entgo.io/ent v0.13.1
 	github.com/Code-Hex/go-generics-cache v1.3.1
 	github.com/anargu/gin-brotli v0.0.0-20220116052358-12bf532d5267
+	github.com/coreos/go-oidc/v3 v3.9.0
 	github.com/ethereum/go-ethereum v1.13.14
 	github.com/gin-contrib/cors v1.5.0
 	github.com/gin-contrib/sessions v0.0.5
@@ -52,6 +53,7 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
+	github.com/go-jose/go-jose/v3 v3.0.1 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect

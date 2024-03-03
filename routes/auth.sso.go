@@ -1,14 +1,14 @@
 package routes
 
 import (
-	"encoding/json"
-	"io"
 	"net/http"
 	"time"
 
+	"github.com/PromptPal/PromptPal/config"
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/user"
 	"github.com/PromptPal/PromptPal/service"
+	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -123,18 +123,21 @@ func ssoCallback(c *gin.Context) {
 		})
 		return
 	}
-
-	client := ssoGoogle.Client(c.Request.Context(), tok)
-	profileResp, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
-	if err != nil {
+	rawIDToken, ok := tok.Extra("id_token").(string)
+	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, errorResponse{
 			ErrorCode:    http.StatusBadRequest,
-			ErrorMessage: err.Error(),
+			ErrorMessage: "missing id_token in token",
 		})
 		return
 	}
-	defer profileResp.Body.Close()
-	data, err := io.ReadAll(profileResp.Body)
+
+	verifier := oidcProvider.VerifierContext(c.Request.Context(), &oidc.Config{
+		ClientID: ssoGoogle.ClientID,
+	})
+
+	idToken, err := verifier.Verify(c.Request.Context(), rawIDToken)
+
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, errorResponse{
 			ErrorCode:    http.StatusBadRequest,
@@ -144,8 +147,7 @@ func ssoCallback(c *gin.Context) {
 	}
 
 	var googleUserInfo SSOGoogleAuth
-
-	if err := json.Unmarshal(data, &googleUserInfo); err != nil {
+	if err := idToken.Claims(&googleUserInfo); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, errorResponse{
 			ErrorCode:    http.StatusBadRequest,
 			ErrorMessage: err.Error(),
@@ -203,7 +205,7 @@ func ssoCallback(c *gin.Context) {
 			SetEmail(googleUserInfo.Email).
 			SetName(googleUserInfo.Email).
 			SetAvatar(googleUserInfo.Picture).
-			SetSsoInfo(string(data)).
+			SetSource("sso:google").
 			SetAddr("").
 			SetLang("en").
 			SetLevel(0).
@@ -236,5 +238,5 @@ func ssoCallback(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(http.StatusTemporaryRedirect, "/sso/cb?token="+token)
+	c.Redirect(http.StatusTemporaryRedirect, config.GetRuntimeConfig().PublicDomain+"/sso/cb?token="+token)
 }

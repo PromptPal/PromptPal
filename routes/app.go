@@ -1,12 +1,14 @@
 package routes
 
 import (
+	"context"
 	"net/http"
 	"time"
 
 	"github.com/PromptPal/PromptPal/config"
 	"github.com/PromptPal/PromptPal/service"
 	brotli "github.com/anargu/gin-brotli"
+	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -14,7 +16,6 @@ import (
 	"github.com/graph-gophers/graphql-go"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
 )
 
 type errorResponse struct {
@@ -27,6 +28,7 @@ var web3Service service.Web3Service
 var aiService service.OpenAIService
 var hashidService service.HashIDService
 
+var oidcProvider *oidc.Provider
 var ssoGoogle *oauth2.Config
 
 func SetupGinRoutes(
@@ -41,15 +43,18 @@ func SetupGinRoutes(
 	hashidService = hi
 
 	rc := config.GetRuntimeConfig()
-	logrus.Println("wtffffff", rc.SSOGoogleCallbackURL, rc.SSOGoogleClientID, rc.SSOGoogleClientSecret)
 	if rc.SSOGoogleCallbackURL != "" && rc.SSOGoogleClientID != "" && rc.SSOGoogleClientSecret != "" {
-		logrus.Println("wtffffff", rc.SSOGoogleCallbackURL)
+		provider, err := oidc.NewProvider(context.Background(), "https://accounts.google.com")
+		if err != nil {
+			logrus.Panicln(err)
+		}
+		oidcProvider = provider
 		ssoGoogle = &oauth2.Config{
 			ClientID:     rc.SSOGoogleClientID,
 			ClientSecret: rc.SSOGoogleClientSecret,
 			RedirectURL:  rc.SSOGoogleCallbackURL,
-			Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
-			Endpoint:     google.Endpoint,
+			Endpoint:     provider.Endpoint(),
+			Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 		}
 	}
 	s = graphqlSchema
