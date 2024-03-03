@@ -14,6 +14,10 @@ type RuntimeConfig struct {
 	HashidSalt    string   `envconfig:"HASHID_SALT" required:"true"`
 	AdminList     []string `envconfig:"ADMIN_LIST"`
 	OpenAIBaseURL string   `envconfig:"OPENAI_BASE_URL" default:"https://api.openai.com/v1"`
+
+	SSOGoogleClientID     string `envconfig:"SSO_GOOGLE_CLIENT_ID"`
+	SSOGoogleClientSecret string `envconfig:"SSO_GOOGLE_CLIENT_SECRET"`
+	SSOGoogleCallbackURL  string `envconfig:"SSO_GOOGLE_CALLBACK_URL"`
 }
 
 var runtimeConfig RuntimeConfig

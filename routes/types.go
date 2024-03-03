@@ -19,3 +19,10 @@ type ListResponse[T any] struct {
 	Count int `json:"count"`
 	Data  []T `json:"data"`
 }
+
+type SSOGoogleAuth struct {
+	Sub           string `json:"sub"`
+	Picture       string `json:"picture"`
+	Email         string `json:"email"`
+	EmailVerified bool   `json:"email_verified"`
+}

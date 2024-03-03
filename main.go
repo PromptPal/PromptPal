@@ -47,6 +47,8 @@ func startHTTPServer() {
 		}
 	}()
 
+	logrus.Infoln("PromptPal Server is running on: ", publicDomain)
+
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
@@ -56,7 +58,7 @@ func startHTTPServer() {
 	service.Close()
 
 	if err := server.Shutdown(ctx); err != nil {
-		logrus.Fatal("Server forced to shutdown:", err)
+		logrus.Fatalln("Server forced to shutdown:", err)
 	}
-	logrus.Println("PromptPal Server exiting")
+	logrus.Infoln("PromptPal Server exiting")
 }
