@@ -1,14 +1,21 @@
 package routes
 
 import (
+	"context"
 	"net/http"
 	"time"
 
+	"github.com/PromptPal/PromptPal/config"
 	"github.com/PromptPal/PromptPal/service"
 	brotli "github.com/anargu/gin-brotli"
+	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/graph-gophers/graphql-go"
+	"github.com/sirupsen/logrus"
+	"golang.org/x/oauth2"
 )
 
 type errorResponse struct {
@@ -21,6 +28,9 @@ var web3Service service.Web3Service
 var aiService service.OpenAIService
 var hashidService service.HashIDService
 
+var oidcProvider *oidc.Provider
+var ssoGoogle *oauth2.Config
+
 func SetupGinRoutes(
 	commitSha string,
 	w3 service.Web3Service,
@@ -31,10 +41,28 @@ func SetupGinRoutes(
 	web3Service = w3
 	aiService = o
 	hashidService = hi
+
+	rc := config.GetRuntimeConfig()
+	if rc.SSOGoogleCallbackURL != "" && rc.SSOGoogleClientID != "" && rc.SSOGoogleClientSecret != "" {
+		provider, err := oidc.NewProvider(context.Background(), "https://accounts.google.com")
+		if err != nil {
+			logrus.Panicln(err)
+		}
+		oidcProvider = provider
+		ssoGoogle = &oauth2.Config{
+			ClientID:     rc.SSOGoogleClientID,
+			ClientSecret: rc.SSOGoogleClientSecret,
+			RedirectURL:  rc.SSOGoogleCallbackURL,
+			Endpoint:     provider.Endpoint(),
+			Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
+		}
+	}
 	s = graphqlSchema
 
 	h := gin.Default()
 
+	store := cookie.NewStore(rc.JwtTokenKey)
+	h.Use(sessions.Sessions("pp-sess", store))
 	// h.Use(brotli.Brotli(brotli.DefaultCompression))
 
 	// with version
@@ -82,6 +110,16 @@ func SetupGinRoutes(
 	{
 		apiRoutes.GET("/prompts", apiListPrompts)
 		apiRoutes.POST("/prompts/run/:id", apiRunPrompt)
+	}
+
+	// !!! IMPORTANT !!!
+	// this feature should only available for enterprise
+	sso := h.Group("/api/v1/sso")
+	sso.GET("/settings", authSettings)
+	sso.Use(ssoProviderCheck)
+	{
+		sso.GET("/login/:provider", ssoLogin)
+		sso.GET("/callback/:provider", ssoCallback)
 	}
 
 	return h

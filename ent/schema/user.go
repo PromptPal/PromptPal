@@ -17,10 +17,13 @@ func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name"),
 		field.String("addr").Unique(),
+		field.String("avatar").Default(""),
 		field.String("email"),
 		field.String("phone"),
 		field.String("lang"),
 		field.Uint8("level"), // 255: admin
+		field.String("source").Default("web3"),
+		field.Text("ssoInfo").Default("{}"),
 	}
 }
 
