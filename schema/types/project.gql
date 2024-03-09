@@ -23,8 +23,15 @@ type ProjectPromptMetricsRecentCount {
   prompt: Prompt!
   count: Int!
 }
+
+type ProjectPromptMetricsByDate {
+  date: String!
+  prompts: [ProjectPromptMetricsRecentCount!]!
+}
+
 type ProjectPromptMetrics {
   recentCounts: [ProjectPromptMetricsRecentCount!]!
+  last7Days: [ProjectPromptMetricsByDate!]!
 }
 
 type Project {
