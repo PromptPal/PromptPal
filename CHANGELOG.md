@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.7.0](https://github.com/PromptPal/PromptPal/compare/v1.6.0...v1.7.0) (2024-03-10)
+
+
+### Features
+
+* **metric:** add prompt metrics in last 7 days ([b48cd61](https://github.com/PromptPal/PromptPal/commit/b48cd61cdd12e91b7a9c1c3c2526ba70d192362e))
+* **prompt:** add prompt p50, p90, p99 metrics ([fcfda4a](https://github.com/PromptPal/PromptPal/commit/fcfda4ac9339b91609245b1d21b79aecdbfd67d8))
+* **sso:** add sso settings api for ensure sso enabled ([884d285](https://github.com/PromptPal/PromptPal/commit/884d285200157383b59966b3ea206a8ee15d9b70))
+* **sso:** add sso support for auth. solve [#17](https://github.com/PromptPal/PromptPal/issues/17) ([da0d708](https://github.com/PromptPal/PromptPal/commit/da0d7081da184655b5c34afdfec8e0f5644b3a7e))
+
+
+### Bug Fixes
+
+* **sso:** use oidc instead of the original google api ([541596a](https://github.com/PromptPal/PromptPal/commit/541596a02fa4211297857b62d2d72da3f7788d42))
+
 ## [1.6.0](https://github.com/PromptPal/PromptPal/compare/v1.5.1...v1.6.0) (2024-02-24)
 
 
