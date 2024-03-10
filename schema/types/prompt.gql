@@ -14,8 +14,8 @@ enum PublicLevel {
 }
 
 input PromptRowInput {
-	prompt: String!
-	role: PromptRole!
+  prompt: String!
+  role: PromptRole!
 }
 
 input PromptVariableInput {
@@ -24,8 +24,8 @@ input PromptVariableInput {
 }
 
 type PromptRow {
-	prompt: String!
-	role: PromptRole!
+  prompt: String!
+  role: PromptRole!
 }
 
 type PromptVariable {
@@ -61,9 +61,16 @@ type Prompt {
   createdAt: String!
   updatedAt: String!
   latestCalls: PromptCallList!
+  metrics: PromptMetrics!
 }
 
 type PromptList {
   count: Int!
   edges: [Prompt!]!
+}
+
+type PromptMetrics {
+  p50: Float!
+  p90: Float!
+  p99: Float!
 }
