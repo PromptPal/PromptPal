@@ -103,7 +103,6 @@ func (p projectPromptMetricsResponse) Last7Days(ctx context.Context) (res []Proj
 
 	err = service.
 		EntClient.
-		Debug().
 		PromptCall.
 		Query().
 		Where(promptcall.HasProjectWith(project.ID(p.p.ID))).
