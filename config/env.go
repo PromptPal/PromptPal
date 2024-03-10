@@ -1,6 +1,8 @@
 package config
 
 import (
+	"strings"
+
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/sirupsen/logrus"
@@ -35,6 +37,10 @@ func SetupConfig(isTesting bool) {
 	err := envconfig.Process("pp", &rc)
 	if err != nil {
 		logrus.Panicln(err)
+	}
+
+	if strings.HasPrefix(rc.DbDSN, "sqlite") || strings.HasPrefix(rc.DbType, "sqlite") {
+		logrus.Warningln("sqlite3 is not supported anymore, and will be removed in the future. please move to PostgresSQL, for more detail please visit: https://promptpal.github.io/blog/promptPal-1-7")
 	}
 
 	runtimeConfig = rc
