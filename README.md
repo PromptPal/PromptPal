@@ -45,7 +45,7 @@ These instructions will guide you through the process of setting up PromptPal on
 - Run Docker Image: Use Docker to run the PromptPal image. Execute the following command, replacing {PUBLIC_ADDRESS} with your Metamask wallet's public address:
 
 ```bash
-docker run -v $(pwd)/.env:/usr/app/.env -p 7788:7788 annatarhe/prompt-pal:master
+docker run -v $(pwd)/.env:/usr/app/.env -p 7788:7788 annatarhe/prompt-pal:v1.7.0
 ```
 
 the .env file should be like this:
