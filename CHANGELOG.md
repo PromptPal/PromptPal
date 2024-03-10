@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.1](https://github.com/PromptPal/PromptPal/compare/v1.7.0...v1.7.1) (2024-03-10)
+
+
+### Bug Fixes
+
+* **db:** add warning info for sqlite project ([ca52d34](https://github.com/PromptPal/PromptPal/commit/ca52d34203504dc2133eccea239e2bd6ac4215ce))
+* **docs:** update docs ([3a7d618](https://github.com/PromptPal/PromptPal/commit/3a7d618ded502cc88afc783a6c19e3f7f2ab2f0a))
+
 ## [1.7.0](https://github.com/PromptPal/PromptPal/compare/v1.6.0...v1.7.0) (2024-03-10)
 
 
