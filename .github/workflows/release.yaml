@@ -47,6 +47,14 @@ jobs:
           echo "GH_TAG=$(echo $GITHUB_REF | awk -F / '{print $3}')" >> $GITHUB_ENV
           go install github.com/vektra/mockery/v2@v2.42.0
           go generate ./...
+          awk -v db_type="postgres" -v db_dsn="\"host=postgres user=postgres password=postgres port=5432 dbname=db_test sslmode=disable\"" '
+            BEGIN { FS = OFS = "=" }
+            $1 == "DB_TYPE" { $2 = db_type }
+            $1 == "DB_DSN" { $2 = db_dsn }
+            { print }
+          ' ./routes/.env.testing > routes/.env.testing2
+          rm ./routes/.env.testing
+          mv ./routes/.env.testing2 ./routes/.env.testing
       - name: Test
         run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
       - name: Upload coverage to Codecov
