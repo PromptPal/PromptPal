@@ -84,6 +84,7 @@ func (s *userTestSuite) TestGetMe() {
 }
 
 func (s *userTestSuite) TearDownSuite() {
+	service.EntClient.Project.DeleteOneID(s.pjID).ExecX(context.Background())
 	service.Close()
 }
 

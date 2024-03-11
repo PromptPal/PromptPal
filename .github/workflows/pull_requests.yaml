@@ -1,0 +1,62 @@
+name: Pull Requests check
+
+on:
+  push:
+    branches-ignore: [main, master]
+
+jobs:
+  build:
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: db_test
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go 1.22
+        uses: actions/setup-go@v5
+        with:
+          go-version: ^1.22
+          cache: true
+        id: go
+      - name: setup env
+        run: |
+          echo "GOPATH=$(go env GOPATH)" >> $GITHUB_ENV
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+        shell: bash
+      - name: Generate
+        run: |
+          echo "GH_TAG=$(echo $GITHUB_REF | awk -F / '{print $3}')" >> $GITHUB_ENV
+          go install github.com/vektra/mockery/v2@v2.42.0
+          go generate ./...
+          rm ./routes/.env.testing
+          echo "" > ./routes/.env.testing
+          rm ./schema/.env.testing
+          echo "" > ./schema/.env.testing
+      - name: Test
+        env:
+          JWT_TOKEN_KEY: "4a9bca7269a3a29eb1026b3c0999b29b929ab59a"
+          HASHID_SALT: "11111111"
+          PUBLIC_DOMAIN: "localhost:7788"
+          DB_TYPE: "postgres"
+          DB_DSN: "host=localhost user=postgres password=postgres port=5432 dbname=db_test sslmode=disable"
+          ADMIN_LIST: 0x4910c609fBC895434a0A5E3E46B1Eb4b64Cff2B8,0x7E63d899676756711d29DD989bb9F5a868C20e1D
+          OPENAI_BASE_URL: "https://api.openai.com/v1"
+        run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Build
+        env:
+          GOARCH: amd64
+          CGO_ENABLED: 1
+          GOOS: linux
+        run: make release

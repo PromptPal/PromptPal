@@ -3,17 +3,20 @@ package schema
 import (
 	"context"
 	"errors"
+	"log"
 	"testing"
 
 	"github.com/PromptPal/PromptPal/config"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/PromptPal/PromptPal/service/mocks"
+	"github.com/PromptPal/PromptPal/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
 type projectTestSuite struct {
 	suite.Suite
+	uid         int
 	projectName string
 	projectID   int
 }
@@ -27,14 +30,26 @@ func (s *projectTestSuite) SetupSuite() {
 	service.InitDB()
 	Setup(hs, oi, w3)
 
-	s.projectName = "test-project"
+	u := service.
+		EntClient.
+		User.
+		Create().
+		SetAddr(utils.RandStringRunes(1 << 4)).
+		SetName(utils.RandStringRunes(1 << 4)).
+		SetLang("en").
+		SetPhone(utils.RandStringRunes(1 << 4)).
+		SetLevel(255).
+		SetEmail(utils.RandStringRunes(1 << 3)).
+		SaveX(context.Background())
+	s.uid = u.ID
+	s.projectName = utils.RandStringRunes(1 << 4)
 }
 
 func (s *projectTestSuite) TestCreateProject() {
 	q := QueryResolver{}
 
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
-		UserID: 1,
+		UserID: s.uid,
 	})
 
 	tk := "SOME_RANDOM_TOKEN_HERE"
@@ -58,13 +73,14 @@ func (s *projectTestSuite) TestCreateProject() {
 func (s *projectTestSuite) TestListProject() {
 	q := QueryResolver{}
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
-		UserID: 1,
+		UserID: s.uid,
 	})
 	result, err := q.Projects(ctx, projectsArgs{
 		Pagination: paginationInput{Limit: 20, Offset: 0},
 	})
 	assert.Nil(s.T(), err)
 	edges := result.Edges()
+	log.Println("result: ", result.projects)
 	assert.EqualValues(s.T(), 1, result.Count())
 	assert.Len(s.T(), edges, int(result.Count()))
 
@@ -75,7 +91,7 @@ func (s *projectTestSuite) TestListProject() {
 func (s *projectTestSuite) TestGetProject() {
 	q := QueryResolver{}
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
-		UserID: 1,
+		UserID: s.uid,
 	})
 	result, err := q.Project(ctx, projectArgs{
 		ID: int32(s.projectID),
@@ -96,7 +112,7 @@ func (s *projectTestSuite) TestGetProject() {
 	creator, err := pj.Creator(ctx)
 	assert.Nil(s.T(), err)
 
-	assert.EqualValues(s.T(), 1, creator.ID())
+	assert.EqualValues(s.T(), s.uid, creator.ID())
 
 	lps := pj.LatestPrompts(ctx)
 	cs, err := lps.Count(ctx)
@@ -127,7 +143,7 @@ func (s *projectTestSuite) TestGetProject() {
 func (s *projectTestSuite) TestUpdateProject() {
 	q := QueryResolver{}
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
-		UserID: 1,
+		UserID: s.uid,
 	})
 
 	openAiMaxTokens := int32(78)
