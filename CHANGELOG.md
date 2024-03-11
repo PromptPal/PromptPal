@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.2](https://github.com/PromptPal/PromptPal/compare/v1.7.1...v1.7.2) (2024-03-11)
+
+
+### Bug Fixes
+
+* **ci:** update ci script to run test in postgres ([17320cf](https://github.com/PromptPal/PromptPal/commit/17320cf93b228eee9a625afd957e618ff295becd))
+* **ci:** update deps and add postgres in ci for test ([96e03f0](https://github.com/PromptPal/PromptPal/commit/96e03f02e8969229a7f48e59b342e886a3354de2))
+
 ## [1.7.1](https://github.com/PromptPal/PromptPal/compare/v1.7.0...v1.7.1) (2024-03-10)
 
 
