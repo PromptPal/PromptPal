@@ -11,7 +11,9 @@ import (
 	"time"
 
 	"github.com/PromptPal/PromptPal/config"
+	"github.com/PromptPal/PromptPal/ent/project"
 	"github.com/PromptPal/PromptPal/ent/prompt"
+	"github.com/PromptPal/PromptPal/ent/promptcall"
 	"github.com/PromptPal/PromptPal/ent/schema"
 	dbSchema "github.com/PromptPal/PromptPal/ent/schema"
 	"github.com/PromptPal/PromptPal/routes"
@@ -295,6 +297,9 @@ func (s *callTestSuite) TestPerformCall() {
 }
 
 func (s *callTestSuite) TearDownSuite() {
+	service.EntClient.PromptCall.Delete().Where(promptcall.HasProjectWith(project.ID(s.pjID))).ExecX(context.Background())
+	service.EntClient.Prompt.DeleteOneID(s.promptID).ExecX(context.Background())
+	service.EntClient.Project.DeleteOneID(s.pjID).ExecX(context.Background())
 	service.Close()
 }
 

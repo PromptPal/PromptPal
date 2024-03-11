@@ -122,9 +122,21 @@ type deleteProjectArgs struct {
 }
 
 func (q QueryResolver) DeleteProject(ctx context.Context, args deleteProjectArgs) (bool, error) {
-	err := service.EntClient.Project.DeleteOneID(int(args.ID)).Exec(ctx)
+
+	tx, err := service.EntClient.Tx(ctx)
+
 	if err != nil {
 		return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
+
+	// tx.PromptCall.Delete().Where(promptcall.ProjectIDEQ(int(args.ID))).Exec(ctx)
+	// tx.History.Delete().Where(history.ProjectIDEQ(int(args.ID))).Exec(ctx)
+
+	err = tx.Project.DeleteOneID(int(args.ID)).Exec(ctx)
+	if err != nil {
+		tx.Rollback()
+		return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
+	}
+	tx.Commit()
 	return true, nil
 }

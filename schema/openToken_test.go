@@ -114,6 +114,7 @@ func (s *openTokenTestSuite) TestPurgeOpenToken() {
 }
 
 func (s *openTokenTestSuite) TearDownSuite() {
+	service.EntClient.Project.DeleteOneID(s.pjID).ExecX(context.Background())
 	service.Close()
 }
 

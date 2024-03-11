@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/PromptPal/PromptPal/config"
+	"github.com/PromptPal/PromptPal/ent/history"
 	"github.com/PromptPal/PromptPal/ent/prompt"
 	dbSchema "github.com/PromptPal/PromptPal/ent/schema"
 	"github.com/PromptPal/PromptPal/service"
@@ -182,6 +183,9 @@ func (s *promptTestSuite) TestUpdatePrompt() {
 }
 
 func (s *promptTestSuite) TearDownSuite() {
+	service.EntClient.History.Delete().Where(history.PromptId(s.promptID)).ExecX(context.Background())
+	service.EntClient.Prompt.DeleteOneID(s.promptID).ExecX(context.Background())
+	service.EntClient.Project.DeleteOneID(s.pjID).ExecX(context.Background())
 	service.Close()
 }
 
