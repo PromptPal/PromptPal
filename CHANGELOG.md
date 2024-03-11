@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.3](https://github.com/PromptPal/PromptPal/compare/v1.7.2...v1.7.3) (2024-03-11)
+
+
+### Bug Fixes
+
+* **docs:** fix docs and make a release ([74a51ab](https://github.com/PromptPal/PromptPal/commit/74a51abf9a8f5494ef48b7d5392a6f19a0aaf3aa))
+
 ## [1.7.2](https://github.com/PromptPal/PromptPal/compare/v1.7.1...v1.7.2) (2024-03-11)
 
 
