@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.4](https://github.com/PromptPal/PromptPal/compare/v1.7.3...v1.7.4) (2024-04-10)
+
+
+### Bug Fixes
+
+* **deps:** upgrade deps ([a9ceb52](https://github.com/PromptPal/PromptPal/commit/a9ceb529c1a982fdb9e3bc0753321e3f0b0c6a37))
+
 ## [1.7.3](https://github.com/PromptPal/PromptPal/compare/v1.7.2...v1.7.3) (2024-03-11)
 
 
