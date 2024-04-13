@@ -152,8 +152,7 @@ func (p projectPromptMetricsResponse) Last7Days(ctx context.Context) (res []Proj
 	reply := map[time.Time][]projectPromptMetricsRecentCount{}
 
 	for _, r := range result {
-		d := r.Date + "T00:00:00Z"
-		dd, _ := time.Parse(time.RFC3339, d)
+		dd, _ := time.Parse(time.RFC3339, r.Date)
 		reply[dd] = append(reply[dd], projectPromptMetricsRecentCount{
 			p:     psMap[r.Pid],
 			count: r.Count,
