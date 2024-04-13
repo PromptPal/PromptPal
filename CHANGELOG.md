@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.5](https://github.com/PromptPal/PromptPal/compare/v1.7.4...v1.7.5) (2024-04-13)
+
+
+### Bug Fixes
+
+* **metrics:** fix time parser in project metrics by date ([8114013](https://github.com/PromptPal/PromptPal/commit/8114013aef748991e091d0935df9f982d6444b96))
+
 ## [1.7.4](https://github.com/PromptPal/PromptPal/compare/v1.7.3...v1.7.4) (2024-04-10)
 
 
