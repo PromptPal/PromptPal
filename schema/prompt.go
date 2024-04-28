@@ -263,6 +263,16 @@ func (p promptVariableResponse) Type() string {
 	return p.p.Type
 }
 
+func (p promptResponse) Creator(ctx context.Context) (userResponse, error) {
+	u, err := p.prompt.QueryCreator().Only(ctx)
+	// u, err := service.EntClient.User.Get(ctx, uid)
+	if err != nil {
+		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return userResponse{}, err
+	}
+	return userResponse{u}, nil
+}
+
 func (p promptResponse) LatestCalls(ctx context.Context) (res promptCallListResponse) {
 	stat := service.EntClient.PromptCall.Query().
 		Where(

@@ -1,0 +1,20 @@
+#import * from './user.gql'
+#import * from './prompt.gql'
+#import * from './call.gql'
+
+type PromptHistory {
+  id: Int!
+  name: String!
+  description: String!
+  prompts: [PromptRow!]!
+  variables: [PromptVariable!]!
+  modifiedBy: User!
+  createdAt: String!
+  updatedAt: String!
+  latestCalls: PromptCallList!
+}
+
+type PromptHistoryResp {
+  count: Int!
+  edges: [PromptHistory!]!
+}
