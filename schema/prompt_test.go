@@ -192,7 +192,7 @@ func (s *promptTestSuite) TestUpdatePrompt() {
 	assert.Len(s.T(), hsEdges, 1)
 
 	hsEdge := hsEdges[0]
-	assert.GreaterOrEqual(s.T(), hsEdge.ID(), 1)
+	assert.GreaterOrEqual(s.T(), hsEdge.ID(), int32(1))
 	assert.EqualValues(s.T(), "test-prompt", hsEdge.Name())
 	assert.NotEmpty(s.T(), hsEdge.CreatedAt())
 	assert.NotEmpty(s.T(), hsEdge.UpdatedAt())
