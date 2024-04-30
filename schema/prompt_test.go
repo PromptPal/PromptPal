@@ -180,6 +180,37 @@ func (s *promptTestSuite) TestUpdatePrompt() {
 	assert.Equal(s.T(), "var88", var1.Name())
 	assert.Equal(s.T(), "string", var1.Type())
 
+	hs, err := result.Histories(ctx)
+	assert.Nil(s.T(), err)
+
+	hsCount, err := hs.Count(ctx)
+	assert.Nil(s.T(), err)
+	assert.EqualValues(s.T(), 1, hsCount)
+
+	hsEdges, err := hs.Edges(ctx)
+	assert.Nil(s.T(), err)
+	assert.Len(s.T(), hsEdges, 1)
+
+	hsEdge := hsEdges[0]
+	assert.GreaterOrEqual(s.T(), hsEdge.ID(), int32(1))
+	assert.EqualValues(s.T(), "test-prompt", hsEdge.Name())
+	assert.NotEmpty(s.T(), hsEdge.CreatedAt())
+	assert.NotEmpty(s.T(), hsEdge.UpdatedAt())
+	// todo: make sure the history is same as the original one
+
+	hsLatestCalls, err := hsEdge.LatestCalls(ctx)
+	assert.Nil(s.T(), err)
+
+	hsLatestCallsCount, err := hsLatestCalls.Count(ctx)
+	assert.Nil(s.T(), err)
+	assert.EqualValues(s.T(), 0, hsLatestCallsCount)
+	hsLatestCallsEdges, err := hsLatestCalls.Edges(ctx)
+	assert.Nil(s.T(), err)
+	assert.Len(s.T(), hsLatestCallsEdges, 0)
+
+	modifier, err := hsEdge.ModifiedBy(ctx)
+	assert.Nil(s.T(), err)
+	assert.EqualValues(s.T(), 1, modifier.ID())
 }
 
 func (s *promptTestSuite) TearDownSuite() {

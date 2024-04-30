@@ -26,7 +26,10 @@ type promptCallListResponse struct {
 }
 
 func (q QueryResolver) Calls(ctx context.Context, args callsArgs) (res promptCallListResponse) {
-	stat := service.EntClient.PromptCall.Query().
+	stat := service.
+		EntClient.
+		PromptCall.
+		Query().
 		Where(promptcall.HasPromptWith(prompt.ID(int(args.PromptID)))).
 		Order(ent.Desc(promptcall.FieldID))
 	res.stat = stat

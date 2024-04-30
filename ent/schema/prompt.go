@@ -35,7 +35,10 @@ func (Prompt) Fields() []ent.Field {
 		field.Int("version").Default(0),
 		field.JSON("variables", []PromptVariable{}),
 		field.Int("projectId").StorageKey("project_prompts"),
-		field.Enum("publicLevel").Values("public", "protected", "private").Default("protected"),
+		field.
+			Enum("publicLevel").
+			Values("public", "protected", "private").
+			Default("protected"),
 	}
 }
 

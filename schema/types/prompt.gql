@@ -1,4 +1,6 @@
 #import * from './call.gql'
+#import * from './user.gql'
+#import * from './history.gql'
 #import * from './project.gql'
 
 enum PromptRole {
@@ -62,6 +64,8 @@ type Prompt {
   updatedAt: String!
   latestCalls: PromptCallList!
   metrics: PromptMetrics!
+  creator: User!
+  histories: PromptHistoryResp!
 }
 
 type PromptList {

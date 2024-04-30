@@ -4,6 +4,7 @@
 #import * from './types/openToken.gql'
 #import * from './types/user.gql'
 #import * from './types/call.gql'
+#import * from './types/history.gql'
 
 schema {
   query: Query

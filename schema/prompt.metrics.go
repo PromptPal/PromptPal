@@ -22,7 +22,6 @@ type promptMetrics struct {
 }
 
 func (p promptResponse) Metrics(ctx context.Context) (res promptMetrics, err error) {
-
 	var temp []promptCallMetricBySQL
 
 	err = service.
