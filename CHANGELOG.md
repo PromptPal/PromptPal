@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.8.0](https://github.com/PromptPal/PromptPal/compare/v1.7.5...v1.8.0) (2024-04-30)
+
+
+### Features
+
+* **history:** add support for prompt histories. ([8292462](https://github.com/PromptPal/PromptPal/commit/829246238b18d30194befb386e5d3958b836cbc2))
+* **history:** Add tests for retrieving prompt histories ([6e91221](https://github.com/PromptPal/PromptPal/commit/6e91221122db3a5b4e37ec69ca3a80c9439281a1))
+
+
+### Bug Fixes
+
+* **history:** Fix data type in assertion for ID comparison in TestUpdatePrompt ([289501b](https://github.com/PromptPal/PromptPal/commit/289501bfbd0167543f75078f5e9a068e6e6fd32b))
+* **history:** Update prompt test to include latest calls and modifier information. ([c366728](https://github.com/PromptPal/PromptPal/commit/c3667285186400b4e7895db9c5b5e9c9fd986b6d))
+
 ## [1.7.5](https://github.com/PromptPal/PromptPal/compare/v1.7.4...v1.7.5) (2024-04-13)
 
 
