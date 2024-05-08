@@ -57,6 +57,6 @@ jobs:
       - name: Build
         env:
           GOARCH: amd64
-          CGO_ENABLED: 1
+          CGO_ENABLED: 0
           GOOS: linux
         run: make release
