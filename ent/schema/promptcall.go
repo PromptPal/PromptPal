@@ -24,6 +24,8 @@ func (PromptCall) Fields() []ent.Field {
 		// 0: success, 1: fail
 		field.Int("result"),
 		field.JSON("payload", map[string]string{}).Optional(),
+		field.Float("cost_cents").Default(0),
+		field.String("ua").Default(""),
 		// only available when prompt.debug is true
 		field.String("message").Optional().Nillable(),
 	}

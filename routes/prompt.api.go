@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -186,13 +187,24 @@ func apiRunPrompt(c *gin.Context) {
 			SetTotalToken(res.Usage.TotalTokens).
 			SetUserId(payload.UserId).
 			SetDuration(endTime.Sub(startTime).Milliseconds()).
-			SetProjectID(pj.ID)
+			SetProjectID(pj.ID).
+			SetUa(c.Request.UserAgent())
 
 		if prompt.Debug {
 			stat.SetPayload(payload.Variables)
 		}
 		if prompt.Debug && len(res.Choices) > 0 {
 			stat.SetMessage(res.Choices[0].Message.Content)
+		}
+
+		cost, err := service.GetCosts(pj.OpenAIModel, endTime)
+		if err != nil {
+			logrus.Errorln(err)
+			err = nil
+		} else {
+			inputCosts := cost.InputTokenCostInCents * float64(res.Usage.PromptTokens)
+			outputCosts := cost.OutputTokenCostInCents * float64(res.Usage.CompletionTokens)
+			stat.SetCostCents(inputCosts + outputCosts)
 		}
 
 		exp := stat.Exec(c)
@@ -223,5 +235,6 @@ func apiRunPrompt(c *gin.Context) {
 	result.ResponseMessage = res.Choices[0].Message.Content
 	result.ResponseTokenCount = res.Usage.CompletionTokens
 
+	c.Header("Server-Timing", fmt.Sprintf("prompt;dur=%d", endTime.Sub(startTime).Milliseconds()))
 	c.JSON(http.StatusOK, result)
 }
