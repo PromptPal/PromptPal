@@ -71,6 +71,13 @@ func (o aiService) Chat(
 			txt := genai.Text(content)
 			pts = append(pts, txt)
 		}
+
+		promptTokenCount, err := genModel.CountTokens(ctx, pts...)
+
+		if err != nil {
+			return reply, err
+		}
+
 		resp, err := genModel.GenerateContent(ctx, pts...)
 		if err != nil {
 			return reply, err
@@ -105,7 +112,7 @@ func (o aiService) Chat(
 			Choices: result,
 			Usage: openai.Usage{
 				CompletionTokens: int(completionTokenCount),
-				PromptTokens:     -1,
+				PromptTokens:     int(promptTokenCount.TotalTokens),
 				TotalTokens:      int(completionTokenCount),
 			},
 		}, nil
@@ -134,11 +141,6 @@ func (o aiService) Chat(
 		Model:       project.OpenAIModel,
 		Temperature: float32(project.OpenAITemperature),
 		TopP:        float32(project.OpenAITopP),
-	}
-	if strings.Contains(req.Model, "-1106") {
-		req.ResponseFormat = &openai.ChatCompletionResponseFormat{
-			Type: openai.ChatCompletionResponseFormatTypeJSONObject,
-		}
 	}
 	if userId != "" {
 		req.User = userId
