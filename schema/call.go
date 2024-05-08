@@ -108,3 +108,10 @@ func (p promptCallResponse) Message() *string {
 func (p promptCallResponse) CreatedAt() string {
 	return p.pc.CreateTime.Format(time.RFC3339)
 }
+
+func (p promptCallResponse) CostInCents() float64 {
+	return p.pc.CostCents
+}
+func (p promptCallResponse) UserAgent() string {
+	return p.pc.Ua
+}
