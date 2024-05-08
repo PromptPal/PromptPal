@@ -2,8 +2,6 @@ module github.com/PromptPal/PromptPal
 
 go 1.22
 
-exclude github.com/mattn/go-sqlite3 v2.0.3+incompatible
-
 exclude github.com/crate-crypto/go-kzg-4844 v1.0.0
 
 require (
@@ -23,7 +21,6 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.10.9
-	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/sashabaranov/go-openai v1.20.5
 	github.com/sirupsen/logrus v1.9.3
 	github.com/speps/go-hashids/v2 v2.0.1
@@ -80,6 +77,7 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/mattn/go-sqlite3 v1.14.22 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/mmcloughlin/addchain v0.4.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect

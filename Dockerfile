@@ -1,7 +1,7 @@
 FROM alpine:latest
 LABEL AUTHOR="AnnatarHe<Annatar.He+docker@gmail.com>"
 
-RUN apk --no-cache --update add ca-certificates gcc musl-dev libc6-compat
+RUN apk --no-cache --update add ca-certificates
 WORKDIR /usr/app
 
 COPY up-pp-api .
