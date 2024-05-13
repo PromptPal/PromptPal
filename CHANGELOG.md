@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.9.0](https://github.com/PromptPal/PromptPal/compare/v1.8.0...v1.9.0) (2024-05-08)
+
+
+### Features
+
+* Add costInCents and userAgent fields to PromptCall ([8929bcf](https://github.com/PromptPal/PromptPal/commit/8929bcfe7eb74ef7d078d656a66f7e4ee8c05f99))
+* Add server timing header with prompt execution duration ([d151f6c](https://github.com/PromptPal/PromptPal/commit/d151f6cf7bd2e7ad4597dddc89b9b944048875eb))
+* **build:** disable CGO for release builds on Linux platform ([9920407](https://github.com/PromptPal/PromptPal/commit/99204077713bb97c5008001354829eab7b287fb4))
+* Calculate and set costs for prompt input and output ([d151f6c](https://github.com/PromptPal/PromptPal/commit/d151f6cf7bd2e7ad4597dddc89b9b944048875eb))
+* **db:** remove sqlite3 support ([7416aa2](https://github.com/PromptPal/PromptPal/commit/7416aa266af5133988545a912abda394052cdd04))
+* Set prompt tokens based on actual count ([d151f6c](https://github.com/PromptPal/PromptPal/commit/d151f6cf7bd2e7ad4597dddc89b9b944048875eb))
+* Set user agent info in prompt execution stats ([d151f6c](https://github.com/PromptPal/PromptPal/commit/d151f6cf7bd2e7ad4597dddc89b9b944048875eb))
+
+
+### Bug Fixes
+
+* **build:** remove cgo support ([19f90e6](https://github.com/PromptPal/PromptPal/commit/19f90e6e31e81bbce33432d9fc1bb07866589fa0))
+
 ## [1.8.0](https://github.com/PromptPal/PromptPal/compare/v1.7.5...v1.8.0) (2024-04-30)
 
 
