@@ -25,7 +25,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: google-github-actions/release-please-action@v3
+      - uses: google-github-actions/release-please-action@v4
         id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -48,6 +48,9 @@ jobs:
           go install github.com/vektra/mockery/v2@v2.42.0
           go generate ./...
       - name: Test
+        env:
+          DB_TYPE: "postgres"
+          DB_DSN: "host=127.0.0.1 user=postgres password=postgres port=5432 dbname=db_test sslmode=disable"
         run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
