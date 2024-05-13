@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.9.1](https://github.com/PromptPal/PromptPal/compare/v1.9.0...v1.9.1) (2024-05-13)
+
+
+### Bug Fixes
+
+* **ci:** fix postgres service in ci ([37d80dc](https://github.com/PromptPal/PromptPal/commit/37d80dcd7c530ea716c5a5c938c6fda813da0143))
+* **ci:** update env for testing ([33d1dea](https://github.com/PromptPal/PromptPal/commit/33d1dea1c7d4d3e9bbfa3c34f76cadbd49ff0eb7))
+
 ## [1.9.0](https://github.com/PromptPal/PromptPal/compare/v1.8.0...v1.9.0) (2024-05-08)
 
 
