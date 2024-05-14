@@ -34,6 +34,13 @@ func init() {
 				OutputTokenCostInCents: 0.003,
 			},
 		},
+		"gpt-4o": {
+			ModelCost{
+				StartFrom:              time.Date(2024, 5, 14, 0, 0, 0, 0, time.UTC),
+				InputTokenCostInCents:  0.0005,
+				OutputTokenCostInCents: 0.0015,
+			},
+		},
 		"gemini-pro": {
 			ModelCost{
 				StartFrom:              time.Date(2024, time.May, 14, 0, 0, 0, 0, time.UTC),
