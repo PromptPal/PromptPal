@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.2](https://github.com/PromptPal/PromptPal/compare/v1.9.1...v1.9.2) (2024-05-14)
+
+
+### Bug Fixes
+
+* **gpt4o:** enable gpt-4o pricing model ([5945054](https://github.com/PromptPal/PromptPal/commit/59450540ce3bd52605805cafd086b9b7295c39f4))
+
 ## [1.9.1](https://github.com/PromptPal/PromptPal/compare/v1.9.0...v1.9.1) (2024-05-13)
 
 
