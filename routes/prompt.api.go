@@ -96,6 +96,8 @@ func apiListPrompts(c *gin.Context) {
 type apiRunPromptPayload struct {
 	Variables map[string]string `json:"variables" binding:"required"`
 	UserId    string            `json:"userId"`
+	// enable streaming response
+	Stream bool `query:"stream"`
 }
 
 type apiRunPromptResponse struct {
@@ -170,6 +172,18 @@ func apiRunPrompt(c *gin.Context) {
 			ErrorMessage: "prompt does not belong to the project",
 		})
 		return
+	}
+
+	if payload.Stream {
+		c.JSON(http.StatusNotImplemented, errorResponse{
+			ErrorCode:    http.StatusNotImplemented,
+			ErrorMessage: "streaming response not implemented",
+		})
+		return
+		// c.Writer.Header().Set("Content-Type", "text/event-stream")
+		// c.Writer.Header().Set("Cache-Control", "no-cache")
+		// c.Writer.Header().Set("Connection", "keep-alive")
+		// c.Writer.Header().Set("Transfer-Encoding", "chunked")
 	}
 
 	startTime := time.Now()
