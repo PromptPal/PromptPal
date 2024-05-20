@@ -110,6 +110,8 @@ func SetupGinRoutes(
 	{
 		apiRoutes.GET("/prompts", apiListPrompts)
 		apiRoutes.POST("/prompts/run/:id", apiRunPrompt)
+		// FIXME: PLEASE DO NOT USE IT!!!
+		apiRoutes.POST("/prompts/run/:id/stream", apiRunPromptStream)
 	}
 
 	// !!! IMPORTANT !!!
