@@ -20,9 +20,18 @@ input PromptRowInput {
   role: PromptRole!
 }
 
+enum PromptVariableTypes {
+  string
+  number
+  boolean
+  video
+  audio
+  image
+}
+
 input PromptVariableInput {
   name: String!
-  type: String!
+  type: PromptVariableTypes!
 }
 
 type PromptRow {
@@ -32,7 +41,7 @@ type PromptRow {
 
 type PromptVariable {
   name: String!
-  type: String!
+  type: PromptVariableTypes!
 }
 
 input PromptPayload {
