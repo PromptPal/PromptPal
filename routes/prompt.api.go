@@ -104,11 +104,11 @@ type apiRunPromptResponse struct {
 	ResponseTokenCount int    `json:"tokenCount"`
 }
 
-func apiRunPrompt(c *gin.Context) {
+func apiRunPromptMiddleware(c *gin.Context) {
 	hashedValue, ok := c.Params.Get("id")
 
 	if !ok {
-		c.JSON(http.StatusBadRequest, errorResponse{
+		c.AbortWithStatusJSON(http.StatusBadRequest, errorResponse{
 			ErrorCode:    http.StatusBadRequest,
 			ErrorMessage: "invalid id",
 		})
@@ -120,7 +120,7 @@ func apiRunPrompt(c *gin.Context) {
 		promptID, err := hashidService.Decode(hashedValue)
 
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, errorResponse{
+			c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse{
 				ErrorCode:    http.StatusInternalServerError,
 				ErrorMessage: err.Error(),
 			})
@@ -128,7 +128,7 @@ func apiRunPrompt(c *gin.Context) {
 		}
 		promptData, err := service.EntClient.Prompt.Get(c, promptID)
 		if err != nil {
-			c.JSON(http.StatusNotFound, errorResponse{
+			c.AbortWithStatusJSON(http.StatusNotFound, errorResponse{
 				ErrorCode:    http.StatusNotFound,
 				ErrorMessage: err.Error(),
 			})
@@ -140,7 +140,7 @@ func apiRunPrompt(c *gin.Context) {
 
 	var payload apiRunPromptPayload
 	if err := c.Bind(&payload); err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse{
+		c.AbortWithStatusJSON(http.StatusBadRequest, errorResponse{
 			ErrorCode:    http.StatusBadRequest,
 			ErrorMessage: err.Error(),
 		})
@@ -154,7 +154,7 @@ func apiRunPrompt(c *gin.Context) {
 	if !ok {
 		pjt, err := service.EntClient.Project.Get(c, prompt.ProjectId)
 		if err != nil {
-			c.JSON(http.StatusNotFound, errorResponse{
+			c.AbortWithStatusJSON(http.StatusNotFound, errorResponse{
 				ErrorCode:    http.StatusNotFound,
 				ErrorMessage: err.Error(),
 			})
@@ -165,12 +165,28 @@ func apiRunPrompt(c *gin.Context) {
 	}
 
 	if pj.ID != pid {
-		c.JSON(http.StatusForbidden, errorResponse{
+		c.AbortWithStatusJSON(http.StatusForbidden, errorResponse{
 			ErrorCode:    http.StatusForbidden,
 			ErrorMessage: "prompt does not belong to the project",
 		})
 		return
 	}
+
+	c.Set("prompt", prompt)
+	c.Set("pj", pj)
+	c.Set("payload", payload)
+	c.Next()
+}
+
+func apiRunPrompt(c *gin.Context) {
+	hashedValue, _ := c.Params.Get("id")
+	promptData, _ := c.Get("prompt")
+	pjData, _ := c.Get("pj")
+	payloadData, _ := c.Get("payload")
+
+	prompt := promptData.(ent.Prompt)
+	pj := pjData.(ent.Project)
+	payload := payloadData.(apiRunPromptPayload)
 
 	startTime := time.Now()
 	responseResult := 0
@@ -237,4 +253,88 @@ func apiRunPrompt(c *gin.Context) {
 
 	c.Header("Server-Timing", fmt.Sprintf("prompt;dur=%d", endTime.Sub(startTime).Milliseconds()))
 	c.JSON(http.StatusOK, result)
+}
+
+func apiRunPromptStream(c *gin.Context) {
+	c.AbortWithStatusJSON(http.StatusNotImplemented, errorResponse{
+		ErrorCode:    http.StatusNotImplemented,
+		ErrorMessage: "not implemented",
+	})
+
+	hashedValue, _ := c.Params.Get("id")
+	promptData, _ := c.Get("prompt")
+	pjData, _ := c.Get("pj")
+	payloadData, _ := c.Get("payload")
+
+	prompt := promptData.(ent.Prompt)
+	pj := pjData.(ent.Project)
+	payload := payloadData.(apiRunPromptPayload)
+
+	startTime := time.Now()
+	responseResult := 0
+	res, err := aiService.ChatStream(c, pj, prompt.Prompts, payload.Variables, payload.UserId)
+	endTime := time.Now()
+
+	logrus.Println(hashedValue, endTime.Sub(startTime), responseResult, res, err)
+
+	// defer func() {
+	// 	stat := service.EntClient.
+	// 		PromptCall.
+	// 		Create().
+	// 		SetPromptID(prompt.ID).
+	// 		SetResult(responseResult).
+	// 		SetResponseToken(res.Usage.CompletionTokens).
+	// 		SetTotalToken(res.Usage.TotalTokens).
+	// 		SetUserId(payload.UserId).
+	// 		SetDuration(endTime.Sub(startTime).Milliseconds()).
+	// 		SetProjectID(pj.ID).
+	// 		SetUa(c.Request.UserAgent())
+
+	// 	if prompt.Debug {
+	// 		stat.SetPayload(payload.Variables)
+	// 	}
+	// 	if prompt.Debug && len(res.Choices) > 0 {
+	// 		stat.SetMessage(res.Choices[0].Message.Content)
+	// 	}
+
+	// 	cost, err := service.GetCosts(pj.OpenAIModel, endTime)
+	// 	if err != nil {
+	// 		logrus.Errorln(err)
+	// 		err = nil
+	// 	} else {
+	// 		inputCosts := cost.InputTokenCostInCents * float64(res.Usage.PromptTokens)
+	// 		outputCosts := cost.OutputTokenCostInCents * float64(res.Usage.CompletionTokens)
+	// 		stat.SetCostCents(inputCosts + outputCosts)
+	// 	}
+
+	// 	exp := stat.Exec(c)
+	// 	if exp != nil {
+	// 		logrus.Errorln(exp)
+	// 	}
+	// }()
+
+	// if err != nil {
+	// 	responseResult = 1
+	// 	c.JSON(http.StatusInternalServerError, errorResponse{
+	// 		ErrorCode:    http.StatusInternalServerError,
+	// 		ErrorMessage: err.Error(),
+	// 	})
+	// 	return
+	// }
+
+	// if len(res.Choices) == 0 {
+	// 	c.JSON(http.StatusBadRequest, errorResponse{
+	// 		ErrorCode:    http.StatusBadRequest,
+	// 		ErrorMessage: "no choices",
+	// 	})
+	// 	return
+	// }
+
+	// result := apiRunPromptResponse{}
+	// result.PromptID = hashedValue
+	// result.ResponseMessage = res.Choices[0].Message.Content
+	// result.ResponseTokenCount = res.Usage.CompletionTokens
+
+	// c.Header("Server-Timing", fmt.Sprintf("prompt;dur=%d", endTime.Sub(startTime).Milliseconds()))
+	// c.JSON(http.StatusOK, result)
 }
