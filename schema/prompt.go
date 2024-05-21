@@ -259,8 +259,24 @@ func (p promptResponse) Variables() (result []promptVariableResponse) {
 func (p promptVariableResponse) Name() string {
 	return p.p.Name
 }
-func (p promptVariableResponse) Type() string {
-	return p.p.Type
+func (p promptVariableResponse) Type() dbSchema.PromptVariableTypes {
+	t := p.p.Type
+	switch t {
+	case "number":
+		return dbSchema.PromptVariableTypesNumber
+	case "boolean":
+		return dbSchema.PromptVariableTypesBoolean
+	case "video":
+		return dbSchema.PromptVariableTypesVideo
+	case "audio":
+		return dbSchema.PromptVariableTypesAudio
+	case "image":
+		return dbSchema.PromptVariableTypesImage
+	case "string":
+	default:
+		return dbSchema.PromptVariableTypesString
+	}
+	return dbSchema.PromptVariableTypesString
 }
 
 func (p promptResponse) Creator(ctx context.Context) (userResponse, error) {
