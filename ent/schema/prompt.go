@@ -17,10 +17,21 @@ type PromptRow struct {
 	Role   string `json:"role"`
 }
 
+type PromptVariableTypes string
+
+const (
+	PromptVariableTypesString  PromptVariableTypes = "string"
+	PromptVariableTypesNumber  PromptVariableTypes = "number"
+	PromptVariableTypesBoolean PromptVariableTypes = "boolean"
+	PromptVariableTypesVideo   PromptVariableTypes = "video"
+	PromptVariableTypesAudio   PromptVariableTypes = "audio"
+	PromptVariableTypesImage   PromptVariableTypes = "image"
+)
+
 type PromptVariable struct {
 	Name string `json:"name"`
 	// string, number, bool
-	Type string `json:"type"`
+	Type PromptVariableTypes `json:"type"`
 }
 
 // Fields of the Prompt.
