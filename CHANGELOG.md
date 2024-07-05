@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.10.1](https://github.com/PromptPal/PromptPal/compare/v1.10.0...v1.10.1) (2024-07-05)
+
+
+### Bug Fixes
+
+* **ci:** upgrade release-please to new ns ([b4d28b6](https://github.com/PromptPal/PromptPal/commit/b4d28b669005ea896777003f53fad7689e76f1ed))
+* **prompt:** fix testcase ([8fedb1f](https://github.com/PromptPal/PromptPal/commit/8fedb1fe77fca812e53b71417d106f303747feb3))
+
 ## [1.10.0](https://github.com/PromptPal/PromptPal/compare/v1.9.2...v1.10.0) (2024-07-05)
 
 
