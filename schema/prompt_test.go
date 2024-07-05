@@ -178,7 +178,7 @@ func (s *promptTestSuite) TestUpdatePrompt() {
 	assert.Len(s.T(), vars, 1)
 	var1 := vars[0]
 	assert.Equal(s.T(), "var88", var1.Name())
-	assert.Equal(s.T(), "string", var1.Type())
+	assert.EqualValues(s.T(), "string", var1.Type())
 
 	hs, err := result.Histories(ctx)
 	assert.Nil(s.T(), err)
