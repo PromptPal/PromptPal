@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.10.0](https://github.com/PromptPal/PromptPal/compare/v1.9.2...v1.10.0) (2024-07-05)
+
+
+### Features
+
+* **api:** add streaming api support ([f1c145f](https://github.com/PromptPal/PromptPal/commit/f1c145f75f672bc78c6fc647b0353bc45fe577cc))
+* **prompt:** add support for multiple type of variable in prompt ([cd95a93](https://github.com/PromptPal/PromptPal/commit/cd95a930bf2a0349de8fa2b5e02ef670babde01c))
+
+
+### Bug Fixes
+
+* **api:** add missing middleware ([90ab08b](https://github.com/PromptPal/PromptPal/commit/90ab08b25ccbf1a438280189452b2ae0db1890fc))
+* **docs:** fix thumbnail in readme ([eb2b476](https://github.com/PromptPal/PromptPal/commit/eb2b4760e6dc7f8bdd41aee45e17528154fc761d))
+* **stream:** add stream api support ([a975de6](https://github.com/PromptPal/PromptPal/commit/a975de679119ae0e33b0c2df1d0ee095e5756827))
+
 ## [1.9.2](https://github.com/PromptPal/PromptPal/compare/v1.9.1...v1.9.2) (2024-05-14)
 
 
