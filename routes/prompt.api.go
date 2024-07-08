@@ -1,7 +1,9 @@
 package routes
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -12,6 +14,7 @@ import (
 	"github.com/PromptPal/PromptPal/ent/schema"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/sashabaranov/go-openai"
 	"github.com/sirupsen/logrus"
 )
 
@@ -272,69 +275,79 @@ func apiRunPromptStream(c *gin.Context) {
 
 	startTime := time.Now()
 	responseResult := 0
-	res, err := aiService.ChatStream(c, pj, prompt.Prompts, payload.Variables, payload.UserId)
-	endTime := time.Now()
 
-	logrus.Println(hashedValue, endTime.Sub(startTime), responseResult, res, err)
+	c.Stream(func(w io.Writer) bool {
+		// var lastChunk apiRunPromptResponse
+		res, err := aiService.ChatStream(c, pj, prompt.Prompts, payload.Variables, payload.UserId, func(data []openai.ChatCompletionChoice) error {
+			if len(data) == 0 {
+				return nil
+			}
+			if len(data) > 1 {
+				logrus.Warningln("more than one chunk returned")
+				return nil
+			}
 
-	// defer func() {
-	// 	stat := service.EntClient.
-	// 		PromptCall.
-	// 		Create().
-	// 		SetPromptID(prompt.ID).
-	// 		SetResult(responseResult).
-	// 		SetResponseToken(res.Usage.CompletionTokens).
-	// 		SetTotalToken(res.Usage.TotalTokens).
-	// 		SetUserId(payload.UserId).
-	// 		SetDuration(endTime.Sub(startTime).Milliseconds()).
-	// 		SetProjectID(pj.ID).
-	// 		SetUa(c.Request.UserAgent())
+			chunkResponse := apiRunPromptResponse{
+				PromptID:           hashedValue,
+				ResponseMessage:    data[0].Message.Content,
+				ResponseTokenCount: -1,
+			}
+			// lastChunk = chunkResponse
+			b, err := json.Marshal(chunkResponse)
+			if err != nil {
+				return err
+			}
+			w.Write(b)
+			return nil
+		})
+		endTime := time.Now()
+		if err != nil {
+			responseResult = 1
+		}
 
-	// 	if prompt.Debug {
-	// 		stat.SetPayload(payload.Variables)
-	// 	}
-	// 	if prompt.Debug && len(res.Choices) > 0 {
-	// 		stat.SetMessage(res.Choices[0].Message.Content)
-	// 	}
+		defer func() {
+			stat := service.EntClient.
+				PromptCall.
+				Create().
+				SetPromptID(prompt.ID).
+				SetResult(responseResult).
+				SetResponseToken(res.Usage.CompletionTokens).
+				SetTotalToken(res.Usage.TotalTokens).
+				SetUserId(payload.UserId).
+				SetDuration(endTime.Sub(startTime).Milliseconds()).
+				SetProjectID(pj.ID).
+				SetUa(c.Request.UserAgent())
 
-	// 	cost, err := service.GetCosts(pj.OpenAIModel, endTime)
-	// 	if err != nil {
-	// 		logrus.Errorln(err)
-	// 		err = nil
-	// 	} else {
-	// 		inputCosts := cost.InputTokenCostInCents * float64(res.Usage.PromptTokens)
-	// 		outputCosts := cost.OutputTokenCostInCents * float64(res.Usage.CompletionTokens)
-	// 		stat.SetCostCents(inputCosts + outputCosts)
-	// 	}
+			if prompt.Debug {
+				stat.SetPayload(payload.Variables)
+			}
+			if prompt.Debug && len(res.Choices) > 0 {
+				stat.SetMessage(res.Choices[0].Message.Content)
+			}
 
-	// 	exp := stat.Exec(c)
-	// 	if exp != nil {
-	// 		logrus.Errorln(exp)
-	// 	}
-	// }()
+			cost, err := service.GetCosts(pj.OpenAIModel, endTime)
+			if err != nil {
+				logrus.Errorln(err)
+				err = nil
+			} else {
+				inputCosts := cost.InputTokenCostInCents * float64(res.Usage.PromptTokens)
+				outputCosts := cost.OutputTokenCostInCents * float64(res.Usage.CompletionTokens)
+				stat.SetCostCents(inputCosts + outputCosts)
+			}
 
-	// if err != nil {
-	// 	responseResult = 1
-	// 	c.JSON(http.StatusInternalServerError, errorResponse{
-	// 		ErrorCode:    http.StatusInternalServerError,
-	// 		ErrorMessage: err.Error(),
-	// 	})
-	// 	return
-	// }
+			exp := stat.Exec(c)
+			if exp != nil {
+				logrus.Errorln(exp)
+			}
+		}()
 
-	// if len(res.Choices) == 0 {
-	// 	c.JSON(http.StatusBadRequest, errorResponse{
-	// 		ErrorCode:    http.StatusBadRequest,
-	// 		ErrorMessage: "no choices",
-	// 	})
-	// 	return
-	// }
+		if err != nil {
+			// TODO: error type
+			logrus.Errorln(err)
+			w.Write([]byte(err.Error()))
+			return false
+		}
 
-	// result := apiRunPromptResponse{}
-	// result.PromptID = hashedValue
-	// result.ResponseMessage = res.Choices[0].Message.Content
-	// result.ResponseTokenCount = res.Usage.CompletionTokens
-
-	// c.Header("Server-Timing", fmt.Sprintf("prompt;dur=%d", endTime.Sub(startTime).Milliseconds()))
-	// c.JSON(http.StatusOK, result)
+		return true
+	})
 }
