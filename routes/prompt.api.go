@@ -259,11 +259,6 @@ func apiRunPrompt(c *gin.Context) {
 }
 
 func apiRunPromptStream(c *gin.Context) {
-	c.AbortWithStatusJSON(http.StatusNotImplemented, errorResponse{
-		ErrorCode:    http.StatusNotImplemented,
-		ErrorMessage: "not implemented",
-	})
-
 	hashedValue, _ := c.Params.Get("id")
 	promptData, _ := c.Get("prompt")
 	pjData, _ := c.Get("pj")
