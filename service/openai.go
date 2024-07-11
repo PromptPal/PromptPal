@@ -17,6 +17,13 @@ import (
 	"google.golang.org/api/option"
 )
 
+type ChatStreamResponse struct {
+	Message chan []openai.ChatCompletionChoice
+	Done    chan bool
+	Err     chan error
+	Info    chan openai.Usage
+}
+
 //go:generate mockery --name OpenAIService
 type OpenAIService interface {
 	Chat(
@@ -32,17 +39,10 @@ type OpenAIService interface {
 		prompts []schema.PromptRow,
 		variables map[string]string,
 		userId string,
-	) (reply ChatStreamResponse, err error)
+	) (reply *ChatStreamResponse, err error)
 }
 
 type aiService struct {
-}
-
-type ChatStreamResponse struct {
-	PromptTokenCount chan int
-	Data             chan []openai.ChatCompletionChoice
-	Err              chan error
-	Done             chan struct{}
 }
 
 func NewOpenAIService() OpenAIService {
@@ -202,7 +202,13 @@ func (o aiService) ChatStream(
 	prompts []schema.PromptRow,
 	variables map[string]string,
 	userId string,
-) (reply ChatStreamResponse, err error) {
+) (reply *ChatStreamResponse, err error) {
+	reply = &ChatStreamResponse{
+		Done:    make(chan bool),
+		Err:     make(chan error),
+		Info:    make(chan openai.Usage),
+		Message: make(chan []openai.ChatCompletionChoice),
+	}
 
 	if project.OpenAIToken == "" {
 		return reply, errors.New("token is empty")
@@ -212,7 +218,6 @@ func (o aiService) ChatStream(
 	if strings.HasPrefix(project.OpenAIModel, "gemini") {
 		client, genModel, err := o.getGeminiClient(ctx, project)
 		if err != nil {
-			log.Fatal(err)
 			return reply, err
 		}
 		defer client.Close()
@@ -231,24 +236,27 @@ func (o aiService) ChatStream(
 		}
 
 		iter := genModel.GenerateContentStream(ctx, pts...)
-
+		completionTokenCount := int32(0)
 		go func() {
 			for {
 				resp, err := iter.Next()
 				if err == iterator.Done {
-					reply.PromptTokenCount <- int(promptTokenCount.TotalTokens)
-					reply.Done <- struct{}{}
-					close(reply.PromptTokenCount)
-					close(reply.Data)
-					close(reply.Done)
-					return
+					usage := openai.Usage{
+						CompletionTokens: int(completionTokenCount),
+						PromptTokens:     int(promptTokenCount.TotalTokens),
+						TotalTokens:      int(completionTokenCount) + int(promptTokenCount.TotalTokens),
+					}
+					reply.Info <- usage
+					reply.Done <- true
+					break
 				}
 				if err != nil {
-					log.Fatal(err)
+					reply.Err <- err
+					break
 				}
 
-				completionTokenCount := int32(0)
 				result := []openai.ChatCompletionChoice{}
+
 				for _, cand := range resp.Candidates {
 					if cand.Content == nil {
 						continue
@@ -271,10 +279,11 @@ func (o aiService) ChatStream(
 						})
 					}
 				}
-
-				reply.Data <- result
+				reply.Message <- result
 			}
 		}()
+
+		return reply, nil
 	}
 
 	client, err := o.getOpenAIClient(ctx, project)
@@ -309,30 +318,27 @@ func (o aiService) ChatStream(
 	if err != nil {
 		return reply, err
 	}
+	defer stream.Close()
 
 	go func() {
 		for {
-			defer stream.Close()
-			defer func() {
-				close(reply.Data)
-				close(reply.Done)
-				close(reply.PromptTokenCount)
-			}()
 			resp, err := stream.Recv()
 			if errors.Is(err, io.EOF) {
-				reply.Done <- struct{}{}
-				return
+				err = nil
+				reply.Info <- openai.Usage{}
+				reply.Done <- true
+				break
 			}
 			if err != nil {
 				reply.Err <- err
-				return
+				break
 			}
 
 			temp := make([]openai.ChatCompletionChoice, len(resp.Choices))
 
 			for i, cand := range resp.Choices {
 				content := cand.Delta.Content
-				temp[i] = openai.ChatCompletionChoice{
+				chunk := openai.ChatCompletionChoice{
 					Index:        cand.Index,
 					FinishReason: openai.FinishReasonStop,
 					Message: openai.ChatCompletionMessage{
@@ -340,9 +346,10 @@ func (o aiService) ChatStream(
 						Content: content,
 					},
 				}
+				temp[i] = chunk
 			}
 
-			reply.Data <- temp
+			reply.Message <- temp
 		}
 	}()
 	return reply, nil
