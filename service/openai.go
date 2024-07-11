@@ -17,6 +17,13 @@ import (
 	"google.golang.org/api/option"
 )
 
+type ChatStreamResponse struct {
+	Message chan []openai.ChatCompletionChoice
+	Done    chan bool
+	Err     chan error
+	Info    chan openai.Usage
+}
+
 //go:generate mockery --name OpenAIService
 type OpenAIService interface {
 	Chat(
@@ -32,8 +39,7 @@ type OpenAIService interface {
 		prompts []schema.PromptRow,
 		variables map[string]string,
 		userId string,
-		onData func(data []openai.ChatCompletionChoice) error,
-	) (reply openai.ChatCompletionResponse, err error)
+	) (reply *ChatStreamResponse, err error)
 }
 
 type aiService struct {
@@ -196,8 +202,13 @@ func (o aiService) ChatStream(
 	prompts []schema.PromptRow,
 	variables map[string]string,
 	userId string,
-	onData func(data []openai.ChatCompletionChoice) error,
-) (reply openai.ChatCompletionResponse, err error) {
+) (reply *ChatStreamResponse, err error) {
+	reply = &ChatStreamResponse{
+		Done:    make(chan bool),
+		Err:     make(chan error),
+		Info:    make(chan openai.Usage),
+		Message: make(chan []openai.ChatCompletionChoice),
+	}
 
 	if project.OpenAIToken == "" {
 		return reply, errors.New("token is empty")
@@ -207,7 +218,6 @@ func (o aiService) ChatStream(
 	if strings.HasPrefix(project.OpenAIModel, "gemini") {
 		client, genModel, err := o.getGeminiClient(ctx, project)
 		if err != nil {
-			log.Fatal(err)
 			return reply, err
 		}
 		defer client.Close()
@@ -227,51 +237,52 @@ func (o aiService) ChatStream(
 
 		iter := genModel.GenerateContentStream(ctx, pts...)
 		completionTokenCount := int32(0)
-		for {
-			resp, err := iter.Next()
-			if err == iterator.Done {
-				break
-			}
-			if err != nil {
-				break
-			}
-
-			result := []openai.ChatCompletionChoice{}
-
-			for _, cand := range resp.Candidates {
-				if cand.Content == nil {
-					continue
+		go func() {
+			for {
+				resp, err := iter.Next()
+				if err == iterator.Done {
+					usage := openai.Usage{
+						CompletionTokens: int(completionTokenCount),
+						PromptTokens:     int(promptTokenCount.TotalTokens),
+						TotalTokens:      int(completionTokenCount) + int(promptTokenCount.TotalTokens),
+					}
+					reply.Info <- usage
+					reply.Done <- true
+					break
 				}
-				completionTokenCount += cand.TokenCount
-				for _, part := range cand.Content.Parts {
-					content, ok := part.(genai.Text)
-					if !ok {
-						logrus.Warnln("not a text part in gemini api")
+				if err != nil {
+					reply.Err <- err
+					break
+				}
+
+				result := []openai.ChatCompletionChoice{}
+
+				for _, cand := range resp.Candidates {
+					if cand.Content == nil {
 						continue
 					}
-					// genai.Text(part.ContentType)
-					result = append(result, openai.ChatCompletionChoice{
-						Index: int(cand.Index),
-						Message: openai.ChatCompletionMessage{
-							Role:    cand.Content.Role,
-							Content: string(content),
-						},
-						FinishReason: openai.FinishReasonStop,
-					})
+					completionTokenCount += cand.TokenCount
+					for _, part := range cand.Content.Parts {
+						content, ok := part.(genai.Text)
+						if !ok {
+							logrus.Warnln("not a text part in gemini api")
+							continue
+						}
+						// genai.Text(part.ContentType)
+						result = append(result, openai.ChatCompletionChoice{
+							Index: int(cand.Index),
+							Message: openai.ChatCompletionMessage{
+								Role:    cand.Content.Role,
+								Content: string(content),
+							},
+							FinishReason: openai.FinishReasonStop,
+						})
+					}
 				}
+				reply.Message <- result
 			}
-			onData(result)
-		}
+		}()
 
-		reply = openai.ChatCompletionResponse{
-			ID:      "",
-			Choices: []openai.ChatCompletionChoice{},
-			Usage: openai.Usage{
-				CompletionTokens: int(completionTokenCount),
-				PromptTokens:     int(promptTokenCount.TotalTokens),
-				TotalTokens:      int(completionTokenCount) + int(promptTokenCount.TotalTokens),
-			},
-		}
 		return reply, nil
 	}
 
@@ -309,41 +320,37 @@ func (o aiService) ChatStream(
 	}
 	defer stream.Close()
 
-	var info openai.ChatCompletionStreamResponse
-	for {
-		resp, err := stream.Recv()
-		if errors.Is(err, io.EOF) {
-			info = resp
-			err = nil
-			break
-		}
-		if err != nil {
-			break
-		}
-
-		temp := make([]openai.ChatCompletionChoice, len(resp.Choices))
-
-		for i, cand := range resp.Choices {
-			content := cand.Delta.Content
-			chunk := openai.ChatCompletionChoice{
-				Index:        cand.Index,
-				FinishReason: openai.FinishReasonStop,
-				Message: openai.ChatCompletionMessage{
-					Role:    cand.Delta.Role,
-					Content: content,
-				},
+	go func() {
+		for {
+			resp, err := stream.Recv()
+			if errors.Is(err, io.EOF) {
+				err = nil
+				reply.Info <- openai.Usage{}
+				reply.Done <- true
+				break
 			}
-			temp[i] = chunk
+			if err != nil {
+				reply.Err <- err
+				break
+			}
+
+			temp := make([]openai.ChatCompletionChoice, len(resp.Choices))
+
+			for i, cand := range resp.Choices {
+				content := cand.Delta.Content
+				chunk := openai.ChatCompletionChoice{
+					Index:        cand.Index,
+					FinishReason: openai.FinishReasonStop,
+					Message: openai.ChatCompletionMessage{
+						Role:    cand.Delta.Role,
+						Content: content,
+					},
+				}
+				temp[i] = chunk
+			}
+
+			reply.Message <- temp
 		}
-		onData(temp)
-	}
-
-	logrus.Println("xxxx", info)
-
-	reply = openai.ChatCompletionResponse{
-		ID:      info.ID,
-		Choices: []openai.ChatCompletionChoice{},
-		Usage:   openai.Usage{},
-	}
+	}()
 	return reply, nil
 }

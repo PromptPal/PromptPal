@@ -273,81 +273,99 @@ func apiRunPromptStream(c *gin.Context) {
 	pj := pjData.(ent.Project)
 	payload := payloadData.(apiRunPromptPayload)
 
+	replyStream, err := aiService.ChatStream(c, pj, prompt.Prompts, payload.Variables, payload.UserId)
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
 	startTime := time.Now()
 	responseResult := 0
+	c.Writer.Header().Set("Content-Type", "text/event-stream")
+	c.Writer.Header().Set("Cache-Control", "no-cache")
+	c.Writer.Header().Set("Connection", "keep-alive")
+	c.Writer.Header().Set("Transfer-Encoding", "chunked")
+
+	var info openai.Usage
+	result := make([]openai.ChatCompletionChoice, 0)
 
 	c.Stream(func(w io.Writer) bool {
-		// var lastChunk apiRunPromptResponse
-		res, err := aiService.ChatStream(c, pj, prompt.Prompts, payload.Variables, payload.UserId, func(data []openai.ChatCompletionChoice) error {
-			if len(data) == 0 {
-				return nil
-			}
-			if len(data) > 1 {
-				logrus.Warningln("more than one chunk returned")
-				return nil
-			}
-
+		select {
+		case _info := <-replyStream.Info:
+			info = _info
+			return true
+		case <-replyStream.Done:
+			close(replyStream.Done)
+			close(replyStream.Err)
+			close(replyStream.Message)
+			close(replyStream.Info)
+			return false
+		case err := <-replyStream.Err:
+			c.SSEvent("error", err.Error())
+			responseResult = 1
+			return false
+		case data := <-replyStream.Message:
+			result = append(result, data...)
 			chunkResponse := apiRunPromptResponse{
 				PromptID:           hashedValue,
 				ResponseMessage:    data[0].Message.Content,
 				ResponseTokenCount: -1,
 			}
-			// lastChunk = chunkResponse
 			b, err := json.Marshal(chunkResponse)
 			if err != nil {
-				return err
+				c.SSEvent("error", err.Error())
+				return false
 			}
-			w.Write(b)
-			return nil
-		})
-		endTime := time.Now()
-		if err != nil {
-			responseResult = 1
+			c.SSEvent("message", string(b))
+			return true
 		}
-
-		defer func() {
-			stat := service.EntClient.
-				PromptCall.
-				Create().
-				SetPromptID(prompt.ID).
-				SetResult(responseResult).
-				SetResponseToken(res.Usage.CompletionTokens).
-				SetTotalToken(res.Usage.TotalTokens).
-				SetUserId(payload.UserId).
-				SetDuration(endTime.Sub(startTime).Milliseconds()).
-				SetProjectID(pj.ID).
-				SetUa(c.Request.UserAgent())
-
-			if prompt.Debug {
-				stat.SetPayload(payload.Variables)
-			}
-			if prompt.Debug && len(res.Choices) > 0 {
-				stat.SetMessage(res.Choices[0].Message.Content)
-			}
-
-			cost, err := service.GetCosts(pj.OpenAIModel, endTime)
-			if err != nil {
-				logrus.Errorln(err)
-				err = nil
-			} else {
-				inputCosts := cost.InputTokenCostInCents * float64(res.Usage.PromptTokens)
-				outputCosts := cost.OutputTokenCostInCents * float64(res.Usage.CompletionTokens)
-				stat.SetCostCents(inputCosts + outputCosts)
-			}
-
-			exp := stat.Exec(c)
-			if exp != nil {
-				logrus.Errorln(exp)
-			}
-		}()
-
-		if err != nil {
-			// TODO: error type
-			logrus.Errorln(err)
-			w.Write([]byte(err.Error()))
-			return false
-		}
-
-		return true
 	})
+
+	endTime := time.Now()
+
+	defer func() {
+		stat := service.EntClient.
+			PromptCall.
+			Create().
+			SetPromptID(prompt.ID).
+			SetResult(responseResult).
+			SetResponseToken(info.CompletionTokens).
+			SetTotalToken(info.TotalTokens).
+			SetUserId(payload.UserId).
+			SetDuration(endTime.Sub(startTime).Milliseconds()).
+			SetProjectID(pj.ID).
+			SetUa(c.Request.UserAgent())
+
+		if prompt.Debug {
+			stat.SetPayload(payload.Variables)
+		}
+
+		choices := make([]string, 0)
+
+		for _, choice := range result {
+			choices = append(choices, choice.Message.Content)
+		}
+
+		if prompt.Debug && len(choices) > 0 {
+			stat.SetMessage(choices[len(choices)-1])
+		}
+
+		cost, err := service.GetCosts(pj.OpenAIModel, endTime)
+		if err != nil {
+			logrus.Errorln(err)
+			err = nil
+		} else {
+			inputCosts := cost.InputTokenCostInCents * float64(info.PromptTokens)
+			outputCosts := cost.OutputTokenCostInCents * float64(info.CompletionTokens)
+			stat.SetCostCents(inputCosts + outputCosts)
+		}
+		exp := stat.Exec(c)
+		if exp != nil {
+			logrus.Errorln(exp)
+		}
+	}()
 }
