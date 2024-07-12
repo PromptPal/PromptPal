@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.11.1](https://github.com/PromptPal/PromptPal/compare/v1.11.0...v1.11.1) (2024-07-12)
+
+
+### Bug Fixes
+
+* **ci:** fix github token ([f793cf7](https://github.com/PromptPal/PromptPal/commit/f793cf7997f66c2e5a2cc331e5a6d184606d0419))
+* **docs:** update doc ([8717461](https://github.com/PromptPal/PromptPal/commit/8717461e3acf6514ac0c43f97534e9e7fca8c806))
+
 ## [1.11.0](https://github.com/PromptPal/PromptPal/compare/v1.10.1...v1.11.0) (2024-07-11)
 
 
