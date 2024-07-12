@@ -72,7 +72,7 @@ jobs:
           repo: "PromptPal/web"
           file: "dist.zip"
           target: "dist.zip"
-          token: ${{ secrets.GH_PERSONAL_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: montudor/action-zip@v1
         if: ${{ steps.release.outputs.release_created }}
         with:
