@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.11.0](https://github.com/PromptPal/PromptPal/compare/v1.10.1...v1.11.0) (2024-07-11)
+
+
+### Features
+
+* **stream:** add streaming api support ([75068d6](https://github.com/PromptPal/PromptPal/commit/75068d6a0b0f7461e2b80e0e3eebd849a9432a79))
+
+
+### Bug Fixes
+
+* **stream:** remove 501 response in stream api ([88c5d0f](https://github.com/PromptPal/PromptPal/commit/88c5d0fb45c1c199ecf05119f8390f7c4fe74624))
+* **stream:** update stream api response ([d7c6d10](https://github.com/PromptPal/PromptPal/commit/d7c6d10e657f8d978b88adce50af3ef281946ce5))
+
 ## [1.10.1](https://github.com/PromptPal/PromptPal/compare/v1.10.0...v1.10.1) (2024-07-05)
 
 
