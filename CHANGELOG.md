@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.11.2](https://github.com/PromptPal/PromptPal/compare/v1.11.1...v1.11.2) (2024-07-13)
+
+
+### Features
+
+* **ci:** update docker hub readme ([4d262bb](https://github.com/PromptPal/PromptPal/commit/4d262bbf2dc28e9a9c6beec8933cf861e5d57bfc))
+
+
+### Bug Fixes
+
+* **ci:** update docker hub push tags ([c21b84a](https://github.com/PromptPal/PromptPal/commit/c21b84a81f77fd68bd529c0f0c29b8e5ec5651a8))
+
+
+### Miscellaneous Chores
+
+* release 1.11.2 ([6216df3](https://github.com/PromptPal/PromptPal/commit/6216df3995ad8ad07b070a6221abfac92292480e))
+
 ## [1.11.1](https://github.com/PromptPal/PromptPal/compare/v1.11.0...v1.11.1) (2024-07-12)
 
 
