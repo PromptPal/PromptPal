@@ -99,3 +99,11 @@ jobs:
           push: ${{ github.event_name != 'pull_request' && steps.release.outputs.release_created }}
           tags: annatarhe/prompt-pal:latest,${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+      - name: Docker Hub Description
+        uses: peter-evans/dockerhub-description@v4
+        if: ${{ steps.release.outputs.release_created }}
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PWD }}
+          repository: annatarhe/prompt-pal
+          short-description: ${{ github.event.repository.description }}
