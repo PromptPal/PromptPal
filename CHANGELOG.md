@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.3](https://github.com/PromptPal/PromptPal/compare/v1.11.2...v1.11.3) (2024-07-15)
+
+
+### Bug Fixes
+
+* **stream:** fix openai streaming response ([1387b21](https://github.com/PromptPal/PromptPal/commit/1387b212d4901d641617f4d8243714b407a406fc))
+
 ## [1.11.2](https://github.com/PromptPal/PromptPal/compare/v1.11.1...v1.11.2) (2024-07-13)
 
 
