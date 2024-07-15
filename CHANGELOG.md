@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.4](https://github.com/PromptPal/PromptPal/compare/v1.11.3...v1.11.4) (2024-07-15)
+
+
+### Bug Fixes
+
+* **stream:** fix streaming api ([d65b274](https://github.com/PromptPal/PromptPal/commit/d65b274a748e84810d0f7a15d4f3b0c4a27525b9))
+
 ## [1.11.3](https://github.com/PromptPal/PromptPal/compare/v1.11.2...v1.11.3) (2024-07-15)
 
 
