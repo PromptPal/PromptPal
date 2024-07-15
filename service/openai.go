@@ -318,7 +318,6 @@ func (o aiService) ChatStream(
 	if err != nil {
 		return reply, err
 	}
-	defer stream.Close()
 
 	go func() {
 		for {
@@ -327,10 +326,12 @@ func (o aiService) ChatStream(
 				err = nil
 				reply.Info <- openai.Usage{}
 				reply.Done <- true
+				stream.Close()
 				break
 			}
 			if err != nil {
 				reply.Err <- err
+				stream.Close()
 				break
 			}
 
