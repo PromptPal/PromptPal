@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -32,25 +33,27 @@ func promptCacheMiddleware(c *gin.Context) {
 	if err != nil {
 		logrus.Warnln("promptCache", err)
 	}
-	if ok {
-		endTime := time.Now()
-		defer savePromptCall(
-			c.Request.Context(),
-			prompt,
-			1,
-			openai.ChatCompletionResponse{
-				Usage:   openai.Usage{TotalTokens: result.ResponseTokenCount, CompletionTokens: 0},
-				Choices: []openai.ChatCompletionChoice{{Message: openai.ChatCompletionMessage{Content: result.ResponseMessage}}},
-			},
-			pj,
-			payload,
-			endTime,
-			startTime,
-			c.Request.UserAgent(),
-			true,
-		)
-		c.JSON(http.StatusOK, result)
+	if !ok {
+		c.Next()
 		return
 	}
-	c.Next()
+
+	endTime := time.Now()
+	defer savePromptCall(
+		c.Request.Context(),
+		prompt,
+		1,
+		openai.ChatCompletionResponse{
+			Usage:   openai.Usage{TotalTokens: result.ResponseTokenCount, CompletionTokens: 0},
+			Choices: []openai.ChatCompletionChoice{{Message: openai.ChatCompletionMessage{Content: result.ResponseMessage}}},
+		},
+		pj,
+		payload,
+		endTime,
+		startTime,
+		c.Request.UserAgent(),
+		true,
+	)
+	c.Header("Server-Timing", fmt.Sprintf("prompt;dur=%d", endTime.Sub(startTime).Milliseconds()))
+	c.AbortWithStatusJSON(http.StatusOK, result)
 }
