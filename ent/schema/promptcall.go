@@ -23,6 +23,7 @@ func (PromptCall) Fields() []ent.Field {
 		field.Int64("duration"),
 		// 0: success, 1: fail
 		field.Int("result"),
+		field.Bool("cached").Default(false),
 		field.JSON("payload", map[string]string{}).Optional(),
 		field.Float("cost_cents").Default(0),
 		field.String("ua").Default(""),

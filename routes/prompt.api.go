@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -101,12 +102,6 @@ type apiRunPromptPayload struct {
 	UserId    string            `json:"userId"`
 }
 
-type apiRunPromptResponse struct {
-	PromptID           string `json:"id"`
-	ResponseMessage    string `json:"message"`
-	ResponseTokenCount int    `json:"tokenCount"`
-}
-
 func apiRunPromptMiddleware(c *gin.Context) {
 	hashedValue, ok := c.Params.Get("id")
 
@@ -196,41 +191,18 @@ func apiRunPrompt(c *gin.Context) {
 	res, err := aiService.Chat(c, pj, prompt.Prompts, payload.Variables, payload.UserId)
 	endTime := time.Now()
 
-	defer func() {
-		stat := service.EntClient.
-			PromptCall.
-			Create().
-			SetPromptID(prompt.ID).
-			SetResult(responseResult).
-			SetResponseToken(res.Usage.CompletionTokens).
-			SetTotalToken(res.Usage.TotalTokens).
-			SetUserId(payload.UserId).
-			SetDuration(endTime.Sub(startTime).Milliseconds()).
-			SetProjectID(pj.ID).
-			SetUa(c.Request.UserAgent())
-
-		if prompt.Debug {
-			stat.SetPayload(payload.Variables)
-		}
-		if prompt.Debug && len(res.Choices) > 0 {
-			stat.SetMessage(res.Choices[0].Message.Content)
-		}
-
-		cost, err := service.GetCosts(pj.OpenAIModel, endTime)
-		if err != nil {
-			logrus.Errorln(err)
-			err = nil
-		} else {
-			inputCosts := cost.InputTokenCostInCents * float64(res.Usage.PromptTokens)
-			outputCosts := cost.OutputTokenCostInCents * float64(res.Usage.CompletionTokens)
-			stat.SetCostCents(inputCosts + outputCosts)
-		}
-
-		exp := stat.Exec(c)
-		if exp != nil {
-			logrus.Errorln(exp)
-		}
-	}()
+	defer savePromptCall(
+		c.Request.Context(),
+		prompt,
+		responseResult,
+		res,
+		pj,
+		payload,
+		endTime,
+		startTime,
+		c.Request.UserAgent(),
+		false,
+	)
 
 	if err != nil {
 		responseResult = 1
@@ -249,10 +221,15 @@ func apiRunPrompt(c *gin.Context) {
 		return
 	}
 
-	result := apiRunPromptResponse{}
-	result.PromptID = hashedValue
-	result.ResponseMessage = res.Choices[0].Message.Content
-	result.ResponseTokenCount = res.Usage.CompletionTokens
+	result := service.APIRunPromptResponse{
+		PromptID:           hashedValue,
+		ResponseTokenCount: res.Usage.CompletionTokens,
+		ResponseMessage:    res.Choices[0].Message.Content,
+	}
+
+	if responseResult == 0 {
+		service.SetPromptResponseCache(hashedValue, payload.Variables, result)
+	}
 
 	c.Header("Server-Timing", fmt.Sprintf("prompt;dur=%d", endTime.Sub(startTime).Milliseconds()))
 	c.JSON(http.StatusOK, result)
@@ -287,7 +264,7 @@ func apiRunPromptStream(c *gin.Context) {
 	c.Writer.Header().Set("X-Accel-Buffering", "no")
 
 	var info openai.Usage
-	result := make([]openai.ChatCompletionChoice, 0)
+	result := ""
 
 	c.Stream(func(w io.Writer) bool {
 		select {
@@ -305,8 +282,9 @@ func apiRunPromptStream(c *gin.Context) {
 			responseResult = 1
 			return false
 		case data := <-replyStream.Message:
-			result = append(result, data...)
-			chunkResponse := apiRunPromptResponse{
+			// result = append(result, data...)
+			result += data[0].Message.Content
+			chunkResponse := service.APIRunPromptResponse{
 				PromptID:           hashedValue,
 				ResponseMessage:    data[0].Message.Content,
 				ResponseTokenCount: -1,
@@ -323,45 +301,75 @@ func apiRunPromptStream(c *gin.Context) {
 
 	endTime := time.Now()
 
-	defer func() {
-		stat := service.EntClient.
-			PromptCall.
-			Create().
-			SetPromptID(prompt.ID).
-			SetResult(responseResult).
-			SetResponseToken(info.CompletionTokens).
-			SetTotalToken(info.TotalTokens).
-			SetUserId(payload.UserId).
-			SetDuration(endTime.Sub(startTime).Milliseconds()).
-			SetProjectID(pj.ID).
-			SetUa(c.Request.UserAgent())
+	if responseResult == 0 {
+		service.SetPromptResponseCache(hashedValue, payload.Variables, service.APIRunPromptResponse{
+			PromptID:           hashedValue,
+			ResponseTokenCount: info.CompletionTokens,
+			ResponseMessage:    result,
+		})
+	}
 
-		if prompt.Debug {
-			stat.SetPayload(payload.Variables)
-		}
+	defer savePromptCall(
+		c.Request.Context(),
+		prompt,
+		responseResult,
+		openai.ChatCompletionResponse{
+			Usage:   info,
+			Choices: []openai.ChatCompletionChoice{{Message: openai.ChatCompletionMessage{Content: result}}},
+		},
+		pj,
+		payload,
+		endTime,
+		startTime,
+		c.Request.UserAgent(),
+		false,
+	)
+}
 
-		choices := make([]string, 0)
+func savePromptCall(
+	ctx context.Context,
+	prompt ent.Prompt,
+	responseResult int,
+	res openai.ChatCompletionResponse,
+	pj ent.Project,
+	payload apiRunPromptPayload,
+	endTime, startTime time.Time,
+	ua string,
+	isCachedResponse bool,
+) {
+	stat := service.EntClient.
+		PromptCall.
+		Create().
+		SetPromptID(prompt.ID).
+		SetResult(responseResult).
+		SetResponseToken(res.Usage.CompletionTokens).
+		SetTotalToken(res.Usage.TotalTokens).
+		SetUserId(payload.UserId).
+		SetCached(isCachedResponse).
+		SetDuration(endTime.Sub(startTime).Milliseconds()).
+		SetProjectID(pj.ID).
+		SetUa(ua)
+		// SetUa(c.Request.UserAgent())
 
-		for _, choice := range result {
-			choices = append(choices, choice.Message.Content)
-		}
+	if prompt.Debug {
+		stat.SetPayload(payload.Variables)
+	}
+	if prompt.Debug && len(res.Choices) > 0 {
+		stat.SetMessage(res.Choices[0].Message.Content)
+	}
 
-		if prompt.Debug && len(choices) > 0 {
-			stat.SetMessage(choices[len(choices)-1])
-		}
+	cost, err := service.GetCosts(pj.OpenAIModel, endTime)
+	if err != nil {
+		logrus.Errorln(err)
+		err = nil
+	} else {
+		inputCosts := cost.InputTokenCostInCents * float64(res.Usage.PromptTokens)
+		outputCosts := cost.OutputTokenCostInCents * float64(res.Usage.CompletionTokens)
+		stat.SetCostCents(inputCosts + outputCosts)
+	}
 
-		cost, err := service.GetCosts(pj.OpenAIModel, endTime)
-		if err != nil {
-			logrus.Errorln(err)
-			err = nil
-		} else {
-			inputCosts := cost.InputTokenCostInCents * float64(info.PromptTokens)
-			outputCosts := cost.OutputTokenCostInCents * float64(info.CompletionTokens)
-			stat.SetCostCents(inputCosts + outputCosts)
-		}
-		exp := stat.Exec(c)
-		if exp != nil {
-			logrus.Errorln(exp)
-		}
-	}()
+	exp := stat.Exec(ctx)
+	if exp != nil {
+		logrus.Errorln(exp)
+	}
 }

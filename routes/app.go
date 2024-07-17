@@ -109,9 +109,18 @@ func SetupGinRoutes(
 	apiRoutes.Use(apiMiddleware)
 	{
 		apiRoutes.GET("/prompts", apiListPrompts)
-		apiRoutes.POST("/prompts/run/:id", apiRunPromptMiddleware, apiRunPrompt)
-		// FIXME: PLEASE DO NOT USE IT!!!
-		apiRoutes.POST("/prompts/run/:id/stream", apiRunPromptMiddleware, apiRunPromptStream)
+		apiRoutes.POST(
+			"/prompts/run/:id",
+			apiRunPromptMiddleware,
+			promptCacheMiddleware,
+			apiRunPrompt,
+		)
+		apiRoutes.POST(
+			"/prompts/run/:id/stream",
+			apiRunPromptMiddleware,
+			promptCacheMiddleware,
+			apiRunPromptStream,
+		)
 	}
 
 	// !!! IMPORTANT !!!
