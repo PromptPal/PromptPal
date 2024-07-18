@@ -21,6 +21,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.10.9
+	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/sashabaranov/go-openai v1.20.5
 	github.com/sirupsen/logrus v1.9.3
 	github.com/speps/go-hashids/v2 v2.0.1

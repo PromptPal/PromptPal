@@ -41,6 +41,7 @@ func (Prompt) Fields() []ent.Field {
 		field.String("description").Default(""),
 		field.Bool("enabled").Default(true),
 		field.Bool("debug").Default(false),
+		field.Bool("cacheEnabled").Default(true),
 		field.JSON("prompts", []PromptRow{}),
 		field.Int("tokenCount").Default(0),
 		field.Int("version").Default(0),
