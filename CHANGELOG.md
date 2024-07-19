@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.11.5](https://github.com/PromptPal/PromptPal/compare/v1.11.4...v1.11.5) (2024-07-19)
+
+
+### Features
+
+* **api:** add cache support ([e893eb2](https://github.com/PromptPal/PromptPal/commit/e893eb205c71480c563b8a6c5378c78eb3e867d3))
+* **model:** add gpt-4o-mini support ([cb95aa9](https://github.com/PromptPal/PromptPal/commit/cb95aa9cfc4f541ccfffb99e6182f00a7fc55fe5))
+
+
+### Bug Fixes
+
+* **api:** abort api request if cache hit ([9206f89](https://github.com/PromptPal/PromptPal/commit/9206f8977059d5b6325a64e4227a148473f6a183))
+
+
+### Miscellaneous Chores
+
+* release 1.11.5 ([52a2b8c](https://github.com/PromptPal/PromptPal/commit/52a2b8c4c0f587d85e7d9c3dfc3fff6f45998db3))
+
 ## [1.11.4](https://github.com/PromptPal/PromptPal/compare/v1.11.3...v1.11.4) (2024-07-15)
 
 
