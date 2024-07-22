@@ -17,6 +17,7 @@ type PromptCall {
   createdAt: String!
   costInCents: Float!
   userAgent: String!
+  cached: Boolean!
 }
 
 type PromptCallList {

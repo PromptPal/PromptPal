@@ -101,6 +101,9 @@ func (p promptCallResponse) Payload() string {
 	}
 	return string(result)
 }
+func (p promptCallResponse) Cached() bool {
+	return p.pc.Cached
+}
 
 func (p promptCallResponse) Message() *string {
 	return p.pc.Message
