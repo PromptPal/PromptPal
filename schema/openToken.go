@@ -87,11 +87,53 @@ func (q QueryResolver) CreateOpenToken(ctx context.Context, args createOpenToken
 	return
 }
 
+type openTokenUpdate struct {
+	ID   int32
+	Data struct {
+		Description        *string
+		TTL                *int32
+		ApiValidateEnabled *bool
+		ApiValidatePath    *string
+	}
+}
+
+func (q QueryResolver) UpdateOpenToken(ctx context.Context, args openTokenUpdate) (openTokenResponse, error) {
+	// TODO: check user permission...
+	// ctxVal := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	stat := service.
+		EntClient.
+		OpenToken.
+		UpdateOneID(int(args.ID))
+
+	if args.Data.Description != nil {
+		stat = stat.SetDescription(*args.Data.Description)
+	}
+	if args.Data.TTL != nil {
+		stat = stat.SetExpireAt(time.Now().Add(time.Second * time.Duration(*args.Data.TTL)))
+	}
+	if args.Data.ApiValidateEnabled != nil {
+		stat = stat.SetApiValidateEnabled(*args.Data.ApiValidateEnabled)
+	}
+	if args.Data.ApiValidatePath != nil {
+		stat = stat.SetApiValidatePath(*args.Data.ApiValidatePath)
+	}
+	ot, err := stat.Save(ctx)
+	if err != nil {
+		return openTokenResponse{}, err
+	}
+	return openTokenResponse{
+		openToken: ot,
+	}, nil
+}
+
 type deleteOpenTokenArgs struct {
 	ID int32
 }
 
 func (q QueryResolver) DeleteOpenToken(ctx context.Context, args deleteOpenTokenArgs) (bool, error) {
+	// TODO: check user permission...
+	// ctxVal := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+
 	err := service.
 		EntClient.
 		OpenToken.

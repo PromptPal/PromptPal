@@ -32,5 +32,6 @@ type Mutation {
   deletePrompt(id: Int!): Boolean!
 
   createOpenToken(data: openTokenInput!): CreateOpenToken!
+  updateOpenToken(id: Int!, data: openTokenInput!): OpenToken!
   deleteOpenToken(id: Int!): Boolean!
 }
