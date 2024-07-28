@@ -121,6 +121,7 @@ func (q QueryResolver) UpdateOpenToken(ctx context.Context, args openTokenUpdate
 	if err != nil {
 		return openTokenResponse{}, err
 	}
+	service.PublicAPIAuthCache.Set(ot.Token, *ot, cache.WithExpiration(time.Hour))
 	return openTokenResponse{
 		openToken: ot,
 	}, nil
