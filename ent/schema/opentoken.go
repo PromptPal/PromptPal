@@ -18,6 +18,8 @@ func (OpenToken) Fields() []ent.Field {
 		field.String("name"),
 		field.String("description").Default(""),
 		field.String("token").Sensitive(),
+		field.Bool("apiValidateEnabled").Default(false),
+		field.String("apiValidatePath").Default("/api/v1/validate"),
 		field.Time("expireAt"),
 	}
 }

@@ -3,7 +3,9 @@ package routes
 import (
 	"net/http"
 	"strings"
+	"time"
 
+	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/PromptPal/PromptPal/ent/opentoken"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/gin-gonic/gin"
@@ -47,7 +49,8 @@ func apiMiddleware(c *gin.Context) {
 	}
 
 	tk := authKey[1]
-	pid, ok := service.PublicAPIAuthCache.Get(tk)
+	ot, ok := service.PublicAPIAuthCache.Get(tk)
+	pid := 0
 	if !ok {
 		ot, err := service.
 			EntClient.
@@ -72,7 +75,15 @@ func apiMiddleware(c *gin.Context) {
 			return
 		}
 		pid = pj.ID
+		service.PublicAPIAuthCache.Set(tk, *ot, cache.WithExpiration(5*time.Minute))
 	}
+
+	if pid == 0 {
+		// TODO: make sure it can be work before submit
+		pid = ot.Edges.Project.ID
+	}
+
+	c.Set("openToken", ot)
 	c.Set("pid", pid)
 	c.Next()
 }

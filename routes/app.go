@@ -111,12 +111,14 @@ func SetupGinRoutes(
 		apiRoutes.GET("/prompts", apiListPrompts)
 		apiRoutes.POST(
 			"/prompts/run/:id",
+			temporaryTokenValidationMiddleware,
 			apiRunPromptMiddleware,
 			promptCacheMiddleware,
 			apiRunPrompt,
 		)
 		apiRoutes.POST(
 			"/prompts/run/:id/stream",
+			temporaryTokenValidationMiddleware,
 			apiRunPromptMiddleware,
 			promptCacheMiddleware,
 			apiRunPromptStream,

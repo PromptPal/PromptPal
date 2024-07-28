@@ -77,7 +77,7 @@ func (q QueryResolver) CreateOpenToken(ctx context.Context, args createOpenToken
 		return
 	}
 
-	service.PublicAPIAuthCache.Set(tk, pid, cache.WithExpiration(24*time.Hour))
+	service.PublicAPIAuthCache.Set(tk, *ot, cache.WithExpiration(24*time.Hour))
 	result.openToken = ot
 	result.token = tk
 	return
