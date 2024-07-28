@@ -3,6 +3,8 @@ input openTokenInput {
   name: String!
   description: String!
   ttl: Int!
+  apiValidateEnabled: Boolean!
+  apiValidatePath: String
 }
 
 type CreateOpenToken {
@@ -15,6 +17,8 @@ type openToken {
   name: String!
   description: String!
   expireAt: String!
+  apiValidateEnabled: Boolean!
+  apiValidatePath: String!
 }
 
 type openTokenList {

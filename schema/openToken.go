@@ -16,10 +16,12 @@ import (
 )
 
 type createOpenTokenData struct {
-	ProjectID   int32
-	Name        string
-	Description string
-	TTL         int32 // in seconds
+	ProjectID          int32
+	Name               string
+	Description        string
+	TTL                int32 // in seconds
+	ApiValidateEnabled bool
+	ApiValidatePath    *string
 }
 
 type createOpenTokenArgs struct {
@@ -50,7 +52,7 @@ func (q QueryResolver) CreateOpenToken(ctx context.Context, args createOpenToken
 	}
 
 	if previousCount > 20 {
-		err = NewGraphQLHttpError(http.StatusTooManyRequests, errors.New("too many tokens"))
+		err = NewGraphQLHttpError(http.StatusInsufficientStorage, errors.New("too many tokens"))
 		return
 	}
 
@@ -67,6 +69,8 @@ func (q QueryResolver) CreateOpenToken(ctx context.Context, args createOpenToken
 		SetName(payload.Name).
 		SetDescription(payload.Description).
 		SetToken(tk).
+		SetApiValidateEnabled(payload.ApiValidateEnabled).
+		SetNillableApiValidatePath(payload.ApiValidatePath).
 		SetUserID(ctxValue.UserID).
 		SetProjectID(pid).
 		SetExpireAt(expireAt).
@@ -77,7 +81,7 @@ func (q QueryResolver) CreateOpenToken(ctx context.Context, args createOpenToken
 		return
 	}
 
-	service.PublicAPIAuthCache.Set(tk, *ot, cache.WithExpiration(24*time.Hour))
+	service.PublicAPIAuthCache.Set(tk, *ot, cache.WithExpiration(time.Hour))
 	result.openToken = ot
 	result.token = tk
 	return
@@ -141,4 +145,12 @@ func (o openTokenResponse) Description() string {
 
 func (o openTokenResponse) ExpireAt() string {
 	return o.openToken.ExpireAt.Format(time.RFC3339)
+}
+
+func (o openTokenResponse) ApiValidateEnabled() bool {
+	return o.openToken.ApiValidateEnabled
+}
+
+func (o openTokenResponse) ApiValidatePath() string {
+	return o.openToken.ApiValidatePath
 }
