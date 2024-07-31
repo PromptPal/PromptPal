@@ -24,7 +24,7 @@ func temporaryTokenValidationMiddleware(c *gin.Context) {
 		})
 		return
 	}
-	ot := otd.(*ent.OpenToken)
+	ot := otd.(ent.OpenToken)
 
 	if !ot.ApiValidateEnabled {
 		c.Next()
@@ -51,6 +51,7 @@ func temporaryTokenValidationMiddleware(c *gin.Context) {
 	}
 
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tempToken))
+	req.Header.Add("User-Agent", fmt.Sprintf("PromptPal@%s", versionCommit))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse{

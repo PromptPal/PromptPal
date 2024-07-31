@@ -52,7 +52,7 @@ func apiMiddleware(c *gin.Context) {
 	ot, ok := service.PublicAPIAuthCache.Get(tk)
 	pid := 0
 	if !ok {
-		ot, err := service.
+		dot, err := service.
 			EntClient.
 			OpenToken.
 			Query().
@@ -66,7 +66,9 @@ func apiMiddleware(c *gin.Context) {
 			return
 		}
 
-		pj, err := ot.QueryProject().Only(c)
+		ot = *dot
+
+		pj, err := dot.QueryProject().Only(c)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse{
 				ErrorCode:    http.StatusInternalServerError,
@@ -75,12 +77,19 @@ func apiMiddleware(c *gin.Context) {
 			return
 		}
 		pid = pj.ID
-		service.PublicAPIAuthCache.Set(tk, *ot, cache.WithExpiration(5*time.Minute))
+		service.PublicAPIAuthCache.Set(tk, ot, cache.WithExpiration(5*time.Minute))
 	}
 
 	if pid == 0 {
-		// TODO: make sure it can be work before submit
-		pid = ot.Edges.Project.ID
+		pj, err := ot.QueryProject().Only(c.Request.Context())
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse{
+				ErrorCode:    http.StatusInternalServerError,
+				ErrorMessage: err.Error(),
+			})
+			return
+		}
+		pid = pj.ID
 	}
 
 	c.Set("openToken", ot)
