@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.12.0](https://github.com/PromptPal/PromptPal/compare/v1.11.5...v1.12.0) (2024-08-01)
+
+
+### Features
+
+* **openToken:** add ability to validate openToken ([ceb1843](https://github.com/PromptPal/PromptPal/commit/ceb1843b77057399aadeede1fadcc60161d88260))
+* **openToken:** add api to update openToken ([3653c2c](https://github.com/PromptPal/PromptPal/commit/3653c2c48d82b6ef0a33ae63df0b828db7d5700d))
+* **openToken:** make openToken validation server configable ([7227ed8](https://github.com/PromptPal/PromptPal/commit/7227ed85ed24eb660b5d22e4e7abdc186a9572b0))
+
+
+### Bug Fixes
+
+* **calls:** add `cached` attr to calls ([d08a78d](https://github.com/PromptPal/PromptPal/commit/d08a78dfa331de2902bdbdb1585a7759e85ac271))
+* **deps:** remove sqlite support ([0a4689a](https://github.com/PromptPal/PromptPal/commit/0a4689a4f61ef3b59b6c0c36bacc14abe2ba55db))
+* **openToken:** add cache when update got finished ([69af7f5](https://github.com/PromptPal/PromptPal/commit/69af7f5ce685ca3e43094903ca51f4e33a33c90b))
+* **openToken:** fix render order ([e26a09a](https://github.com/PromptPal/PromptPal/commit/e26a09a605bf3350e5fb9620fcafcc6fe76f4df8))
+* **openToken:** fix type name ([ffde9c1](https://github.com/PromptPal/PromptPal/commit/ffde9c1ce5889cf75f9c7c9abe29d0c04c0c6b00))
+* **openToken:** remove Bearer in temporary token header ([5af7347](https://github.com/PromptPal/PromptPal/commit/5af73470b18da01954c7aba3518c7701d8c3ed57))
+* **openToken:** update openToken code to make it works ([cfbdf2b](https://github.com/PromptPal/PromptPal/commit/cfbdf2b5c39182b0b8cf574c408220e2f5c65d0c))
+
 ## [1.11.5](https://github.com/PromptPal/PromptPal/compare/v1.11.4...v1.11.5) (2024-07-19)
 
 
