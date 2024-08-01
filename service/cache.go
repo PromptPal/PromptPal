@@ -19,7 +19,7 @@ var apiPromptResponseCache *cache.Cache[string, APIRunPromptResponse] = cache.Ne
 )
 var ApiPromptCache *cache.Cache[string, ent.Prompt]
 var ProjectCache *cache.Cache[int, ent.Project]
-var PublicAPIAuthCache *cache.Cache[string, int] = cache.New[string, int]()
+var PublicAPIAuthCache *cache.Cache[string, ent.OpenToken] = cache.New[string, ent.OpenToken]()
 
 func init() {
 	ApiPromptCache = cache.New[string, ent.Prompt]()

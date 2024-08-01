@@ -16,10 +16,12 @@ import (
 )
 
 type createOpenTokenData struct {
-	ProjectID   int32
-	Name        string
-	Description string
-	TTL         int32 // in seconds
+	ProjectID          int32
+	Name               string
+	Description        string
+	TTL                int32 // in seconds
+	ApiValidateEnabled bool
+	ApiValidatePath    *string
 }
 
 type createOpenTokenArgs struct {
@@ -50,7 +52,7 @@ func (q QueryResolver) CreateOpenToken(ctx context.Context, args createOpenToken
 	}
 
 	if previousCount > 20 {
-		err = NewGraphQLHttpError(http.StatusTooManyRequests, errors.New("too many tokens"))
+		err = NewGraphQLHttpError(http.StatusInsufficientStorage, errors.New("too many tokens"))
 		return
 	}
 
@@ -67,6 +69,8 @@ func (q QueryResolver) CreateOpenToken(ctx context.Context, args createOpenToken
 		SetName(payload.Name).
 		SetDescription(payload.Description).
 		SetToken(tk).
+		SetApiValidateEnabled(payload.ApiValidateEnabled).
+		SetNillableApiValidatePath(payload.ApiValidatePath).
 		SetUserID(ctxValue.UserID).
 		SetProjectID(pid).
 		SetExpireAt(expireAt).
@@ -77,10 +81,50 @@ func (q QueryResolver) CreateOpenToken(ctx context.Context, args createOpenToken
 		return
 	}
 
-	service.PublicAPIAuthCache.Set(tk, pid, cache.WithExpiration(24*time.Hour))
+	service.PublicAPIAuthCache.Set(tk, *ot, cache.WithExpiration(time.Hour))
 	result.openToken = ot
 	result.token = tk
 	return
+}
+
+type openTokenUpdate struct {
+	ID   int32
+	Data struct {
+		Description        *string
+		TTL                *int32
+		ApiValidateEnabled *bool
+		ApiValidatePath    *string
+	}
+}
+
+func (q QueryResolver) UpdateOpenToken(ctx context.Context, args openTokenUpdate) (openTokenResponse, error) {
+	// TODO: check user permission...
+	// ctxVal := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	stat := service.
+		EntClient.
+		OpenToken.
+		UpdateOneID(int(args.ID))
+
+	if args.Data.Description != nil {
+		stat = stat.SetDescription(*args.Data.Description)
+	}
+	if args.Data.TTL != nil {
+		stat = stat.SetExpireAt(time.Now().Add(time.Second * time.Duration(*args.Data.TTL)))
+	}
+	if args.Data.ApiValidateEnabled != nil {
+		stat = stat.SetApiValidateEnabled(*args.Data.ApiValidateEnabled)
+	}
+	if args.Data.ApiValidatePath != nil {
+		stat = stat.SetApiValidatePath(*args.Data.ApiValidatePath)
+	}
+	ot, err := stat.Save(ctx)
+	if err != nil {
+		return openTokenResponse{}, err
+	}
+	service.PublicAPIAuthCache.Set(ot.Token, *ot, cache.WithExpiration(time.Hour))
+	return openTokenResponse{
+		openToken: ot,
+	}, nil
 }
 
 type deleteOpenTokenArgs struct {
@@ -88,6 +132,9 @@ type deleteOpenTokenArgs struct {
 }
 
 func (q QueryResolver) DeleteOpenToken(ctx context.Context, args deleteOpenTokenArgs) (bool, error) {
+	// TODO: check user permission...
+	// ctxVal := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+
 	err := service.
 		EntClient.
 		OpenToken.
@@ -141,4 +188,12 @@ func (o openTokenResponse) Description() string {
 
 func (o openTokenResponse) ExpireAt() string {
 	return o.openToken.ExpireAt.Format(time.RFC3339)
+}
+
+func (o openTokenResponse) ApiValidateEnabled() bool {
+	return o.openToken.ApiValidateEnabled
+}
+
+func (o openTokenResponse) ApiValidatePath() string {
+	return o.openToken.ApiValidatePath
 }

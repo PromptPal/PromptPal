@@ -3,7 +3,9 @@ package routes
 import (
 	"net/http"
 	"strings"
+	"time"
 
+	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/PromptPal/PromptPal/ent/opentoken"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/gin-gonic/gin"
@@ -47,9 +49,10 @@ func apiMiddleware(c *gin.Context) {
 	}
 
 	tk := authKey[1]
-	pid, ok := service.PublicAPIAuthCache.Get(tk)
+	ot, ok := service.PublicAPIAuthCache.Get(tk)
+	pid := 0
 	if !ok {
-		ot, err := service.
+		dot, err := service.
 			EntClient.
 			OpenToken.
 			Query().
@@ -63,7 +66,22 @@ func apiMiddleware(c *gin.Context) {
 			return
 		}
 
-		pj, err := ot.QueryProject().Only(c)
+		ot = *dot
+
+		pj, err := dot.QueryProject().Only(c)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse{
+				ErrorCode:    http.StatusInternalServerError,
+				ErrorMessage: err.Error(),
+			})
+			return
+		}
+		pid = pj.ID
+		service.PublicAPIAuthCache.Set(tk, ot, cache.WithExpiration(5*time.Minute))
+	}
+
+	if pid == 0 {
+		pj, err := ot.QueryProject().Only(c.Request.Context())
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse{
 				ErrorCode:    http.StatusInternalServerError,
@@ -73,6 +91,8 @@ func apiMiddleware(c *gin.Context) {
 		}
 		pid = pj.ID
 	}
+
+	c.Set("openToken", ot)
 	c.Set("pid", pid)
 	c.Next()
 }

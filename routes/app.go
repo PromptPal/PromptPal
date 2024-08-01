@@ -31,6 +31,8 @@ var hashidService service.HashIDService
 var oidcProvider *oidc.Provider
 var ssoGoogle *oauth2.Config
 
+var versionCommit string
+
 func SetupGinRoutes(
 	commitSha string,
 	w3 service.Web3Service,
@@ -38,6 +40,7 @@ func SetupGinRoutes(
 	hi service.HashIDService,
 	graphqlSchema *graphql.Schema,
 ) *gin.Engine {
+	versionCommit = commitSha
 	web3Service = w3
 	aiService = o
 	hashidService = hi
@@ -111,12 +114,14 @@ func SetupGinRoutes(
 		apiRoutes.GET("/prompts", apiListPrompts)
 		apiRoutes.POST(
 			"/prompts/run/:id",
+			temporaryTokenValidationMiddleware,
 			apiRunPromptMiddleware,
 			promptCacheMiddleware,
 			apiRunPrompt,
 		)
 		apiRoutes.POST(
 			"/prompts/run/:id/stream",
+			temporaryTokenValidationMiddleware,
 			apiRunPromptMiddleware,
 			promptCacheMiddleware,
 			apiRunPromptStream,
