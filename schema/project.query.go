@@ -136,7 +136,7 @@ func (p projectResponse) OpenTokens(ctx context.Context) (result openTokenListRe
 		OpenToken.
 		Query().
 		Where(opentoken.HasProjectWith(project.ID(p.p.ID))).
-		Order(ent.Asc(opentoken.FieldID)).
+		Order(ent.Desc(opentoken.FieldID)).
 		All(ctx)
 
 	if err != nil {
@@ -154,7 +154,7 @@ func (p projectResponse) LatestPrompts(ctx context.Context) (result promptsRespo
 		Prompt.
 		Query().
 		Where(prompt.HasProjectWith(project.ID(p.p.ID))).
-		Order(ent.Asc(prompt.FieldID))
+		Order(ent.Desc(prompt.FieldID))
 	result.stat = stat
 	result.pagination = paginationInput{
 		Limit:  10,
