@@ -312,6 +312,9 @@ func (o aiService) ChatStream(
 		}
 		req.Messages = append(req.Messages, pt)
 	}
+	req.StreamOptions = &openai.StreamOptions{
+		IncludeUsage: true,
+	}
 
 	stream, err := client.CreateChatCompletionStream(ctx, req)
 
@@ -324,7 +327,6 @@ func (o aiService) ChatStream(
 			resp, err := stream.Recv()
 			if errors.Is(err, io.EOF) {
 				err = nil
-				reply.Info <- openai.Usage{}
 				reply.Done <- true
 				stream.Close()
 				break
@@ -333,6 +335,14 @@ func (o aiService) ChatStream(
 				reply.Err <- err
 				stream.Close()
 				break
+			}
+
+			if resp.Usage != nil {
+				reply.Info <- *resp.Usage
+			}
+
+			if len(resp.Choices) == 0 {
+				continue
 			}
 
 			temp := make([]openai.ChatCompletionChoice, len(resp.Choices))
