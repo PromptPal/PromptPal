@@ -1,10 +1,9 @@
-# PromptPal[![Build and Release](https://github.com/PromptPal/PromptPal/actions/workflows/release.yaml/badge.svg)](https://github.com/PromptPal/PromptPal/actions/workflows/release.yaml)[![codecov](https://codecov.io/gh/PromptPal/PromptPal/branch/master/graph/badge.svg?token=E6VR5K084W)](https://codecov.io/gh/PromptPal/PromptPal)
+# PromptPal[![Build and Release](https://github.com/PromptPal/PromptPal/actions/workflows/release.yaml/badge.svg)](https://github.com/PromptPal/PromptPal/actions/workflows/release.yaml)[![codecov](https://codecov.io/gh/PromptPal/PromptPal/branch/master/graph/badge.svg?token=E6VR5K084W)](https://codecov.io/gh/PromptPal/PromptPal)![Docker Pulls](https://img.shields.io/docker/pulls/annatarhe/prompt-pal)
 
 > **Warning**
 > This project is currently in an early stage of development and may not be suitable for production use. Use with caution and expect frequent updates and changes.
 
 PromptPal is an exceptional prompts management tool designed specifically for startups and individual contributors in the field of AI. It serves as a centralized platform to effortlessly manage prompts within your AI projects, enabling seamless collaboration and workflow optimization. With PromptPal, you can ensure efficient prompt tracking, simplify project management, and never miss a critical prompt.
-
 
 [![video guide](https://img.youtube.com/vi/IjfrQNRUg_I/maxresdefault.jpg)](https://youtu.be/IjfrQNRUg_I "PromptPal - a Prompt management service focusing on enterprise development and developer experience")
 
@@ -45,7 +44,7 @@ These instructions will guide you through the process of setting up PromptPal on
 - Run Docker Image: Use Docker to run the PromptPal image. Execute the following command, replacing {PUBLIC_ADDRESS} with your Metamask wallet's public address:
 
 ```bash
-docker run -v $(pwd)/.env:/usr/app/.env -p 7788:7788 annatarhe/prompt-pal:v1.10.1
+docker run -v $(pwd)/.env:/usr/app/.env -p 7788:7788 annatarhe/prompt-pal:latest
 ```
 
 the .env file should be like this:
