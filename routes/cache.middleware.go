@@ -52,6 +52,7 @@ func promptCacheMiddleware(c *gin.Context) {
 		endTime,
 		startTime,
 		c.Request.UserAgent(),
+		c.ClientIP(),
 		true,
 	)
 	c.Header("Server-Timing", fmt.Sprintf("prompt;dur=%d", endTime.Sub(startTime).Milliseconds()))

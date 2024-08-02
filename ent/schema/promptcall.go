@@ -27,6 +27,7 @@ func (PromptCall) Fields() []ent.Field {
 		field.JSON("payload", map[string]string{}).Optional(),
 		field.Float("cost_cents").Default(0),
 		field.String("ua").Default(""),
+		field.String("ip").Default(""),
 		// only available when prompt.debug is true
 		field.String("message").Optional().Nillable(),
 	}

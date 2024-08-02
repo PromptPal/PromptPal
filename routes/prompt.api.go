@@ -201,6 +201,7 @@ func apiRunPrompt(c *gin.Context) {
 		endTime,
 		startTime,
 		c.Request.UserAgent(),
+		c.ClientIP(),
 		false,
 	)
 
@@ -322,6 +323,7 @@ func apiRunPromptStream(c *gin.Context) {
 		endTime,
 		startTime,
 		c.Request.UserAgent(),
+		c.ClientIP(),
 		false,
 	)
 }
@@ -335,6 +337,7 @@ func savePromptCall(
 	payload apiRunPromptPayload,
 	endTime, startTime time.Time,
 	ua string,
+	clientIP string,
 	isCachedResponse bool,
 ) {
 	stat := service.EntClient.
@@ -346,6 +349,7 @@ func savePromptCall(
 		SetTotalToken(res.Usage.TotalTokens).
 		SetUserId(payload.UserId).
 		SetCached(isCachedResponse).
+		SetIP(clientIP).
 		SetDuration(endTime.Sub(startTime).Milliseconds()).
 		SetProjectID(pj.ID).
 		SetUa(ua)
