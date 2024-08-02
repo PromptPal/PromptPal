@@ -18,6 +18,7 @@ type PromptCall {
   costInCents: Float!
   userAgent: String!
   cached: Boolean!
+  ip: String!
 }
 
 type PromptCallList {

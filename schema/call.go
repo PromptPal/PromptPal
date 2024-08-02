@@ -118,3 +118,7 @@ func (p promptCallResponse) CostInCents() float64 {
 func (p promptCallResponse) UserAgent() string {
 	return p.pc.Ua
 }
+
+func (p promptCallResponse) IP() string {
+	return p.pc.IP
+}
