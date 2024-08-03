@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.1](https://github.com/PromptPal/PromptPal/compare/v1.13.0...v1.13.1) (2024-08-03)
+
+
+### Bug Fixes
+
+* **deps:** update deps ([#66](https://github.com/PromptPal/PromptPal/issues/66)) ([da80159](https://github.com/PromptPal/PromptPal/commit/da8015993355d6caedd46b115661604b2a3ef253))
+
 ## [1.13.0](https://github.com/PromptPal/PromptPal/compare/v1.12.0...v1.13.0) (2024-08-02)
 
 
