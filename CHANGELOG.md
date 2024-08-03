@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.13.0](https://github.com/PromptPal/PromptPal/compare/v1.12.0...v1.13.0) (2024-08-02)
+
+
+### Features
+
+* **ip:** add ip data for api ([4faf217](https://github.com/PromptPal/PromptPal/commit/4faf217c9a2991facf7d462348414397525a97d9))
+* **ip:** record request ip in history ([b52daa4](https://github.com/PromptPal/PromptPal/commit/b52daa4d265e05a9b46239aceb4d18fb27eef11d))
+
+
+### Bug Fixes
+
+* **docs:** update readme ([19b81ac](https://github.com/PromptPal/PromptPal/commit/19b81ac29a42c509e34b08077ed3a4396dce9a67))
+* **docs:** update readme doc ([09060ff](https://github.com/PromptPal/PromptPal/commit/09060ffb3fcc6902790a7c9ce545a35950a1705a))
+* **stream:** fix usage recording on streaming openai request ([ba445fa](https://github.com/PromptPal/PromptPal/commit/ba445faed30c27eb32ceeb334f913e8bbaaa442e))
+
 ## [1.12.0](https://github.com/PromptPal/PromptPal/compare/v1.11.5...v1.12.0) (2024-08-01)
 
 
