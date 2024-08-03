@@ -2,7 +2,7 @@ module github.com/PromptPal/PromptPal
 
 go 1.22.5
 
-exclude github.com/crate-crypto/go-kzg-4844 v1.0.0
+// exclude github.com/crate-crypto/go-kzg-4844 v1.0.0
 
 require (
 	entgo.io/ent v0.14.0
