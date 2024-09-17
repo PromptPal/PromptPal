@@ -20,10 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Go 1.22
+      - name: Set up Go 1.23
         uses: actions/setup-go@v5
         with:
-          go-version: ^1.22
+          go-version: ^1.23
           cache: true
         id: go
       - name: setup env

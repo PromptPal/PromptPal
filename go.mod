@@ -1,6 +1,6 @@
 module github.com/PromptPal/PromptPal
 
-go 1.22.5
+go 1.23.1
 
 // exclude github.com/crate-crypto/go-kzg-4844 v1.0.0
 
