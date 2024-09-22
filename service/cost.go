@@ -20,6 +20,20 @@ var costMap map[string][]ModelCost
 
 func init() {
 	costMap = map[string][]ModelCost{
+		"o1-mini": {
+			ModelCost{
+				StartFrom:              time.Date(2024, 9, 12, 0, 0, 0, 0, time.UTC),
+				InputTokenCostInCents:  0.0003,
+				OutputTokenCostInCents: 0.0012,
+			},
+		},
+		"o1": {
+			ModelCost{
+				StartFrom:              time.Date(2024, 9, 12, 0, 0, 0, 0, time.UTC),
+				InputTokenCostInCents:  0.0015,
+				OutputTokenCostInCents: 0.006,
+			},
+		},
 		"gpt-3.5-turbo": {
 			ModelCost{
 				StartFrom:              time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
