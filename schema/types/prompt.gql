@@ -20,6 +20,10 @@ input PromptRowInput {
   role: PromptRole!
 }
 
+input PromptSearchFilters {
+  userId: String
+}
+
 enum PromptVariableTypes {
   string
   number

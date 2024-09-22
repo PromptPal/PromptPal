@@ -32,7 +32,8 @@ type createPromptArgs struct {
 }
 
 type promptResponse struct {
-	prompt *ent.Prompt
+	prompt  *ent.Prompt
+	filters *promptSearchFilters
 }
 
 func (q QueryResolver) CreatePrompt(ctx context.Context, args createPromptArgs) (promptResponse, error) {
@@ -293,8 +294,14 @@ func (p promptResponse) LatestCalls(ctx context.Context) (res promptCallListResp
 	stat := service.EntClient.PromptCall.Query().
 		Where(
 			promptcall.HasPromptWith(prompt.ID(int(p.prompt.ID))),
-		).Order(ent.Desc(promptcall.FieldID))
+		)
+	if p.filters != nil {
+		if p.filters.UserID != nil && *p.filters.UserID != "" {
+			stat = stat.Where(promptcall.UserIdContains(*p.filters.UserID))
+		}
+	}
 
+	stat = stat.Order(ent.Desc(promptcall.FieldID))
 	res.stat = stat
 	res.pagination = paginationInput{
 		Limit:  10,

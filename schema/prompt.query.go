@@ -30,8 +30,13 @@ func (q QueryResolver) Prompts(ctx context.Context, args promptsArgs) (res promp
 	return
 }
 
+type promptSearchFilters struct {
+	UserID *string
+}
+
 type promptArgs struct {
-	ID int32
+	ID      int32
+	Filters *promptSearchFilters
 }
 
 func (q QueryResolver) Prompt(ctx context.Context, args promptArgs) (res promptResponse, err error) {
@@ -41,6 +46,7 @@ func (q QueryResolver) Prompt(ctx context.Context, args promptArgs) (res promptR
 		return
 	}
 	res.prompt = p
+	res.filters = args.Filters
 	return
 }
 
@@ -64,7 +70,7 @@ func (p promptsResponse) Edges(ctx context.Context) (res []promptResponse, err e
 		return
 	}
 	for _, p := range ps {
-		res = append(res, promptResponse{p})
+		res = append(res, promptResponse{prompt: p, filters: nil})
 	}
 	return
 }

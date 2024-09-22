@@ -170,7 +170,7 @@ func (p projectPromptMetricsResponse) Last7Days(ctx context.Context) (res []Proj
 }
 
 func (p projectPromptMetricsRecentCount) Prompt() promptResponse {
-	return promptResponse{p.p}
+	return promptResponse{prompt: p.p, filters: nil}
 }
 func (p projectPromptMetricsRecentCount) Count() int32 {
 	return int32(p.count)
