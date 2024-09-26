@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.14.0](https://github.com/PromptPal/PromptPal/compare/v1.13.1...v1.14.0) (2024-09-26)
+
+
+### Features
+
+* **calls:** add user_id search for calls ([49de70d](https://github.com/PromptPal/PromptPal/commit/49de70da0226428207ed5780ad2b07bf0f3b64c6))
+
+
+### Bug Fixes
+
+* **deps:** upgrade go to latest version ([8689baf](https://github.com/PromptPal/PromptPal/commit/8689baf9dd6d60fbef990af3dbdc250e29133ad7))
+* **gemini:** add more models of gemini ([bd60759](https://github.com/PromptPal/PromptPal/commit/bd60759f1a2e6de2435fdd0fe86453bbb9308c76))
+* **models:** support o1 ([0bffdf4](https://github.com/PromptPal/PromptPal/commit/0bffdf4f3fb5a8d3ddd0e47394b2d57969cf7deb))
+
 ## [1.13.1](https://github.com/PromptPal/PromptPal/compare/v1.13.0...v1.13.1) (2024-08-03)
 
 
