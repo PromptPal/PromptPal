@@ -69,6 +69,20 @@ func init() {
 				OutputTokenCostInCents: 0.0021,
 			},
 		},
+		"gemini-1.5-flash": {
+			ModelCost{
+				StartFrom:              time.Date(2024, time.October, 1, 0, 0, 0, 0, time.UTC),
+				InputTokenCostInCents:  0.0000075,
+				OutputTokenCostInCents: 0.000003,
+			},
+		},
+		"gemini-1.5-pro": {
+			ModelCost{
+				StartFrom:              time.Date(2024, time.October, 1, 0, 0, 0, 0, time.UTC),
+				InputTokenCostInCents:  0.000125,
+				OutputTokenCostInCents: 0.0005,
+			},
+		},
 	}
 }
 
