@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.1](https://github.com/PromptPal/PromptPal/compare/v1.14.0...v1.14.1) (2024-11-20)
+
+
+### Bug Fixes
+
+* **deps:** upgrade deps ([5961ffb](https://github.com/PromptPal/PromptPal/commit/5961ffb9cfa4c75e6fe77fccee0380d0e77d8b3a))
+
 ## [1.14.0](https://github.com/PromptPal/PromptPal/compare/v1.13.1...v1.14.0) (2024-09-26)
 
 
