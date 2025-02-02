@@ -62,6 +62,20 @@ func init() {
 				OutputTokenCostInCents: 0.00006,
 			},
 		},
+		"o3": {
+			ModelCost{
+				StartFrom:              time.Date(2025, 2, 1, 0, 0, 0, 0, time.UTC),
+				InputTokenCostInCents:  0.000015,
+				OutputTokenCostInCents: 0.00006,
+			},
+		},
+		"o3-mini": {
+			ModelCost{
+				StartFrom:              time.Date(2025, 2, 1, 0, 0, 0, 0, time.UTC),
+				InputTokenCostInCents:  0.0000011,
+				OutputTokenCostInCents: 0.00000055,
+			},
+		},
 		"gemini-pro": {
 			ModelCost{
 				StartFrom:              time.Date(2024, time.May, 14, 0, 0, 0, 0, time.UTC),
