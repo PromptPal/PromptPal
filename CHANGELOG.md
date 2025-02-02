@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.2](https://github.com/PromptPal/PromptPal/compare/v1.14.1...v1.14.2) (2025-02-02)
+
+
+### Bug Fixes
+
+* **o3:** add o3 support ([45c9b80](https://github.com/PromptPal/PromptPal/commit/45c9b802c8dd6188624bc2a56eda574178bd1cd2))
+
 ## [1.14.1](https://github.com/PromptPal/PromptPal/compare/v1.14.0...v1.14.1) (2024-11-20)
 
 
