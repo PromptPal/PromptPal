@@ -1,0 +1,6 @@
+It's a golang project. named `PromptPal`. a manager for prompts.
+
+- expose REST API with GIN on `routes` package for public use.
+- expose GraphQL API with `gopher/graphql-go` on `schema` package for admin portal use.
+
+use `ent` for database ORM.
