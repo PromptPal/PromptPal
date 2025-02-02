@@ -40,11 +40,13 @@ type callTestSuite struct {
 func (s *callTestSuite) SetupSuite() {
 	config.SetupConfig(true)
 	w3 := mocks.NewWeb3Service(s.T())
-	oi := mocks.NewOpenAIService(s.T())
+	oi := mocks.NewBaseAIService(s.T())
+	gi := mocks.NewBaseAIService(s.T())
 	hs := service.NewHashIDService()
 
 	service.InitDB()
-	Setup(hs, oi, w3)
+	Setup(hs, oi, gi, w3)
+	Setup(hs, oi, gi, w3)
 
 	// w3.
 	// 	On(
@@ -126,7 +128,7 @@ func (s *callTestSuite) SetupSuite() {
 			},
 		}, nil)
 
-	s.router = routes.SetupGinRoutes("test", w3, oi, hs, nil)
+	s.router = routes.SetupGinRoutes("test", w3, oi, gi, hs, nil)
 
 }
 

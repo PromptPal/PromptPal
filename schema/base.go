@@ -8,7 +8,8 @@ import (
 )
 
 var web3Service service.Web3Service
-var openaiService service.OpenAIService
+var openaiService service.BaseAIService
+var geminiService service.BaseAIService
 var hashidService service.HashIDService
 
 type paginationInput struct {
@@ -48,10 +49,12 @@ func String() string {
 
 func Setup(
 	hi service.HashIDService,
-	oi service.OpenAIService,
+	oi service.BaseAIService,
+	gi service.BaseAIService,
 	w3 service.Web3Service,
 ) {
 	hashidService = hi
 	openaiService = oi
+	geminiService = gi
 	web3Service = w3
 }

@@ -24,11 +24,12 @@ type projectTestSuite struct {
 func (s *projectTestSuite) SetupSuite() {
 	config.SetupConfig(true)
 	w3 := mocks.NewWeb3Service(s.T())
-	oi := mocks.NewOpenAIService(s.T())
+	oi := mocks.NewBaseAIService(s.T())
+	gi := mocks.NewBaseAIService(s.T())
 	hs := service.NewHashIDService()
 
 	service.InitDB()
-	Setup(hs, oi, w3)
+	Setup(hs, oi, gi, w3)
 
 	u := service.
 		EntClient.
