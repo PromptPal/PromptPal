@@ -67,7 +67,7 @@ func (o openAIService) Chat(
 	}
 
 	for _, prompt := range prompts {
-		content := replacePlaceholders(prompt.Prompt, variables)
+		content := replacePlaceholdersLegacy(prompt.Prompt, variables)
 		pt := openai.ChatCompletionMessage{
 			Role:    prompt.Role,
 			Content: content,
