@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.7](https://github.com/PromptPal/PromptPal/compare/v1.14.6...v1.14.7) (2025-02-09)
+
+
+### Bug Fixes
+
+* **openai:** remove unused comments ([7988b07](https://github.com/PromptPal/PromptPal/commit/7988b07da29c74a10f0115101b802d42f8958ba2))
+
 ## [1.14.6](https://github.com/PromptPal/PromptPal/compare/v1.14.5...v1.14.6) (2025-02-09)
 
 
