@@ -115,7 +115,7 @@ func (o openAIService) ChatStream(
 		req.MaxTokens = project.OpenAIMaxTokens
 	}
 
-	logrus.Infoln("openai:stream: prompts need to send", prompts)
+	logrus.Infoln("openai:stream: prompts need to send", prompts, variables)
 	for _, prompt := range prompts {
 		content := replacePlaceholders(prompt.Prompt, variables)
 		pt := openai.ChatCompletionMessage{
