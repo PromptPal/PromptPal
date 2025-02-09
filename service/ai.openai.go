@@ -114,7 +114,7 @@ func (o openAIService) ChatStream(
 
 	logrus.Infoln("openai:stream: prompts need to send", prompts, variables)
 	for _, prompt := range prompts {
-		content := replacePlaceholders(prompt.Prompt, variables)
+		content := replacePlaceholdersLegacy(prompt.Prompt, variables)
 		pt := openai.ChatCompletionMessage{
 			Role:    prompt.Role,
 			Content: content,
