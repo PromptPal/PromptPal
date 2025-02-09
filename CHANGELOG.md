@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.14.8](https://github.com/PromptPal/PromptPal/compare/v1.14.7...v1.14.8) (2025-02-09)
+
+
+### Bug Fixes
+
+* **api:** add test for replacer ([16b5375](https://github.com/PromptPal/PromptPal/commit/16b5375039155b463dfbc86d8bd38feca7110db8))
+* **openai:** fix variables replacer ([e2cc436](https://github.com/PromptPal/PromptPal/commit/e2cc436a584075201a5e52e6890d0b23edf8c1e5))
+
 ## [1.14.7](https://github.com/PromptPal/PromptPal/compare/v1.14.6...v1.14.7) (2025-02-09)
 
 
