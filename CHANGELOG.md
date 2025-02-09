@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.14.3](https://github.com/PromptPal/PromptPal/compare/v1.14.2...v1.14.3) (2025-02-09)
+
+
+### Bug Fixes
+
+* **ai:** add context rules file ([720e4e5](https://github.com/PromptPal/PromptPal/commit/720e4e55abb8f9f9734bdd20e36fb87757696071))
+* **ai:** remove unused /v1 path prefix and support deepseek ([4fd7f30](https://github.com/PromptPal/PromptPal/commit/4fd7f301f540fd59257c80f0c66b8e9025ff0f60))
+* **ai:** update rules ([f8a1fcb](https://github.com/PromptPal/PromptPal/commit/f8a1fcb99dc2afcf43cd9235fe80ff57a166901a))
+
 ## [1.14.2](https://github.com/PromptPal/PromptPal/compare/v1.14.1...v1.14.2) (2025-02-02)
 
 
