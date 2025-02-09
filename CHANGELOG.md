@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.5](https://github.com/PromptPal/PromptPal/compare/v1.14.4...v1.14.5) (2025-02-09)
+
+
+### Bug Fixes
+
+* **api:** add debug log for openai ([513a5c7](https://github.com/PromptPal/PromptPal/commit/513a5c770674b127a6712d160231e199e1ada813))
+
 ## [1.14.4](https://github.com/PromptPal/PromptPal/compare/v1.14.3...v1.14.4) (2025-02-09)
 
 
