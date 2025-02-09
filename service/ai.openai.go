@@ -30,9 +30,6 @@ func (o openAIService) getOpenAIClient(ctx context.Context, project ent.Project)
 			logrus.Errorln(err)
 			return nil, err
 		}
-		if baseUrl.Path != "/v1" {
-			baseUrl.Path = "/v1"
-		}
 		cfg.BaseURL = baseUrl.String()
 	}
 	client := openai.NewClientWithConfig(cfg)

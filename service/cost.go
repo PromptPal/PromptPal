@@ -97,6 +97,13 @@ func init() {
 				OutputTokenCostInCents: 0.0005,
 			},
 		},
+		"deepseek-chat": {
+			ModelCost{
+				StartFrom:              time.Date(2024, time.October, 1, 0, 0, 0, 0, time.UTC),
+				InputTokenCostInCents:  0.0027,
+				OutputTokenCostInCents: 0.011,
+			},
+		},
 	}
 }
 
