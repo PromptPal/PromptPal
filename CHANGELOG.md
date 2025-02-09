@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.14.6](https://github.com/PromptPal/PromptPal/compare/v1.14.5...v1.14.6) (2025-02-09)
+
+
+### Bug Fixes
+
+* **deps:** update deps ([c9510c5](https://github.com/PromptPal/PromptPal/commit/c9510c51f68dc1cd1970fce1ac67efcbf6e2dbda))
+* **utils:** add test for variable replacer ([dd35f0e](https://github.com/PromptPal/PromptPal/commit/dd35f0e311f795a12f32eb50791cdac7a14a9c7c))
+
 ## [1.14.5](https://github.com/PromptPal/PromptPal/compare/v1.14.4...v1.14.5) (2025-02-09)
 
 
