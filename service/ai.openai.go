@@ -66,6 +66,7 @@ func (o openAIService) Chat(
 		req.MaxTokens = project.OpenAIMaxTokens
 	}
 
+	logrus.Infoln("openai:chat: prompts need to send", prompts)
 	for _, prompt := range prompts {
 		content := replacePlaceholdersLegacy(prompt.Prompt, variables)
 		pt := openai.ChatCompletionMessage{
@@ -114,6 +115,7 @@ func (o openAIService) ChatStream(
 		req.MaxTokens = project.OpenAIMaxTokens
 	}
 
+	logrus.Infoln("openai:stream: prompts need to send", prompts)
 	for _, prompt := range prompts {
 		content := replacePlaceholders(prompt.Prompt, variables)
 		pt := openai.ChatCompletionMessage{
