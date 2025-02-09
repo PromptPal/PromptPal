@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.4](https://github.com/PromptPal/PromptPal/compare/v1.14.3...v1.14.4) (2025-02-09)
+
+
+### Bug Fixes
+
+* **api:** fix placeholder replacer in variable ([2d76df9](https://github.com/PromptPal/PromptPal/commit/2d76df9edcd096cbc6ecdd04effe89b1dc8ec126))
+
 ## [1.14.3](https://github.com/PromptPal/PromptPal/compare/v1.14.2...v1.14.3) (2025-02-09)
 
 
