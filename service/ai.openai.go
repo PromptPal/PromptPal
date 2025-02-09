@@ -21,9 +21,6 @@ func NewOpenAIService() BaseAIService {
 
 func (o openAIService) getOpenAIClient(ctx context.Context, project ent.Project) (*openai.Client, error) {
 	cfg := openai.DefaultConfig(project.OpenAIToken)
-
-	// add `/v1` if the base url is `api.openai.com`
-	// for the client sdk reason
 	if project.OpenAIBaseURL != "" {
 		baseUrl, err := url.Parse(project.OpenAIBaseURL)
 		if err != nil {
