@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.10](https://github.com/PromptPal/PromptPal/compare/v1.14.9...v1.14.10) (2025-02-10)
+
+
+### Bug Fixes
+
+* **api:** disable brotli ([d3fac0e](https://github.com/PromptPal/PromptPal/commit/d3fac0e30287c585485fb18de521024466893f0d))
+
 ## [1.14.9](https://github.com/PromptPal/PromptPal/compare/v1.14.8...v1.14.9) (2025-02-10)
 
 
