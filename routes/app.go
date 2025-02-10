@@ -76,7 +76,7 @@ func SetupGinRoutes(
 		c.Writer.Header().Add("X-PP-VER", commitSha)
 		c.Next()
 	})
-	h.Use(brotli.Brotli(brotli.DefaultCompression))
+	// h.Use(brotli.Brotli(brotli.DefaultCompression))
 
 	h.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:8080", "http://*.annatarhe.com", "http://*.annatarhe.cn"},
