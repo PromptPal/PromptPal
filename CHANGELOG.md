@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.9](https://github.com/PromptPal/PromptPal/compare/v1.14.8...v1.14.9) (2025-02-10)
+
+
+### Bug Fixes
+
+* **api:** enable brotli ([9026f20](https://github.com/PromptPal/PromptPal/commit/9026f2024aee8f985a51aebee6a75ca6977cea68))
+
 ## [1.14.8](https://github.com/PromptPal/PromptPal/compare/v1.14.7...v1.14.8) (2025-02-09)
 
 
