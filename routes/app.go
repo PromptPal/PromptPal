@@ -69,7 +69,7 @@ func SetupGinRoutes(
 
 	store := cookie.NewStore(rc.JwtTokenKey)
 	h.Use(sessions.Sessions("pp-sess", store))
-	// h.Use(brotli.Brotli(brotli.DefaultCompression))
+	h.Use(brotli.Brotli(brotli.DefaultCompression))
 
 	// with version
 	h.Use(func(c *gin.Context) {
