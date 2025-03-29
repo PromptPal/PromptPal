@@ -48,6 +48,7 @@ func (Project) Edges() []ent.Edge {
 		edge.To("activities", Activity.Type),
 		edge.To("openTokens", OpenToken.Type),
 		edge.To("calls", PromptCall.Type),
+		edge.To("provider", Provider.Type).Unique(),
 	}
 }
 

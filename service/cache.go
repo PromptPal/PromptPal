@@ -19,11 +19,13 @@ var apiPromptResponseCache *cache.Cache[string, APIRunPromptResponse] = cache.Ne
 )
 var ApiPromptCache *cache.Cache[string, ent.Prompt]
 var ProjectCache *cache.Cache[int, ent.Project]
+var ProviderCache *cache.Cache[int, ent.Provider]
 var PublicAPIAuthCache *cache.Cache[string, ent.OpenToken] = cache.New[string, ent.OpenToken]()
 
 func init() {
 	ApiPromptCache = cache.New[string, ent.Prompt]()
 	ProjectCache = cache.New[int, ent.Project]()
+	ProviderCache = cache.New[int, ent.Provider]()
 }
 
 func Hash(s any) []byte {

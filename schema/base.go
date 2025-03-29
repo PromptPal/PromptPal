@@ -31,6 +31,7 @@ var fileNames = []string{
 	"types/openToken.gql",
 	"types/prompt.gql",
 	"types/history.gql",
+	"types/provider.gql",
 }
 
 func String() string {

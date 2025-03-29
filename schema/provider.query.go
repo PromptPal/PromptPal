@@ -1,0 +1,269 @@
+package schema
+
+import (
+	"context"
+	"encoding/json"
+	"net/http"
+	"time"
+
+	cache "github.com/Code-Hex/go-generics-cache"
+	"github.com/PromptPal/PromptPal/ent"
+	"github.com/PromptPal/PromptPal/ent/project"
+	"github.com/PromptPal/PromptPal/ent/prompt"
+	"github.com/PromptPal/PromptPal/ent/provider"
+	"github.com/PromptPal/PromptPal/service"
+)
+
+type providerArgs struct {
+	ID int32
+}
+
+type providerResponse struct {
+	p *ent.Provider
+}
+
+func (q QueryResolver) Provider(ctx context.Context, args providerArgs) (res providerResponse, err error) {
+	// Check if provider exists in cache
+	if cachedProvider, ok := service.ProviderCache.Get(int(args.ID)); ok {
+		res.p = &cachedProvider
+		return
+	}
+
+	// Query the provider from database
+	p, err := service.
+		EntClient.
+		Provider.
+		Query().
+		Where(provider.ID(int(args.ID))).
+		Only(ctx)
+
+	if err != nil {
+		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return
+	}
+
+	// Cache the provider for future queries
+	service.ProviderCache.Set(p.ID, *p, cache.WithExpiration(time.Hour*24))
+
+	res.p = p
+	return
+}
+
+type providersArgs struct {
+	Pagination paginationInput
+}
+
+type providersResponse struct {
+	providers []*ent.Provider
+}
+
+func (q QueryResolver) Providers(ctx context.Context, args providersArgs) (res providersResponse, err error) {
+	providers, err := service.
+		EntClient.
+		Provider.
+		Query().
+		Limit(int(args.Pagination.Limit)).
+		Offset(int(args.Pagination.Offset)).
+		Order(ent.Desc(provider.FieldID)).
+		All(ctx)
+
+	if err != nil {
+		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return
+	}
+	res.providers = providers
+	return
+}
+
+// Query provider by project ID
+type projectProviderArgs struct {
+	ProjectId int32
+}
+
+func (q QueryResolver) ProjectProvider(ctx context.Context, args projectProviderArgs) (res providerResponse, err error) {
+	p, err := service.
+		EntClient.
+		Provider.
+		Query().
+		Where(
+			provider.HasProjectWith(
+				project.ID(int(args.ProjectId)),
+			),
+		).
+		Only(ctx)
+
+	// If no provider is found, return empty response without error
+	if ent.IsNotFound(err) {
+		return providerResponse{}, nil
+	}
+
+	if err != nil {
+		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return
+	}
+
+	res.p = p
+	return
+}
+
+// Response methods for ProviderList
+func (p providersResponse) Count() int32 {
+	return int32(len(p.providers))
+}
+
+func (p providersResponse) Edges() (result []providerResponse) {
+	for _, provider := range p.providers {
+		result = append(result, providerResponse{p: provider})
+	}
+	return
+}
+
+// Response methods for Provider
+func (p providerResponse) ID() int32 {
+	if p.p == nil {
+		return 0
+	}
+	return int32(p.p.ID)
+}
+
+func (p providerResponse) Name() string {
+	if p.p == nil {
+		return ""
+	}
+	return p.p.Name
+}
+
+func (p providerResponse) Description() string {
+	if p.p == nil {
+		return ""
+	}
+	return p.p.Description
+}
+
+func (p providerResponse) Enabled() bool {
+	if p.p == nil {
+		return false
+	}
+	return p.p.Enabled
+}
+
+func (p providerResponse) Source() string {
+	if p.p == nil {
+		return ""
+	}
+	return p.p.Source
+}
+
+func (p providerResponse) Endpoint() string {
+	if p.p == nil {
+		return ""
+	}
+	return p.p.Endpoint
+}
+
+func (p providerResponse) OrganizationId() *string {
+	if p.p == nil || p.p.OrganizationId == "" {
+		return nil
+	}
+	return &p.p.OrganizationId
+}
+
+func (p providerResponse) DefaultModel() string {
+	if p.p == nil {
+		return ""
+	}
+	return p.p.DefaultModel
+}
+
+func (p providerResponse) Temperature() float64 {
+	if p.p == nil {
+		return 0
+	}
+	return p.p.Temperature
+}
+
+func (p providerResponse) TopP() float64 {
+	if p.p == nil {
+		return 0
+	}
+	return p.p.TopP
+}
+
+func (p providerResponse) MaxTokens() int32 {
+	if p.p == nil {
+		return 0
+	}
+	return int32(p.p.MaxTokens)
+}
+
+func (p providerResponse) Config() string {
+	if p.p == nil {
+		return ""
+	}
+	config, err := json.Marshal(p.p.Config)
+	if err != nil {
+		return ""
+	}
+	return string(config)
+}
+
+func (p providerResponse) CreatedAt() string {
+	if p.p == nil {
+		return ""
+	}
+	return p.p.CreateTime.Format(time.RFC3339)
+}
+
+func (p providerResponse) UpdatedAt() string {
+	if p.p == nil {
+		return ""
+	}
+	return p.p.UpdateTime.Format(time.RFC3339)
+}
+
+// Relationship resolvers
+func (p providerResponse) Projects(ctx context.Context) (res projectsResponse, err error) {
+	if p.p == nil {
+		return
+	}
+
+	projects, err := p.p.QueryProject().All(ctx)
+	if err != nil {
+		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return
+	}
+
+	// If no projects are associated, return empty response
+	if len(projects) == 0 {
+		return
+	}
+
+	res.projects = projects
+	return
+}
+
+func (p providerResponse) Prompts(ctx context.Context) (result promptsResponse, err error) {
+	if p.p == nil {
+		// Return empty list if provider is nil
+		result.stat = service.EntClient.Prompt.Query().Where(prompt.ID(0))
+		result.pagination = paginationInput{
+			Limit:  10,
+			Offset: 0,
+		}
+		return
+	}
+
+	stat := service.
+		EntClient.
+		Prompt.
+		Query().
+		Where(prompt.HasProviderWith(provider.ID(p.p.ID))).
+		Order(ent.Desc(prompt.FieldID))
+
+	result.stat = stat
+	result.pagination = paginationInput{
+		Limit:  10,
+		Offset: 0,
+	}
+	return
+}

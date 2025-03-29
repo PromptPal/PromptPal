@@ -116,6 +116,18 @@ func (p projectResponse) CreatedAt() string {
 func (p projectResponse) UpdatedAt() string {
 	return p.p.UpdateTime.Format(time.RFC3339)
 }
+
+func (p projectResponse) Provider(ctx context.Context) (*providerResponse, error) {
+	pj, err := p.p.QueryProvider().Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, nil
+		}
+		return nil, NewGraphQLHttpError(http.StatusInternalServerError, err)
+	}
+	return &providerResponse{p: pj}, nil
+}
+
 func (p projectResponse) Creator(ctx context.Context) (res userResponse, err error) {
 	u, err := service.
 		EntClient.

@@ -56,7 +56,7 @@ func (Prompt) Fields() []ent.Field {
 
 // Edges of the Prompt.
 func (Prompt) Edges() []ent.Edge {
-	// creator, project
+	// creator, project, provider
 	return []ent.Edge{
 		edge.
 			From("creator", User.Type).
@@ -68,6 +68,10 @@ func (Prompt) Edges() []ent.Edge {
 			Unique().
 			Field("projectId").
 			Required(),
+		edge.
+			From("provider", Provider.Type).
+			Ref("prompts").
+			Unique(),
 		edge.To("calls", PromptCall.Type),
 		edge.To("histories", History.Type),
 	}

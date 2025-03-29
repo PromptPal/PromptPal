@@ -1,0 +1,61 @@
+# Provider GraphQL type definitions
+#import './project.gql'
+#import './prompt.gql'
+
+input ProviderPayload {
+  name: String!
+  description: String
+  enabled: Boolean
+  source: String!
+  endpoint: String!
+  apiKey: String!
+  organizationId: String
+  defaultModel: String
+  temperature: Float
+  topP: Float
+  maxTokens: Int
+  config: String!
+}
+
+input ProviderUpdatePayload {
+  name: String
+  description: String
+  enabled: Boolean
+  source: String
+  endpoint: String
+  apiKey: String
+  organizationId: String
+  defaultModel: String
+  temperature: Float
+  topP: Float
+  maxTokens: Int
+  config: String
+}
+
+type Provider {
+  id: Int!
+  name: String!
+  description: String!
+  enabled: Boolean!
+  source: String!
+  endpoint: String!
+  # apiKey is sensitive and not exposed
+  organizationId: String
+  defaultModel: String!
+  temperature: Float!
+  topP: Float!
+  maxTokens: Int!
+  config: String!
+
+  createdAt: String!
+  updatedAt: String!
+
+  # Relationships
+  projects: ProjectList!
+  prompts: PromptList!
+}
+
+type ProviderList {
+  count: Int!
+  edges: [Provider!]!
+}

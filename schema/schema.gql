@@ -5,6 +5,7 @@
 #import * from './types/user.gql'
 #import * from './types/call.gql'
 #import * from './types/history.gql'
+#import * from './types/provider.gql'
 
 schema {
   query: Query
@@ -20,6 +21,10 @@ type Query {
   prompt(id: Int!, filters: PromptSearchFilters): Prompt!
   user(id: Int!): User!
   calls(promptId: Int!, pagination: PaginationInput!): PromptCallList!
+
+  # Provider queries
+  provider(id: Int!): Provider!
+  providers(pagination: PaginationInput!): ProviderList!
 }
 
 type Mutation {
@@ -34,4 +39,9 @@ type Mutation {
   createOpenToken(data: openTokenInput!): CreateOpenToken!
   updateOpenToken(id: Int!, data: openTokenUpdate!): openToken!
   deleteOpenToken(id: Int!): Boolean!
+
+  # Provider mutations
+  createProvider(data: ProviderPayload!): Provider!
+  updateProvider(id: Int!, data: ProviderUpdatePayload!): Provider!
+  deleteProvider(id: Int!): Boolean!
 }

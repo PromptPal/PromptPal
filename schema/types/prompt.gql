@@ -2,6 +2,7 @@
 #import * from './user.gql'
 #import * from './history.gql'
 #import * from './project.gql'
+#import * from './provider.gql'
 
 enum PromptRole {
   system
@@ -58,6 +59,8 @@ input PromptPayload {
   prompts: [PromptRowInput!]!
   variables: [PromptVariableInput!]!
   publicLevel: PublicLevel!
+
+  providerId: Int!
 }
 
 type Prompt {
@@ -79,6 +82,8 @@ type Prompt {
   metrics: PromptMetrics!
   creator: User!
   histories: PromptHistoryResp!
+
+  provider: Provider
 }
 
 type PromptList {

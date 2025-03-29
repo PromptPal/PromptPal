@@ -27,6 +27,8 @@ type createProjectData struct {
 	OpenAITemperature *float64
 	OpenAITopP        *float64
 	OpenAIMaxTokens   *int32
+
+	ProviderId int32
 }
 
 type createProjectArgs struct {
@@ -55,6 +57,8 @@ func (q QueryResolver) CreateProject(ctx context.Context, args createProjectArgs
 		SetNillableOpenAIModel(data.OpenAIModel).
 		SetNillableOpenAITemperature(data.OpenAITemperature).
 		SetNillableOpenAITopP(data.OpenAITopP)
+
+	stat = stat.SetProviderID(int(data.ProviderId))
 
 	if data.OpenAIMaxTokens != nil {
 		stat = stat.SetOpenAIMaxTokens(int(*data.OpenAIMaxTokens))
@@ -106,6 +110,8 @@ func (q QueryResolver) UpdateProject(ctx context.Context, args updateProjectArgs
 	if args.Data.OpenAIMaxTokens != nil {
 		updater = updater.SetOpenAIMaxTokens(int(*args.Data.OpenAIMaxTokens))
 	}
+
+	updater = updater.SetProviderID(int(args.Data.ProviderId))
 
 	pj, err := updater.Save(ctx)
 	if err != nil {

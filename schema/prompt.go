@@ -7,9 +7,7 @@ import (
 	"time"
 
 	cache "github.com/Code-Hex/go-generics-cache"
-	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/prompt"
-	"github.com/PromptPal/PromptPal/ent/promptcall"
 	"github.com/PromptPal/PromptPal/ent/schema"
 	dbSchema "github.com/PromptPal/PromptPal/ent/schema"
 	"github.com/PromptPal/PromptPal/service"
@@ -25,21 +23,19 @@ type createPromptData struct {
 	Prompts     []dbSchema.PromptRow
 	Variables   []dbSchema.PromptVariable
 	PublicLevel prompt.PublicLevel
+
+	ProviderId int32
 }
 
 type createPromptArgs struct {
 	Data createPromptData
 }
 
-type promptResponse struct {
-	prompt  *ent.Prompt
-	filters *promptSearchFilters
-}
-
 func (q QueryResolver) CreatePrompt(ctx context.Context, args createPromptArgs) (promptResponse, error) {
 	payload := args.Data
 	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
-	p, err := service.
+
+	stat := service.
 		EntClient.
 		Prompt.
 		Create().
@@ -52,8 +48,11 @@ func (q QueryResolver) CreatePrompt(ctx context.Context, args createPromptArgs) 
 		SetPublicLevel(payload.PublicLevel).
 		SetTokenCount(int(payload.TokenCount)).
 		SetNillableDebug(payload.Debug).
-		SetNillableEnabled(payload.Enabled).
-		Save(ctx)
+		SetNillableEnabled(payload.Enabled)
+
+	stat.SetProviderID(int(payload.ProviderId))
+
+	p, err := stat.Save(ctx)
 
 	if err != nil {
 		return promptResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
@@ -123,6 +122,8 @@ func (q QueryResolver) UpdatePrompt(ctx context.Context, args updatePromptArgs) 
 		SetVariables(payload.Variables).
 		SetPublicLevel(payload.PublicLevel)
 
+	updater = updater.SetProviderID(int(args.Data.ProviderId))
+
 	if args.Data.Enabled != nil {
 		updater = updater.SetEnabled(*args.Data.Enabled)
 	}
@@ -162,150 +163,4 @@ type deletePromptArgs struct {
 
 func (q QueryResolver) DeletePrompt(ctx context.Context, args deletePromptArgs) (bool, error) {
 	return false, NewGraphQLHttpError(http.StatusNotImplemented, errors.New("not implemented"))
-}
-
-func (p promptResponse) ID() int32 {
-	return int32(p.prompt.ID)
-}
-
-func (p promptResponse) HashID() (string, error) {
-	hid, err := hashidService.Encode(p.prompt.ID)
-	if err != nil {
-		return "", NewGraphQLHttpError(http.StatusInternalServerError, err)
-	}
-	return hid, nil
-}
-func (p promptResponse) Name() string {
-	return p.prompt.Name
-}
-
-func (p promptResponse) Description() string {
-	return p.prompt.Description
-}
-
-func (p promptResponse) TokenCount() int32 {
-	return int32(p.prompt.TokenCount)
-}
-
-func (p promptResponse) CreatedAt() string {
-	return p.prompt.CreateTime.Format(time.RFC3339)
-}
-func (p promptResponse) UpdatedAt() string {
-	return p.prompt.UpdateTime.Format(time.RFC3339)
-}
-func (p promptResponse) Enabled() bool {
-	return p.prompt.Enabled
-}
-func (p promptResponse) Debug() bool {
-	return p.prompt.Debug
-}
-
-func (p promptResponse) PublicLevel() prompt.PublicLevel {
-	return prompt.PublicLevel(p.prompt.PublicLevel)
-}
-
-type promptRowResponse struct {
-	p dbSchema.PromptRow
-}
-
-func (p promptResponse) Prompts() (result []promptRowResponse) {
-	for _, v := range p.prompt.Prompts {
-		result = append(result, promptRowResponse{
-			p: v,
-		})
-	}
-	return
-}
-
-func (p promptResponse) Project(ctx context.Context) (result projectResponse) {
-	pj, err := service.EntClient.Project.Get(ctx, int(p.prompt.ProjectId))
-	if err != nil {
-		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
-		return
-	}
-	result.p = pj
-	return
-}
-
-func (p promptRowResponse) Prompt() string {
-	return p.p.Prompt
-}
-func (p promptRowResponse) Role() string {
-	r := p.p.Role
-	switch r {
-	case "system":
-		return "system"
-	case "assistant":
-		return "assistant"
-	case "user":
-		return "user"
-	default:
-		return "unknown"
-	}
-}
-
-type promptVariableResponse struct {
-	p dbSchema.PromptVariable
-}
-
-func (p promptResponse) Variables() (result []promptVariableResponse) {
-	for _, v := range p.prompt.Variables {
-		result = append(result, promptVariableResponse{
-			p: v,
-		})
-	}
-	return
-}
-
-func (p promptVariableResponse) Name() string {
-	return p.p.Name
-}
-func (p promptVariableResponse) Type() dbSchema.PromptVariableTypes {
-	t := p.p.Type
-	switch t {
-	case "number":
-		return dbSchema.PromptVariableTypesNumber
-	case "boolean":
-		return dbSchema.PromptVariableTypesBoolean
-	case "video":
-		return dbSchema.PromptVariableTypesVideo
-	case "audio":
-		return dbSchema.PromptVariableTypesAudio
-	case "image":
-		return dbSchema.PromptVariableTypesImage
-	case "string":
-	default:
-		return dbSchema.PromptVariableTypesString
-	}
-	return dbSchema.PromptVariableTypesString
-}
-
-func (p promptResponse) Creator(ctx context.Context) (userResponse, error) {
-	u, err := p.prompt.QueryCreator().Only(ctx)
-	// u, err := service.EntClient.User.Get(ctx, uid)
-	if err != nil {
-		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
-		return userResponse{}, err
-	}
-	return userResponse{u}, nil
-}
-
-func (p promptResponse) LatestCalls(ctx context.Context) (res promptCallListResponse) {
-	stat := service.EntClient.PromptCall.Query().
-		Where(
-			promptcall.HasPromptWith(prompt.ID(int(p.prompt.ID))),
-		)
-	if p.filters != nil {
-		if p.filters.UserID != nil && *p.filters.UserID != "" {
-			stat = stat.Where(promptcall.UserIdContains(*p.filters.UserID))
-		}
-	}
-
-	stat = stat.Order(ent.Desc(promptcall.FieldID))
-	res.stat = stat
-	res.pagination = paginationInput{
-		Limit:  10,
-		Offset: 0,
-	}
-	return
 }
