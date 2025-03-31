@@ -90,6 +90,7 @@ func (s *promptTestSuite) TestCreatePrompt() {
 				},
 			},
 			PublicLevel: prompt.PublicLevelPublic,
+			ProviderId:  int32(s.providerID),
 		},
 	})
 
@@ -170,6 +171,7 @@ func (s *promptTestSuite) TestUpdatePrompt() {
 					Type: "string",
 				},
 			},
+			ProviderId: int32(s.providerID),
 		},
 	})
 	assert.Nil(s.T(), err)

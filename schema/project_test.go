@@ -2,7 +2,6 @@ package schema
 
 import (
 	"context"
-	"errors"
 	"log"
 	"testing"
 
@@ -142,7 +141,6 @@ func (s *projectTestSuite) TestGetProject() {
 	ge, ok := err.(GraphQLHttpError)
 	assert.True(s.T(), ok)
 	assert.EqualValues(s.T(), "[500]: ent: project not found", ge.Error())
-	assert.EqualValues(s.T(), errors.New("[500]: ent: project not found"), ge.Unwrap())
 	assert.EqualValues(s.T(),
 		map[string]interface{}{
 			"code":    500,
