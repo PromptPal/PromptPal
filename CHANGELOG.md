@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.15.2](https://github.com/PromptPal/PromptPal/compare/v1.15.1...v1.15.2) (2025-03-31)
+
+
+### Bug Fixes
+
+* **ci:** update pg in ci ([d5dcb1f](https://github.com/PromptPal/PromptPal/commit/d5dcb1fbd732bfa3fa8aecf20a20f216ee5366ea))
+* **provider:** fix testcase ([798381b](https://github.com/PromptPal/PromptPal/commit/798381b9899a91309bc48178bd4391a26d073f52))
+
 ## [1.15.1](https://github.com/PromptPal/PromptPal/compare/v1.15.0...v1.15.1) (2025-03-31)
 
 
