@@ -30,7 +30,7 @@ func (s *userTestSuite) SetupSuite() {
 
 	q := QueryResolver{}
 
-	pjName := utils.RandStringRunes(1 << 4)
+	pjName := utils.RandStringRunes(1 << 3)
 	openAIToken := utils.RandStringRunes(1 << 8)
 
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
