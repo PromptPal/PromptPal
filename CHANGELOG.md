@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.15.1](https://github.com/PromptPal/PromptPal/compare/v1.15.0...v1.15.1) (2025-03-31)
+
+
+### Bug Fixes
+
+* **err:** fix syntax err ([74b74f3](https://github.com/PromptPal/PromptPal/commit/74b74f3f586b663b2b08cd9f15683ba2342bbcd9))
+* **provider:** fix testcase ([c8240c1](https://github.com/PromptPal/PromptPal/commit/c8240c14636ab54f3f8eb33f27e6d979cef617c4))
+* **provider:** fix testcase ([bbe5d2a](https://github.com/PromptPal/PromptPal/commit/bbe5d2a6695d1554fac7ad5660da8234cecbaa62))
+* **provider:** fix testcase ([d170ea0](https://github.com/PromptPal/PromptPal/commit/d170ea003c3ad8b966613af4c306db5ac33ec85c))
+* **provider:** fix testcase ([3b48e24](https://github.com/PromptPal/PromptPal/commit/3b48e24bb1aec69306ecc9663de2324c4f8bbd32))
+* **provider:** fix testcase ([3e73f28](https://github.com/PromptPal/PromptPal/commit/3e73f28f5c71922548f989b8d8b5a3cc348c84aa))
+
 ## [1.15.0](https://github.com/PromptPal/PromptPal/compare/v1.14.10...v1.15.0) (2025-03-31)
 
 
