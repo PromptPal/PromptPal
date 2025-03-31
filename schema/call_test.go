@@ -14,7 +14,6 @@ import (
 	"github.com/PromptPal/PromptPal/ent/project"
 	"github.com/PromptPal/PromptPal/ent/prompt"
 	"github.com/PromptPal/PromptPal/ent/promptcall"
-	"github.com/PromptPal/PromptPal/ent/schema"
 	dbSchema "github.com/PromptPal/PromptPal/ent/schema"
 	"github.com/PromptPal/PromptPal/routes"
 	"github.com/PromptPal/PromptPal/service"
@@ -94,12 +93,6 @@ func (s *callTestSuite) SetupSuite() {
 		"Chat",
 		mock.Anything,
 		mock.Anything,
-		[]schema.PromptRow{
-			{
-				Prompt: "a-simple prompt {{ var1 }}",
-				Role:   "system",
-			},
-		},
 		map[string]string{
 			"text": "var1",
 		},
@@ -127,7 +120,6 @@ func (s *callTestSuite) SetupSuite() {
 		}, nil)
 
 	s.router = routes.SetupGinRoutes("test", w3, iai, hs, nil)
-
 }
 
 func (s *callTestSuite) TestCreatePrompt() {
