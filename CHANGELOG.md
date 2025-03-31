@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.15.0](https://github.com/PromptPal/PromptPal/compare/v1.14.10...v1.15.0) (2025-03-31)
+
+
+### Features
+
+* **prompt:** use isomorphic ai client for test and run ([9688eeb](https://github.com/PromptPal/PromptPal/commit/9688eebc774204ad934ca1c190e1a07eab2f965a))
+
+
+### Bug Fixes
+
+* add provider on project and prompt ([3373c22](https://github.com/PromptPal/PromptPal/commit/3373c225fb0333b9ea8f6260a945ccd1dbde7541))
+* **isomorphic:** remove clients in main.go ([bec3023](https://github.com/PromptPal/PromptPal/commit/bec30232749d454c78be39c8fe12966dbc89927a))
+* **isomorphic:** remove gemini and openai clients ([72ac385](https://github.com/PromptPal/PromptPal/commit/72ac3857ebc5b1b10bf5ea02528c0a143064f656))
+* **project:** fix provider assignment in project ([e479e1b](https://github.com/PromptPal/PromptPal/commit/e479e1b082ae72810354c5a28cbe4dda81dede83))
+* **provider:** assign provider if valid ([489c24c](https://github.com/PromptPal/PromptPal/commit/489c24c5468647ab981f1a0f52f3a8228a416dab))
+* update deps ([328d30a](https://github.com/PromptPal/PromptPal/commit/328d30aa12c38a3f185ddf5c3ba146b768bb716b))
+
 ## [1.14.10](https://github.com/PromptPal/PromptPal/compare/v1.14.9...v1.14.10) (2025-02-10)
 
 
