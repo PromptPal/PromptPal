@@ -111,7 +111,9 @@ func (q QueryResolver) UpdateProject(ctx context.Context, args updateProjectArgs
 		updater = updater.SetOpenAIMaxTokens(int(*args.Data.OpenAIMaxTokens))
 	}
 
-	updater = updater.SetProviderID(int(args.Data.ProviderId))
+	if args.Data.ProviderId > 0 {
+		updater = updater.SetProviderID(int(args.Data.ProviderId))
+	}
 
 	pj, err := updater.Save(ctx)
 	if err != nil {

@@ -122,7 +122,11 @@ func (q QueryResolver) UpdatePrompt(ctx context.Context, args updatePromptArgs) 
 		SetVariables(payload.Variables).
 		SetPublicLevel(payload.PublicLevel)
 
-	updater = updater.SetProviderID(int(args.Data.ProviderId))
+	providerId := int(args.Data.ProviderId)
+
+	if providerId > 0 {
+		updater = updater.SetProviderID(int(args.Data.ProviderId))
+	}
 
 	if args.Data.Enabled != nil {
 		updater = updater.SetEnabled(*args.Data.Enabled)
