@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/PromptPal/PromptPal/config"
+	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/project"
 	"github.com/PromptPal/PromptPal/ent/prompt"
 	"github.com/PromptPal/PromptPal/ent/promptcall"
@@ -102,6 +103,16 @@ func (s *callTestSuite) SetupSuite() {
 	})
 
 	s.apiToken = ot.Token()
+
+	iai.On("GetProvider", mock.Anything, mock.Anything).
+		Return(&ent.Provider{
+			ID:       int(provider.ID()),
+			Name:     provider.Name(),
+			Source:   provider.Source(),
+			Endpoint: provider.Endpoint(),
+			ApiKey:   openAIToken,
+			Config:   map[string]interface{}{},
+		}, nil)
 
 	iai.On(
 		"Chat",
