@@ -40,9 +40,6 @@ func (q QueryResolver) CreateProject(ctx context.Context, args createProjectArgs
 	if data.Name == nil {
 		return projectResponse{}, NewGraphQLHttpError(http.StatusBadRequest, errors.New("name is required"))
 	}
-	if data.OpenAIToken == nil && data.GeminiToken == nil {
-		return projectResponse{}, NewGraphQLHttpError(http.StatusBadRequest, errors.New("openAIToken is required"))
-	}
 	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
 	stat := service.
 		EntClient.
