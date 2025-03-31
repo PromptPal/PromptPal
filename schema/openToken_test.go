@@ -21,12 +21,10 @@ type openTokenTestSuite struct {
 func (s *openTokenTestSuite) SetupSuite() {
 	config.SetupConfig(true)
 	w3 := mocks.NewWeb3Service(s.T())
-	oi := mocks.NewBaseAIService(s.T())
-	gi := mocks.NewBaseAIService(s.T())
 	hs := service.NewHashIDService()
 
 	service.InitDB()
-	Setup(hs, oi, gi, w3)
+	Setup(hs, w3)
 
 	q := QueryResolver{}
 
