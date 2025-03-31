@@ -22,7 +22,7 @@ func (e GraphQLHttpError) Error() string {
 }
 
 func (e GraphQLHttpError) Unwrap() error {
-	return fmt.Errorf(e.Error())
+	return e.originErr
 }
 
 func (e *GraphQLHttpError) Is(target error) bool {
