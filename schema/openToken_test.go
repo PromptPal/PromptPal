@@ -14,8 +14,9 @@ import (
 
 type openTokenTestSuite struct {
 	suite.Suite
-	pjID int
-	otID int
+	pjID       int
+	providerID int
+	otID       int
 }
 
 func (s *openTokenTestSuite) SetupSuite() {
@@ -34,14 +35,26 @@ func (s *openTokenTestSuite) SetupSuite() {
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
 		UserID: 1,
 	})
+
+	provider, _ := q.CreateProvider(ctx, createProviderArgs{
+		Data: createProviderData{
+			Name:     pjName,
+			Source:   "openai",
+			Endpoint: "https://api.openai.com/v1",
+			ApiKey:   openAIToken,
+			Config:   "{}",
+		},
+	})
 	pj, _ := q.CreateProject(ctx, createProjectArgs{
 		Data: createProjectData{
 			Name:        &pjName,
 			OpenAIToken: &openAIToken,
+			ProviderId:  int32(provider.ID()),
 		},
 	})
 
 	s.pjID = int(pj.ID())
+	s.providerID = int(provider.ID())
 }
 
 func (s *openTokenTestSuite) TestCreateOpenToken() {
@@ -114,6 +127,7 @@ func (s *openTokenTestSuite) TestPurgeOpenToken() {
 
 func (s *openTokenTestSuite) TearDownSuite() {
 	service.EntClient.Project.DeleteOneID(s.pjID).ExecX(context.Background())
+	service.EntClient.Provider.DeleteOneID(s.providerID).ExecX(context.Background())
 	service.Close()
 }
 

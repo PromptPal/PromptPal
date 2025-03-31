@@ -20,6 +20,7 @@ type promptTestSuite struct {
 	pjID       int
 	promptName string
 	promptID   int
+	providerID int
 }
 
 func (s *promptTestSuite) SetupSuite() {
@@ -38,15 +39,27 @@ func (s *promptTestSuite) SetupSuite() {
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
 		UserID: 1,
 	})
+
+	provider, _ := q.CreateProvider(ctx, createProviderArgs{
+		Data: createProviderData{
+			Name:     pjName,
+			Source:   "openai",
+			Endpoint: "https://api.openai.com/v1",
+			ApiKey:   openAIToken,
+			Config:   "{}",
+		},
+	})
 	pj, _ := q.CreateProject(ctx, createProjectArgs{
 		Data: createProjectData{
 			Name:        &pjName,
 			OpenAIToken: &openAIToken,
+			ProviderId:  int32(provider.ID()),
 		},
 	})
 
 	s.pjID = int(pj.ID())
 	s.promptName = "test-prompt"
+	s.providerID = int(provider.ID())
 }
 
 func (s *promptTestSuite) TestCreatePrompt() {
@@ -216,6 +229,7 @@ func (s *promptTestSuite) TearDownSuite() {
 	service.EntClient.History.Delete().Where(history.PromptId(s.promptID)).ExecX(context.Background())
 	service.EntClient.Prompt.DeleteOneID(s.promptID).ExecX(context.Background())
 	service.EntClient.Project.DeleteOneID(s.pjID).ExecX(context.Background())
+	service.EntClient.Provider.DeleteOneID(s.providerID).ExecX(context.Background())
 	service.Close()
 }
 

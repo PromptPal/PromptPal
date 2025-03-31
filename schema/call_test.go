@@ -118,6 +118,7 @@ func (s *callTestSuite) SetupSuite() {
 		"Chat",
 		mock.Anything,
 		mock.Anything,
+		mock.Anything,
 		map[string]string{
 			"text": "var1",
 		},

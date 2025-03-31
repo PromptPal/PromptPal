@@ -17,6 +17,7 @@ type userTestSuite struct {
 	pjID       int
 	promptName string
 	promptID   int
+	providerID int
 }
 
 func (s *userTestSuite) SetupSuite() {
@@ -35,15 +36,27 @@ func (s *userTestSuite) SetupSuite() {
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
 		UserID: 1,
 	})
+
+	provider, _ := q.CreateProvider(ctx, createProviderArgs{
+		Data: createProviderData{
+			Name:     pjName,
+			Source:   "openai",
+			Endpoint: "https://api.openai.com/v1",
+			ApiKey:   openAIToken,
+			Config:   "{}",
+		},
+	})
 	pj, _ := q.CreateProject(ctx, createProjectArgs{
 		Data: createProjectData{
 			Name:        &pjName,
 			OpenAIToken: &openAIToken,
+			ProviderId:  int32(provider.ID()),
 		},
 	})
 
 	s.pjID = int(pj.ID())
 	s.promptName = "test-prompt"
+	s.providerID = int(provider.ID())
 }
 
 func (s *userTestSuite) TestGetUser() {
@@ -84,6 +97,7 @@ func (s *userTestSuite) TestGetMe() {
 
 func (s *userTestSuite) TearDownSuite() {
 	service.EntClient.Project.DeleteOneID(s.pjID).ExecX(context.Background())
+	service.EntClient.Provider.DeleteOneID(s.providerID).ExecX(context.Background())
 	service.Close()
 }
 

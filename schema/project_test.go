@@ -19,6 +19,7 @@ type projectTestSuite struct {
 	uid         int
 	projectName string
 	projectID   int
+	providerID  int
 }
 
 func (s *projectTestSuite) SetupSuite() {
@@ -53,10 +54,21 @@ func (s *projectTestSuite) TestCreateProject() {
 
 	tk := "SOME_RANDOM_TOKEN_HERE"
 
+	provider, _ := q.CreateProvider(ctx, createProviderArgs{
+		Data: createProviderData{
+			Name:     s.projectName,
+			Source:   "openai",
+			Endpoint: "https://api.openai.com/v1",
+			ApiKey:   tk,
+			Config:   "{}",
+		},
+	})
+
 	result, err := q.CreateProject(ctx, createProjectArgs{
 		Data: createProjectData{
 			Name:        &s.projectName,
 			OpenAIToken: &tk,
+			ProviderId:  int32(provider.ID()),
 		},
 	})
 
@@ -67,6 +79,7 @@ func (s *projectTestSuite) TestCreateProject() {
 	assert.Equal(s.T(), "https://generativelanguage.googleapis.com", result.GeminiBaseURL())
 	assert.NotEmpty(s.T(), result.ID())
 	s.projectID = int(result.ID())
+	s.providerID = int(provider.ID())
 }
 
 func (s *projectTestSuite) TestListProject() {
@@ -176,8 +189,14 @@ func (s *projectTestSuite) TestUpdateProject() {
 		ID: int32(s.projectID),
 	})
 
+	r2, err2 := q.DeleteProvider(ctx, deleteProviderArgs{
+		ID: int32(s.providerID),
+	})
+
 	assert.Nil(s.T(), err)
 	assert.True(s.T(), r)
+	assert.Nil(s.T(), err2)
+	assert.True(s.T(), r2)
 }
 
 func (s *projectTestSuite) TearDownSuite() {
