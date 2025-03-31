@@ -9,16 +9,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type internalPromptItem struct {
-	ent.Prompt
-	HashID string `json:"hid"`
-}
-
 type testPromptPayload struct {
-	ProjectID int                `json:"projectId"`
-	Name      string             `json:"name"`
-	Prompts   []schema.PromptRow `json:"prompts"`
-	Variables map[string]string  `json:"variables"`
+	ProjectID  int                `json:"projectId" binding:"required"`
+	ProviderID int                `json:"providerId" binding:"required"`
+	Name       string             `json:"name"`
+	Prompts    []schema.PromptRow `json:"prompts"`
+	Variables  map[string]string  `json:"variables"`
 }
 
 func testPrompt(c *gin.Context) {
@@ -40,7 +36,7 @@ func testPrompt(c *gin.Context) {
 		return
 	}
 
-	pj, err := service.EntClient.Project.Get(c, payload.ProjectID)
+	provider, err := service.EntClient.Provider.Get(c, payload.ProviderID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, errorResponse{
 			ErrorCode:    http.StatusNotFound,
@@ -49,7 +45,11 @@ func testPrompt(c *gin.Context) {
 		return
 	}
 
-	res, err := aiService.Chat(c, *pj, payload.Prompts, payload.Variables, "")
+	prompt := ent.Prompt{
+		Prompts: payload.Prompts,
+	}
+
+	res, err := isomorphicAIService.Chat(c.Request.Context(), provider, prompt, payload.Variables, "")
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse{

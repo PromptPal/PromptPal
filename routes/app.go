@@ -26,6 +26,7 @@ type errorResponse struct {
 // var s
 var web3Service service.Web3Service
 var aiService service.BaseAIService
+var isomorphicAIService service.IsomorphicAIService
 var geminiService service.BaseAIService
 var hashidService service.HashIDService
 
@@ -39,12 +40,14 @@ func SetupGinRoutes(
 	w3 service.Web3Service,
 	o service.BaseAIService,
 	gi service.BaseAIService,
+	iai service.IsomorphicAIService,
 	hi service.HashIDService,
 	graphqlSchema *graphql.Schema,
 ) *gin.Engine {
 	versionCommit = commitSha
 	web3Service = w3
 	aiService = o
+	isomorphicAIService = iai
 	geminiService = gi
 	hashidService = hi
 

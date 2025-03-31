@@ -42,6 +42,7 @@ func (s *callTestSuite) SetupSuite() {
 	w3 := mocks.NewWeb3Service(s.T())
 	oi := mocks.NewBaseAIService(s.T())
 	gi := mocks.NewBaseAIService(s.T())
+	iai := mocks.NewIsomorphicAIService(s.T())
 	hs := service.NewHashIDService()
 
 	service.InitDB()
@@ -128,7 +129,7 @@ func (s *callTestSuite) SetupSuite() {
 			},
 		}, nil)
 
-	s.router = routes.SetupGinRoutes("test", w3, oi, gi, hs, nil)
+	s.router = routes.SetupGinRoutes("test", w3, oi, gi, iai, hs, nil)
 
 }
 

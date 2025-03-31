@@ -27,6 +27,7 @@ func (s *userTestSuite) SetupTest() {
 	w3 := mocks.NewWeb3Service(s.T())
 	oi := mocks.NewBaseAIService(s.T())
 	gi := mocks.NewBaseAIService(s.T())
+	iai := mocks.NewIsomorphicAIService(s.T())
 	hs := service.NewHashIDService()
 
 	w3.
@@ -39,7 +40,7 @@ func (s *userTestSuite) SetupTest() {
 		Return(true, nil)
 
 	service.InitDB()
-	s.router = SetupGinRoutes("test", w3, oi, gi, hs, nil)
+	s.router = SetupGinRoutes("test", w3, oi, gi, iai, hs, nil)
 }
 
 func (s *userTestSuite) GetAuthToken() (result authResponse, err error) {

@@ -29,6 +29,7 @@ func startHTTPServer() {
 	w3 := service.NewWeb3Service()
 	o := service.NewOpenAIService()
 	g := service.NewGeminiService()
+	iai := service.NewIsomorphicAIService()
 	hi := service.NewHashIDService()
 	var graphqlSchema = graphql.MustParseSchema(
 		schema.String(),
@@ -36,7 +37,7 @@ func startHTTPServer() {
 	)
 
 	schema.Setup(hi, o, g, w3)
-	h := routes.SetupGinRoutes(GitCommit, w3, o, g, hi, graphqlSchema)
+	h := routes.SetupGinRoutes(GitCommit, w3, o, g, iai, hi, graphqlSchema)
 	server := &http.Server{
 		Addr:    publicDomain,
 		Handler: h,

@@ -188,7 +188,17 @@ func apiRunPrompt(c *gin.Context) {
 
 	startTime := time.Now()
 	responseResult := 0
-	res, err := aiService.Chat(c, pj, prompt.Prompts, payload.Variables, payload.UserId)
+
+	provider, err := isomorphicAIService.GetProvider(c, prompt)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	res, err := isomorphicAIService.Chat(c, provider, prompt, payload.Variables, payload.UserId)
 	endTime := time.Now()
 
 	defer savePromptCall(
@@ -246,7 +256,16 @@ func apiRunPromptStream(c *gin.Context) {
 	pj := pjData.(ent.Project)
 	payload := payloadData.(apiRunPromptPayload)
 
-	replyStream, err := aiService.ChatStream(c, pj, prompt.Prompts, payload.Variables, payload.UserId)
+	provider, err := isomorphicAIService.GetProvider(c, prompt)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse{
+			ErrorCode:    http.StatusInternalServerError,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	replyStream, err := isomorphicAIService.ChatStream(c, provider, prompt, payload.Variables, payload.UserId)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse{
