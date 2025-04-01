@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.3](https://github.com/PromptPal/PromptPal/compare/v1.15.2...v1.15.3) (2025-04-01)
+
+
+### Bug Fixes
+
+* **cache:** add redis support ([ab7c417](https://github.com/PromptPal/PromptPal/commit/ab7c4177afb064f3958672771bcf28aab167c19f))
+
 ## [1.15.2](https://github.com/PromptPal/PromptPal/compare/v1.15.1...v1.15.2) (2025-03-31)
 
 
