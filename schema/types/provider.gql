@@ -15,6 +15,7 @@ input ProviderPayload {
   topP: Float
   maxTokens: Int
   config: String!
+  headers: String!
 }
 
 input ProviderUpdatePayload {
@@ -30,6 +31,7 @@ input ProviderUpdatePayload {
   topP: Float
   maxTokens: Int
   config: String
+  headers: String
 }
 
 type Provider {
@@ -46,6 +48,7 @@ type Provider {
   topP: Float!
   maxTokens: Int!
   config: String!
+  headers: String!
 
   createdAt: String!
   updatedAt: String!

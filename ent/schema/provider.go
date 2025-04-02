@@ -39,6 +39,8 @@ func (Provider) Fields() []ent.Field {
 		field.Float("topP").Default(0.9),
 		field.Int("maxTokens").Default(0),
 
+		field.JSON("headers", map[string]string{}).Default(map[string]string{}).Optional(),
+
 		// Additional configuration stored as JSON
 		field.JSON("config", map[string]interface{}{}).Optional(),
 	}

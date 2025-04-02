@@ -26,6 +26,7 @@ type createProviderData struct {
 	TopP           *float64
 	MaxTokens      *int32
 	Config         string
+	Headers        string
 }
 
 type createProviderArgs struct {
@@ -80,6 +81,14 @@ func (q QueryResolver) CreateProvider(ctx context.Context, args createProviderAr
 		}
 		stat = stat.SetConfig(providerConfig)
 	}
+	if data.Headers != "" {
+		var providerHeaders map[string]string
+		err := json.Unmarshal([]byte(data.Headers), &providerHeaders)
+		if err != nil {
+			return providerResponse{}, NewGraphQLHttpError(http.StatusBadRequest, err)
+		}
+		stat = stat.SetHeaders(providerHeaders)
+	}
 
 	provider, err := stat.Save(ctx)
 
@@ -103,6 +112,7 @@ type updateProviderData struct {
 	TopP           *float64
 	MaxTokens      *int32
 	Config         *string
+	Headers        *string
 }
 
 type updateProviderArgs struct {
@@ -153,6 +163,14 @@ func (q QueryResolver) UpdateProvider(ctx context.Context, args updateProviderAr
 			return providerResponse{}, NewGraphQLHttpError(http.StatusBadRequest, err)
 		}
 		updater = updater.SetConfig(providerConfig)
+	}
+	if args.Data.Headers != nil {
+		var providerHeaders map[string]string
+		err := json.Unmarshal([]byte(*args.Data.Headers), &providerHeaders)
+		if err != nil {
+			return providerResponse{}, NewGraphQLHttpError(http.StatusBadRequest, err)
+		}
+		updater = updater.SetHeaders(providerHeaders)
 	}
 
 	provider, err := updater.Save(ctx)

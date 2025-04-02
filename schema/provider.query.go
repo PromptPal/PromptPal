@@ -207,6 +207,17 @@ func (p providerResponse) Config() string {
 	return string(config)
 }
 
+func (p providerResponse) Headers() string {
+	if p.p == nil {
+		return ""
+	}
+	headers, err := json.Marshal(p.p.Headers)
+	if err != nil {
+		return ""
+	}
+	return string(headers)
+}
+
 func (p providerResponse) CreatedAt() string {
 	if p.p == nil {
 		return ""
