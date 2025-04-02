@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.4](https://github.com/PromptPal/PromptPal/compare/v1.15.3...v1.15.4) (2025-04-02)
+
+
+### Bug Fixes
+
+* **provider:** support custom headers in provider ([50e358a](https://github.com/PromptPal/PromptPal/commit/50e358a2028d57c0fea973f2648d3fa85b0ce874))
+
 ## [1.15.3](https://github.com/PromptPal/PromptPal/compare/v1.15.2...v1.15.3) (2025-04-01)
 
 
