@@ -2,31 +2,15 @@ package service
 
 import (
 	"bytes"
+	"context"
 	"encoding/gob"
+	"errors"
 	"fmt"
 	"time"
 
-	cache "github.com/Code-Hex/go-generics-cache"
-	"github.com/Code-Hex/go-generics-cache/policy/lru"
-	"github.com/PromptPal/PromptPal/ent"
+	"github.com/go-redis/cache/v9"
 	"github.com/mitchellh/hashstructure/v2"
 )
-
-var apiPromptResponseCache *cache.Cache[string, APIRunPromptResponse] = cache.New[string, APIRunPromptResponse](
-	cache.AsLRU[string, APIRunPromptResponse](
-		lru.WithCapacity(1 << 10),
-	),
-)
-var ApiPromptCache *cache.Cache[string, ent.Prompt]
-var ProjectCache *cache.Cache[int, ent.Project]
-var ProviderCache *cache.Cache[int, ent.Provider]
-var PublicAPIAuthCache *cache.Cache[string, ent.OpenToken] = cache.New[string, ent.OpenToken]()
-
-func init() {
-	ApiPromptCache = cache.New[string, ent.Prompt]()
-	ProjectCache = cache.New[int, ent.Project]()
-	ProviderCache = cache.New[int, ent.Provider]()
-}
 
 func Hash(s any) []byte {
 	var b bytes.Buffer
@@ -47,7 +31,12 @@ func SetPromptResponseCache(promptID string, variables any, value APIRunPromptRe
 	if err != nil {
 		return err
 	}
-	apiPromptResponseCache.Set(k, value, cache.WithExpiration(time.Minute*5))
+	Cache.Set(&cache.Item{
+		Ctx:   context.Background(),
+		Key:   k,
+		Value: value,
+		TTL:   time.Minute * 5,
+	})
 	return nil
 }
 
@@ -56,6 +45,13 @@ func GetPromptResponseCache(promptID string, variables any) (*APIRunPromptRespon
 	if err != nil {
 		return nil, false, err
 	}
-	result, ok := apiPromptResponseCache.Get(k)
-	return &result, ok, nil
+	var result APIRunPromptResponse
+	err = Cache.Get(context.Background(), k, &result)
+	if err != nil {
+		if !errors.Is(err, cache.ErrCacheMiss) {
+			return nil, false, err
+		}
+		return nil, false, nil
+	}
+	return &result, true, nil
 }

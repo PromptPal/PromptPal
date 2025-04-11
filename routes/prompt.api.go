@@ -3,18 +3,19 @@ package routes
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"time"
 
-	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/project"
 	"github.com/PromptPal/PromptPal/ent/prompt"
 	"github.com/PromptPal/PromptPal/ent/schema"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/cache/v9"
 	"github.com/sashabaranov/go-openai"
 	"github.com/sirupsen/logrus"
 )
@@ -113,8 +114,18 @@ func apiRunPromptMiddleware(c *gin.Context) {
 		return
 	}
 
-	prompt, ok := service.ApiPromptCache.Get(hashedValue)
-	if !ok {
+	var prompt ent.Prompt
+
+	err := service.Cache.Get(c.Request.Context(), fmt.Sprintf("prompt:%s", hashedValue), &prompt)
+	if err != nil {
+		if !errors.Is(err, cache.ErrCacheMiss) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse{
+				ErrorCode:    http.StatusInternalServerError,
+				ErrorMessage: err.Error(),
+			})
+			return
+		}
+		err = nil
 		promptID, err := hashidService.Decode(hashedValue)
 
 		if err != nil {
@@ -132,7 +143,12 @@ func apiRunPromptMiddleware(c *gin.Context) {
 			})
 			return
 		}
-		service.ApiPromptCache.Set(hashedValue, *promptData, cache.WithExpiration(24*time.Hour))
+		service.Cache.Set(&cache.Item{
+			Ctx:   c.Request.Context(),
+			Key:   fmt.Sprintf("prompt:%s", hashedValue),
+			Value: promptData,
+			TTL:   24 * time.Hour,
+		})
 		prompt = *promptData
 	}
 
@@ -147,9 +163,20 @@ func apiRunPromptMiddleware(c *gin.Context) {
 
 	// check the API token and prompt.projectID is equal
 	pid := c.GetInt("pid")
-	pj, ok := service.ProjectCache.Get(pid)
 
-	if !ok {
+	var pj ent.Project
+
+	err = service.Cache.Get(c.Request.Context(), fmt.Sprintf("project:%d", pid), &pj)
+
+	if err != nil {
+		if !errors.Is(err, cache.ErrCacheMiss) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse{
+				ErrorCode:    http.StatusInternalServerError,
+				ErrorMessage: err.Error(),
+			})
+			return
+		}
+		err = nil
 		pjt, err := service.EntClient.Project.Get(c, prompt.ProjectId)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusNotFound, errorResponse{
@@ -158,7 +185,12 @@ func apiRunPromptMiddleware(c *gin.Context) {
 			})
 			return
 		}
-		service.ProjectCache.Set(pid, *pjt, cache.WithExpiration(24*time.Hour))
+		service.Cache.Set(&cache.Item{
+			Ctx:   c.Request.Context(),
+			Key:   fmt.Sprintf("project:%d", pid),
+			Value: *pjt,
+			TTL:   24 * time.Hour,
+		})
 		pj = *pjt
 	}
 

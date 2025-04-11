@@ -3,14 +3,15 @@ package schema
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
-	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/PromptPal/PromptPal/ent/prompt"
 	"github.com/PromptPal/PromptPal/ent/schema"
 	dbSchema "github.com/PromptPal/PromptPal/ent/schema"
 	"github.com/PromptPal/PromptPal/service"
+	"github.com/go-redis/cache/v9"
 )
 
 type createPromptData struct {
@@ -63,7 +64,12 @@ func (q QueryResolver) CreatePrompt(ctx context.Context, args createPromptArgs) 
 		return promptResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
 	// set cache
-	service.ApiPromptCache.Set(hid, *p, cache.WithExpiration(time.Hour*24))
+	service.Cache.Set(&cache.Item{
+		Ctx:   ctx,
+		Key:   fmt.Sprintf("prompt:%s", hid),
+		Value: *p,
+		TTL:   time.Hour * 24,
+	})
 	return promptResponse{
 		prompt: p,
 	}, nil
@@ -156,7 +162,12 @@ func (q QueryResolver) UpdatePrompt(ctx context.Context, args updatePromptArgs) 
 	}
 
 	// refresh cache
-	service.ApiPromptCache.Set(hid, *updatedPrompt, cache.WithExpiration(time.Hour*24))
+	service.Cache.Set(&cache.Item{
+		Ctx:   ctx,
+		Key:   fmt.Sprintf("prompt:%s", hid),
+		Value: *updatedPrompt,
+		TTL:   time.Hour * 24,
+	})
 	result.prompt = updatedPrompt
 	return
 }

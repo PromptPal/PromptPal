@@ -3,15 +3,16 @@ package schema
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
 
-	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/opentoken"
 	"github.com/PromptPal/PromptPal/ent/project"
 	"github.com/PromptPal/PromptPal/service"
+	"github.com/go-redis/cache/v9"
 	"github.com/google/uuid"
 )
 
@@ -81,7 +82,12 @@ func (q QueryResolver) CreateOpenToken(ctx context.Context, args createOpenToken
 		return
 	}
 
-	service.PublicAPIAuthCache.Set(tk, *ot, cache.WithExpiration(time.Hour))
+	service.Cache.Set(&cache.Item{
+		Ctx:   ctx,
+		Key:   fmt.Sprintf("openToken:%d", ot.ID),
+		Value: *ot,
+		TTL:   time.Hour,
+	})
 	result.openToken = ot
 	result.token = tk
 	return
@@ -121,7 +127,12 @@ func (q QueryResolver) UpdateOpenToken(ctx context.Context, args openTokenUpdate
 	if err != nil {
 		return openTokenResponse{}, err
 	}
-	service.PublicAPIAuthCache.Set(ot.Token, *ot, cache.WithExpiration(time.Hour))
+	service.Cache.Set(&cache.Item{
+		Ctx:   ctx,
+		Key:   fmt.Sprintf("openToken:%d", ot.ID),
+		Value: *ot,
+		TTL:   time.Hour,
+	})
 	return openTokenResponse{
 		openToken: ot,
 	}, nil

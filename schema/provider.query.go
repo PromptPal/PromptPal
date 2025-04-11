@@ -3,15 +3,17 @@ package schema
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
-	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/project"
 	"github.com/PromptPal/PromptPal/ent/prompt"
 	"github.com/PromptPal/PromptPal/ent/provider"
 	"github.com/PromptPal/PromptPal/service"
+	"github.com/go-redis/cache/v9"
 )
 
 type providerArgs struct {
@@ -24,28 +26,28 @@ type providerResponse struct {
 
 func (q QueryResolver) Provider(ctx context.Context, args providerArgs) (res providerResponse, err error) {
 	// Check if provider exists in cache
-	if cachedProvider, ok := service.ProviderCache.Get(int(args.ID)); ok {
-		res.p = &cachedProvider
-		return
-	}
-
-	// Query the provider from database
-	p, err := service.
-		EntClient.
-		Provider.
-		Query().
-		Where(provider.ID(int(args.ID))).
-		Only(ctx)
+	err = service.Cache.Get(ctx, fmt.Sprintf("provider:%d", args.ID), &res.p)
 
 	if err != nil {
-		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
-		return
+		if !errors.Is(err, cache.ErrCacheMiss) {
+			err = NewGraphQLHttpError(http.StatusInternalServerError, err)
+			return
+		}
+		err = nil
+		pjt, err := service.EntClient.Provider.Get(ctx, int(args.ID))
+		if err != nil {
+			err = NewGraphQLHttpError(http.StatusNotFound, err)
+			return res, err
+		}
+		service.Cache.Set(&cache.Item{
+			Ctx:   ctx,
+			Key:   fmt.Sprintf("provider:%d", args.ID),
+			Value: *pjt,
+			TTL:   time.Hour * 24,
+		})
+		res.p = pjt
 	}
 
-	// Cache the provider for future queries
-	service.ProviderCache.Set(p.ID, *p, cache.WithExpiration(time.Hour*24))
-
-	res.p = p
 	return
 }
 

@@ -21,6 +21,7 @@ func (OpenToken) Fields() []ent.Field {
 		field.Bool("apiValidateEnabled").Default(false),
 		field.String("apiValidatePath").Default("/api/v1/validate"),
 		field.Time("expireAt"),
+		field.Int("project_open_tokens").Optional(),
 	}
 }
 
@@ -30,6 +31,7 @@ func (OpenToken) Edges() []ent.Edge {
 		edge.
 			From("project", Project.Type).
 			Ref("openTokens").
+			Field("project_open_tokens").
 			Unique(),
 		edge.From("user", User.Type).Ref("openTokens").Unique(),
 	}

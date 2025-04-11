@@ -29,6 +29,9 @@ func startHTTPServer() {
 	w3 := service.NewWeb3Service()
 	iai := service.NewIsomorphicAIService()
 	hi := service.NewHashIDService()
+	if err := service.InitRedis(config.GetRuntimeConfig().RedisURL); err != nil {
+		logrus.Panicln("Failed to connect to Redis: ", err)
+	}
 	var graphqlSchema = graphql.MustParseSchema(
 		schema.String(),
 		&schema.QueryResolver{},

@@ -3,14 +3,15 @@ package schema
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
-	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/PromptPal/PromptPal/ent/project"
 	"github.com/PromptPal/PromptPal/ent/prompt"
 	"github.com/PromptPal/PromptPal/ent/provider"
 	"github.com/PromptPal/PromptPal/service"
+	"github.com/go-redis/cache/v9"
 )
 
 type createProviderData struct {
@@ -179,7 +180,12 @@ func (q QueryResolver) UpdateProvider(ctx context.Context, args updateProviderAr
 	}
 
 	// Cache the provider for future queries
-	service.ProviderCache.Set(provider.ID, *provider, cache.WithExpiration(time.Hour*24))
+	service.Cache.Set(&cache.Item{
+		Ctx:   ctx,
+		Key:   fmt.Sprintf("provider:%d", provider.ID),
+		Value: *provider,
+		TTL:   time.Hour * 24,
+	})
 
 	return providerResponse{
 		p: provider,
@@ -209,7 +215,7 @@ func (q QueryResolver) DeleteProvider(ctx context.Context, args deleteProviderAr
 	}
 
 	// Remove from cache if it exists
-	service.ProviderCache.Delete(int(args.ID))
+	service.Cache.Delete(ctx, fmt.Sprintf("provider:%d", args.ID))
 
 	return true, nil
 }

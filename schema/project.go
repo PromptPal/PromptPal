@@ -3,11 +3,12 @@ package schema
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
-	cache "github.com/Code-Hex/go-generics-cache"
 	"github.com/PromptPal/PromptPal/service"
+	"github.com/go-redis/cache/v9"
 )
 
 type createProjectData struct {
@@ -116,7 +117,13 @@ func (q QueryResolver) UpdateProject(ctx context.Context, args updateProjectArgs
 	if err != nil {
 		return projectResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
-	service.ProjectCache.Set(pj.ID, *pj, cache.WithExpiration(time.Hour*24))
+	service.Cache.Set(&cache.Item{
+		Ctx:   ctx,
+		Key:   fmt.Sprintf("project:%d", pj.ID),
+		Value: *pj,
+		TTL:   time.Hour * 24,
+	})
+
 	return projectResponse{
 		p: pj,
 	}, nil

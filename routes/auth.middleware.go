@@ -1,14 +1,17 @@
 package routes
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
 
-	cache "github.com/Code-Hex/go-generics-cache"
+	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/opentoken"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/cache/v9"
 )
 
 func authMiddleware(c *gin.Context) {
@@ -48,16 +51,27 @@ func apiMiddleware(c *gin.Context) {
 		return
 	}
 
+	ctx := c.Request.Context()
+
 	tk := authKey[1]
-	ot, ok := service.PublicAPIAuthCache.Get(tk)
 	pid := 0
-	if !ok {
+	var ot ent.OpenToken
+	err := service.Cache.Get(ctx, fmt.Sprintf("openToken:%s", tk), &ot)
+	if err != nil {
+		if !errors.Is(err, cache.ErrCacheMiss) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse{
+				ErrorCode:    http.StatusInternalServerError,
+				ErrorMessage: err.Error(),
+			})
+			return
+		}
+		err = nil
 		dot, err := service.
 			EntClient.
 			OpenToken.
 			Query().
 			Where(opentoken.Token(tk)).
-			Only(c)
+			Only(ctx)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusForbidden, errorResponse{
 				ErrorCode:    http.StatusForbidden,
@@ -68,7 +82,7 @@ func apiMiddleware(c *gin.Context) {
 
 		ot = *dot
 
-		pj, err := dot.QueryProject().Only(c)
+		pj, err := dot.QueryProject().Only(ctx)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse{
 				ErrorCode:    http.StatusInternalServerError,
@@ -77,19 +91,16 @@ func apiMiddleware(c *gin.Context) {
 			return
 		}
 		pid = pj.ID
-		service.PublicAPIAuthCache.Set(tk, ot, cache.WithExpiration(5*time.Minute))
+		service.Cache.Set(&cache.Item{
+			Ctx:   ctx,
+			Key:   fmt.Sprintf("openToken:%s", tk),
+			Value: ot,
+			TTL:   time.Hour,
+		})
 	}
 
 	if pid == 0 {
-		pj, err := ot.QueryProject().Only(c.Request.Context())
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse{
-				ErrorCode:    http.StatusInternalServerError,
-				ErrorMessage: err.Error(),
-			})
-			return
-		}
-		pid = pj.ID
+		pid = ot.ProjectOpenTokens
 	}
 
 	c.Set("openToken", ot)
