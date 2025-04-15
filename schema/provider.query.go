@@ -240,7 +240,11 @@ func (p providerResponse) Projects(ctx context.Context) (res projectsResponse, e
 		return
 	}
 
-	projects, err := p.p.QueryProject().All(ctx)
+	projects, err := service.EntClient.Project.Query().
+		Where(project.HasProviderWith(provider.ID(p.p.ID))).
+		Limit(1000).
+		All(ctx)
+
 	if err != nil {
 		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
 		return
