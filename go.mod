@@ -4,7 +4,6 @@ go 1.24
 
 require (
 	entgo.io/ent v0.14.4
-	github.com/Code-Hex/go-generics-cache v1.5.1
 	github.com/anargu/gin-brotli v0.0.0-20220116052358-12bf532d5267
 	github.com/coreos/go-oidc/v3 v3.13.0
 	github.com/ethereum/go-ethereum v1.15.6
@@ -107,7 +106,6 @@ require (
 	go.opentelemetry.io/otel/trace v1.35.0 // indirect
 	golang.org/x/arch v0.15.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
-	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
 	golang.org/x/mod v0.24.0 // indirect
 	golang.org/x/net v0.38.0 // indirect
 	golang.org/x/sync v0.12.0 // indirect
