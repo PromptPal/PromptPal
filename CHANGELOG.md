@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.6](https://github.com/PromptPal/PromptPal/compare/v1.15.5...v1.15.6) (2025-04-15)
+
+
+### Bug Fixes
+
+* **go:** Remove go-generics-cache dependency and related modules ([f1b2688](https://github.com/PromptPal/PromptPal/commit/f1b26883cd8827fc29715faa12daa1dd88db73c3))
+
 ## [1.15.5](https://github.com/PromptPal/PromptPal/compare/v1.15.4...v1.15.5) (2025-04-15)
 
 
