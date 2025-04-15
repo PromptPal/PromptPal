@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.15.5](https://github.com/PromptPal/PromptPal/compare/v1.15.4...v1.15.5) (2025-04-15)
+
+
+### Bug Fixes
+
+* **ci:** Add Redis service to GitHub workflow configurations ([a464052](https://github.com/PromptPal/PromptPal/commit/a46405256e3eadae916ea11680677b795e8ca28a))
+* **provider:** fix provider project query ([b537eee](https://github.com/PromptPal/PromptPal/commit/b537eee31cce7eac369f29f14617602e8cf4e3d1))
+* **test:** Add Redis initialization in call test setup ([f435359](https://github.com/PromptPal/PromptPal/commit/f4353594f32ccc64a5c49679ed30c78f25f6048d))
+
 ## [1.15.4](https://github.com/PromptPal/PromptPal/compare/v1.15.3...v1.15.4) (2025-04-02)
 
 
