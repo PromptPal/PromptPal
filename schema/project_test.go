@@ -27,6 +27,7 @@ func (s *projectTestSuite) SetupSuite() {
 	hs := service.NewHashIDService()
 
 	service.InitDB()
+	service.InitRedis(config.GetRuntimeConfig().RedisURL)
 	Setup(hs, w3)
 
 	u := service.

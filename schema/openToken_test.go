@@ -25,6 +25,7 @@ func (s *openTokenTestSuite) SetupSuite() {
 	hs := service.NewHashIDService()
 
 	service.InitDB()
+	service.InitRedis(config.GetRuntimeConfig().RedisURL)
 	Setup(hs, w3)
 
 	q := QueryResolver{}
