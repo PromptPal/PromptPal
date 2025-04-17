@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.7](https://github.com/PromptPal/PromptPal/compare/v1.15.6...v1.15.7) (2025-04-17)
+
+
+### Bug Fixes
+
+* **ci:** Add DB cleanup step and upgrade Codecov action to v5 in CI workflows ([c0c85bb](https://github.com/PromptPal/PromptPal/commit/c0c85bb7bfb66761cbefdab3fbba75bbf4d68bde))
+
 ## [1.15.6](https://github.com/PromptPal/PromptPal/compare/v1.15.5...v1.15.6) (2025-04-15)
 
 
