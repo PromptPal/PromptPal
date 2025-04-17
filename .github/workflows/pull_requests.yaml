@@ -49,6 +49,11 @@ jobs:
           echo "" > ./routes/.env.testing
           rm ./schema/.env.testing
           echo "" > ./schema/.env.testing
+      - name: Init or clean DB
+        env:
+          PGPASSWORD: postgres
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -d db_test -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
       - name: Test
         env:
           JWT_TOKEN_KEY: "4a9bca7269a3a29eb1026b3c0999b29b929ab59a"
@@ -60,7 +65,7 @@ jobs:
           OPENAI_BASE_URL: "https://api.openai.com/v1"
         run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Build

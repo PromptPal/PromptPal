@@ -56,13 +56,18 @@ jobs:
           echo "GH_TAG=$(echo $GITHUB_REF | awk -F / '{print $3}')" >> $GITHUB_ENV
           go install github.com/vektra/mockery/v2@v2.53.3
           go generate ./...
+      - name: Init or clean DB
+        env:
+          PGPASSWORD: postgres
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -d db_test -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
       - name: Test
         env:
           DB_TYPE: "postgres"
           DB_DSN: "host=127.0.0.1 user=postgres password=postgres port=5432 dbname=db_test sslmode=disable"
         run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Build
