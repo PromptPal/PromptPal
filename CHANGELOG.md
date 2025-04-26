@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.8](https://github.com/PromptPal/PromptPal/compare/v1.15.7...v1.15.8) (2025-04-26)
+
+
+### Bug Fixes
+
+* **db:** update db for query relations ([d343058](https://github.com/PromptPal/PromptPal/commit/d3430586360172fc1b3fb2857f88005569e2cf86))
+
 ## [1.15.7](https://github.com/PromptPal/PromptPal/compare/v1.15.6...v1.15.7) (2025-04-17)
 
 
