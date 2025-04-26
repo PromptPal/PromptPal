@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.15.9](https://github.com/PromptPal/PromptPal/compare/v1.15.8...v1.15.9) (2025-04-26)
+
+
+### Bug Fixes
+
+* **api:** Add event ping to confirm connection in prompt stream endpoint ([aa6e29a](https://github.com/PromptPal/PromptPal/commit/aa6e29ae1cee66baae705b8602f098741a17bd97))
+* **api:** add sse header ([355217e](https://github.com/PromptPal/PromptPal/commit/355217ece0223ba00288c535e593dfd85376b8d8))
+
 ## [1.15.8](https://github.com/PromptPal/PromptPal/compare/v1.15.7...v1.15.8) (2025-04-26)
 
 
