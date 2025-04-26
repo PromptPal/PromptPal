@@ -33,6 +33,7 @@ func (Project) Fields() []ent.Field {
 		field.Float("openAITemperature").Default(1),
 		field.Float("openAITopP").Default(0.9),
 		field.Int("openAIMaxTokens").Default(0),
+		field.Int("providerId").Optional().StorageKey("project_provider"),
 	}
 }
 
@@ -48,7 +49,9 @@ func (Project) Edges() []ent.Edge {
 		edge.To("activities", Activity.Type),
 		edge.To("openTokens", OpenToken.Type),
 		edge.To("calls", PromptCall.Type),
-		edge.To("provider", Provider.Type).Unique(),
+		edge.To("provider", Provider.Type).
+			Unique().
+			Field("providerId"),
 	}
 }
 

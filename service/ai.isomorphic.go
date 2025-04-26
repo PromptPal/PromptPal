@@ -52,7 +52,7 @@ func (o isomorphicAIService) getIsomorphicClient(ctx context.Context, provider *
 }
 
 func (o isomorphicAIService) GetProvider(ctx context.Context, prompt ent.Prompt) (provider *ent.Provider, err error) {
-	promptProvider, err := prompt.QueryProvider().Only(ctx)
+	promptProvider, err := EntClient.Provider.Get(ctx, prompt.ProviderId)
 
 	if err != nil && !ent.IsNotFound(err) {
 		return
@@ -65,12 +65,12 @@ func (o isomorphicAIService) GetProvider(ctx context.Context, prompt ent.Prompt)
 
 	err = nil
 
-	pj, err := prompt.QueryProject().Only(ctx)
+	pj, err := EntClient.Project.Get(ctx, prompt.ProjectId)
 	if err != nil {
 		return
 	}
 
-	projectProvider, err := pj.QueryProvider().Only(ctx)
+	projectProvider, err := EntClient.Provider.Get(ctx, pj.ProviderId)
 	if err != nil && !ent.IsNotFound(err) {
 		return
 	}

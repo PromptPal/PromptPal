@@ -54,7 +54,9 @@ func (Provider) Edges() []ent.Edge {
 			Ref("provider"),
 
 		// A provider can be associated with multiple prompts
-		edge.To("prompts", Prompt.Type),
+		// edge.To("prompts", Prompt.Type),
+		edge.From("prompt", Prompt.Type).
+			Ref("provider"),
 
 		edge.
 			From("creator", User.Type).

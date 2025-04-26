@@ -306,7 +306,7 @@ func (q QueryResolver) AssignProviderToPrompt(ctx context.Context, args assignPr
 	}
 
 	// Update the provider to associate with the prompt
-	_, err = provider.Update().AddPrompts(prompt).Save(ctx)
+	_, err = provider.Update().AddPrompt(prompt).Save(ctx)
 	if err != nil {
 		return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
@@ -322,7 +322,7 @@ func (q QueryResolver) RemoveProviderFromPrompt(ctx context.Context, args remove
 	// Find providers associated with this prompt
 	providers, err := service.EntClient.Provider.Query().
 		Where(
-			provider.HasPromptsWith(
+			provider.HasPromptWith(
 				prompt.ID(int(args.PromptId)),
 			),
 		).All(ctx)
@@ -344,7 +344,7 @@ func (q QueryResolver) RemoveProviderFromPrompt(ctx context.Context, args remove
 
 	// Remove the association for each provider
 	for _, provider := range providers {
-		_, err = provider.Update().RemovePrompts(prompt).Save(ctx)
+		_, err = provider.Update().RemovePrompt(prompt).Save(ctx)
 		if err != nil {
 			return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
 		}
