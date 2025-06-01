@@ -8,6 +8,8 @@ on:
 permissions:
   contents: write # to create release commit (google-github-actions/release-please-action)
   pull-requests: write # to create release PR (google-github-actions/release-please-action)
+  packages: write # to publish Docker image (docker/build-push-action)
+  issues: write # to create release issue (google-github-actions/release-please-action)
 
 jobs:
   build:
