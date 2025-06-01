@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.10](https://github.com/PromptPal/PromptPal/compare/v1.15.9...v1.15.10) (2025-06-01)
+
+
+### Bug Fixes
+
+* **ci:** update ci settings ([251714c](https://github.com/PromptPal/PromptPal/commit/251714c2a70f1c16dd6c8824d4b64bc85f687fe4))
+
 ## [1.15.9](https://github.com/PromptPal/PromptPal/compare/v1.15.8...v1.15.9) (2025-04-26)
 
 
