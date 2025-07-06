@@ -78,7 +78,7 @@ func SetupGinRoutes(
 	h.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:8080", "http://*.annatarhe.com", "http://*.annatarhe.cn"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Content-Encoding", "Date", "X-RSA-Auth", "X-RSA-Nonce"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Content-Encoding", "Date", "X-RSA-Auth", "X-RSA-Nonce", "x-accel-buffering"},
 		ExposeHeaders:    []string{"Content-Length", "Content-Encoding", "Date"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {

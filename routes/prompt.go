@@ -11,7 +11,7 @@ import (
 
 type testPromptPayload struct {
 	ProjectID  int                `json:"projectId" binding:"required"`
-	ProviderID int                `json:"providerId" binding:"required"`
+	ProviderID int                `json:"providerId"`
 	Name       string             `json:"name"`
 	Prompts    []schema.PromptRow `json:"prompts"`
 	Variables  map[string]string  `json:"variables"`
