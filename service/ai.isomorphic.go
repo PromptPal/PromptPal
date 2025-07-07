@@ -3,7 +3,10 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
+	"net/http"
+	"net/http/httputil"
 	"net/url"
 
 	"github.com/PromptPal/PromptPal/ent"
@@ -12,6 +15,22 @@ import (
 )
 
 type isomorphicAIService struct {
+}
+
+type loggingTransport struct{}
+
+func (s *loggingTransport) RoundTrip(r *http.Request) (*http.Response, error) {
+	bytes, _ := httputil.DumpRequestOut(r, true)
+
+	resp, err := http.DefaultTransport.RoundTrip(r)
+	// err is returned after dumping the response
+
+	respBytes, _ := httputil.DumpResponse(resp, true)
+	bytes = append(bytes, respBytes...)
+
+	fmt.Printf("%s\n", bytes)
+
+	return resp, err
 }
 
 //go:generate mockery --name IsomorphicAIService
