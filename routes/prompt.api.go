@@ -336,7 +336,6 @@ func apiRunPromptStream(c *gin.Context) {
 			responseResult = 1
 			return false
 		case data := <-replyStream.Message:
-			time.Sleep(time.Millisecond * 500)
 			// result = append(result, data...)
 			result += data[0].Message.Content
 			chunkResponse := service.APIRunPromptResponse{
