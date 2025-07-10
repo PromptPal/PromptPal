@@ -144,7 +144,7 @@ func (o isomorphicAIService) Chat(
 
 	prompts := prompt.Prompts
 
-	logrus.Infoln("openai:chat: prompts need to send", prompts)
+	logrus.Debugln("openai:chat: prompts need to send", prompts)
 	for _, prompt := range prompts {
 		content := replacePlaceholdersLegacy(prompt.Prompt, variables)
 		pt := openai.ChatCompletionMessage{
@@ -191,7 +191,7 @@ func (o isomorphicAIService) ChatStream(
 
 	prompts := prompt.Prompts
 
-	logrus.Infoln("openai:stream: prompts need to send", prompts, variables)
+	logrus.Debugln("openai:stream: prompts need to send", prompts, variables)
 	for _, prompt := range prompts {
 		content := replacePlaceholdersLegacy(prompt.Prompt, variables)
 		pt := openai.ChatCompletionMessage{

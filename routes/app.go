@@ -62,11 +62,12 @@ func SetupGinRoutes(
 	}
 	s = graphqlSchema
 
-	h := gin.Default()
+	h := gin.New()
 
 	store := cookie.NewStore(rc.JwtTokenKey)
 	h.Use(sessions.Sessions("pp-sess", store))
-	h.Use(brotli.Brotli(brotli.DefaultCompression))
+	// it would stop SSE works
+	brHandler := brotli.Brotli(brotli.DefaultCompression)
 
 	// with version
 	h.Use(func(c *gin.Context) {
@@ -78,7 +79,7 @@ func SetupGinRoutes(
 	h.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:8080", "http://*.annatarhe.com", "http://*.annatarhe.cn"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Content-Encoding", "Date", "X-RSA-Auth", "X-RSA-Nonce", "x-accel-buffering"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Content-Encoding", "Date", "X-RSA-Auth", "X-RSA-Nonce", "x-accel-buffering", "cache-control"},
 		ExposeHeaders:    []string{"Content-Length", "Content-Encoding", "Date"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
@@ -87,7 +88,7 @@ func SetupGinRoutes(
 		MaxAge: 12 * time.Hour,
 	}))
 
-	authRoutes := h.Group("/api/v1/auth")
+	authRoutes := h.Group("/api/v1/auth", brHandler)
 	authRoutes.POST("/login", authHandler)
 
 	if graphqlSchema != nil {
@@ -99,10 +100,10 @@ func SetupGinRoutes(
 
 	h.LoadHTMLFiles("./public/index.html")
 	h.Static("/public", "./public")
-	h.GET("/", func(c *gin.Context) {
+	h.GET("/", brHandler, func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", nil)
 	})
-	h.NoRoute(func(c *gin.Context) {
+	h.NoRoute(brHandler, func(c *gin.Context) {
 		c.HTML(http.StatusNotFound, "index.html", nil)
 	})
 
@@ -111,9 +112,10 @@ func SetupGinRoutes(
 	apiRoutes := h.Group("/api/v1/public")
 	apiRoutes.Use(apiMiddleware)
 	{
-		apiRoutes.GET("/prompts", apiListPrompts)
+		apiRoutes.GET("/prompts", brHandler, apiListPrompts)
 		apiRoutes.POST(
 			"/prompts/run/:id",
+			brHandler,
 			temporaryTokenValidationMiddleware,
 			apiRunPromptMiddleware,
 			promptCacheMiddleware,
@@ -130,7 +132,7 @@ func SetupGinRoutes(
 
 	// !!! IMPORTANT !!!
 	// this feature should only available for enterprise
-	sso := h.Group("/api/v1/sso")
+	sso := h.Group("/api/v1/sso", brHandler)
 	sso.GET("/settings", authSettings)
 	sso.Use(ssoProviderCheck)
 	{

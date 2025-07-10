@@ -336,6 +336,7 @@ func apiRunPromptStream(c *gin.Context) {
 			responseResult = 1
 			return false
 		case data := <-replyStream.Message:
+			time.Sleep(time.Millisecond * 500)
 			// result = append(result, data...)
 			result += data[0].Message.Content
 			chunkResponse := service.APIRunPromptResponse{
@@ -348,6 +349,7 @@ func apiRunPromptStream(c *gin.Context) {
 				c.SSEvent("error", err.Error())
 				return false
 			}
+			logrus.Infoln("streaming: ", time.Now())
 			c.SSEvent("message", string(b))
 			return true
 		}
