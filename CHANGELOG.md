@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.15.10](https://github.com/PromptPal/PromptPal/compare/v1.15.9...v1.15.10) (2025-07-10)
+
+
+### Bug Fixes
+
+* add CLAUDE.md for codebase guidance ([1357198](https://github.com/PromptPal/PromptPal/commit/1357198e1232be8ce6b276ca5156f2d1a0c39cc7))
+* **ci:** update ci settings ([251714c](https://github.com/PromptPal/PromptPal/commit/251714c2a70f1c16dd6c8824d4b64bc85f687fe4))
+* improve SSE streaming and optimize middleware usage ([e1b8974](https://github.com/PromptPal/PromptPal/commit/e1b89743d13ca5de1b221d38f6ce3d95997565ba))
+* update dependencies and AI service implementation ([545f7a5](https://github.com/PromptPal/PromptPal/commit/545f7a54d6e9e8a1354815d52196bdaad13818f0))
+
 ## [1.15.9](https://github.com/PromptPal/PromptPal/compare/v1.15.8...v1.15.9) (2025-04-26)
 
 
