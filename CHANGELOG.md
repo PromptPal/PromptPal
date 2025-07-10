@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.11](https://github.com/PromptPal/PromptPal/compare/v1.15.10...v1.15.11) (2025-07-10)
+
+
+### Bug Fixes
+
+* remove artificial delay in SSE streaming and cleanup example file ([9f13f20](https://github.com/PromptPal/PromptPal/commit/9f13f20e3e86e60ad2ea64cfda38ff3b67e55727))
+
 ## [1.15.10](https://github.com/PromptPal/PromptPal/compare/v1.15.9...v1.15.10) (2025-07-10)
 
 
