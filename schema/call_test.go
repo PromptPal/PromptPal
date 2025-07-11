@@ -21,7 +21,6 @@ import (
 	"github.com/PromptPal/PromptPal/utils"
 	"github.com/gin-gonic/gin"
 	openai "github.com/sashabaranov/go-openai"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -45,7 +44,6 @@ func (s *callTestSuite) SetupSuite() {
 	hs := service.NewHashIDService()
 
 	service.InitDB()
-	logrus.Println("Connect to Redis", config.GetRuntimeConfig().RedisURL)
 	service.InitRedis(config.GetRuntimeConfig().RedisURL)
 	Setup(hs, w3)
 

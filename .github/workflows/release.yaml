@@ -34,7 +34,7 @@ jobs:
           - 6379:6379
 
     name: Build
-    runs-on: jp-oracle
+    runs-on: ubuntu-latest
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
@@ -68,6 +68,7 @@ jobs:
         env:
           DB_TYPE: "postgres"
           DB_DSN: "host=127.0.0.1 user=postgres password=postgres port=5432 dbname=db_test sslmode=disable"
+          REDIS_URL: "redis://localhost:6379/1"
         run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
