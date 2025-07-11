@@ -1,0 +1,14 @@
+{
+	"permissions": {
+		"allow": [
+			"WebFetch(domain:annatarhe.com)",
+			"Bash(find:*)",
+			"Bash(grep:*)",
+			"Bash(rg:*)",
+			"Bash(ls:*)",
+			"Bash(git:*)",
+			"Bash(npx eslint:*)"
+		],
+		"deny": []
+	}
+}
