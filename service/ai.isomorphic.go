@@ -33,7 +33,6 @@ func (s *loggingTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 	return resp, err
 }
 
-//go:generate mockery --name IsomorphicAIService
 type IsomorphicAIService interface {
 	GetProvider(ctx context.Context, prompt ent.Prompt) (provider *ent.Provider, err error)
 	Chat(
