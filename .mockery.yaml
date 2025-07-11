@@ -1,0 +1,28 @@
+# Mockery v3 configuration
+# https://vektra.github.io/mockery/latest/configuration/
+
+all: false
+filename: "mock_{{.InterfaceName}}.go"
+# dir: "mocks/{{.PackagePath}}"
+recursive: false
+log-level: "info"
+force-file-write: false
+formatter: goimports
+# structname: {{.Mock}}{{.InterfaceName}}
+pkgname: '{{.SrcPackageName}}'
+# template: testify
+packages:
+  github.com/PromptPal/PromptPal/service:
+    config:
+      all: true
+    interfaces:
+      BaseAIService:
+        config:
+          all: true
+
+      Web3Service:
+        config:
+          all: true
+      IsomorphicAIService:
+        config:
+          all: true

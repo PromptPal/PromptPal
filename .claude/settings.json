@@ -6,7 +6,6 @@
       "Bash(grep:*)",
       "Bash(rg:*)",
       "Bash(ls:*)",
-      "Bash(git:*)",
       "Bash(npx eslint:*)",
       "Bash(gh pr create:*)",
       "Bash(go install:*)"

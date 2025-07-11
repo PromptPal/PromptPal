@@ -18,7 +18,6 @@ import (
 	dbSchema "github.com/PromptPal/PromptPal/ent/schema"
 	"github.com/PromptPal/PromptPal/routes"
 	"github.com/PromptPal/PromptPal/service"
-	"github.com/PromptPal/PromptPal/service/mocks"
 	"github.com/PromptPal/PromptPal/utils"
 	"github.com/gin-gonic/gin"
 	openai "github.com/sashabaranov/go-openai"
@@ -40,8 +39,8 @@ type callTestSuite struct {
 
 func (s *callTestSuite) SetupSuite() {
 	config.SetupConfig(true)
-	w3 := mocks.NewWeb3Service(s.T())
-	iai := mocks.NewIsomorphicAIService(s.T())
+	w3 := service.NewMockWeb3Service(s.T())
+	iai := service.NewMockIsomorphicAIService(s.T())
 	hs := service.NewHashIDService()
 
 	service.InitDB()
