@@ -15,7 +15,6 @@ type ChatStreamResponse struct {
 	Info    chan openai.Usage
 }
 
-//go:generate mockery --name BaseAIService
 type BaseAIService interface {
 	Chat(
 		ctx context.Context,

@@ -9,7 +9,6 @@ import (
 
 	"github.com/PromptPal/PromptPal/config"
 	"github.com/PromptPal/PromptPal/service"
-	"github.com/PromptPal/PromptPal/service/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -24,8 +23,8 @@ type userTestSuite struct {
 // before each test
 func (s *userTestSuite) SetupTest() {
 	config.SetupConfig(true)
-	w3 := mocks.NewWeb3Service(s.T())
-	iai := mocks.NewIsomorphicAIService(s.T())
+	w3 := service.NewMockWeb3Service(s.T())
+	iai := service.NewMockIsomorphicAIService(s.T())
 	hs := service.NewHashIDService()
 
 	w3.

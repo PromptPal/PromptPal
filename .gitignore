@@ -33,3 +33,4 @@ public/*
 !public/.gitkeep
 dist.zip
 service/mocks
+service/mock_*.go

@@ -7,7 +7,6 @@ import (
 
 	"github.com/PromptPal/PromptPal/config"
 	"github.com/PromptPal/PromptPal/service"
-	"github.com/PromptPal/PromptPal/service/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -18,7 +17,7 @@ type authTestSuite struct {
 
 func (s *authTestSuite) SetupSuite() {
 	config.SetupConfig(true)
-	w3 := mocks.NewWeb3Service(s.T())
+	w3 := service.NewMockWeb3Service(s.T())
 	hs := service.NewHashIDService()
 
 	service.InitDB()
