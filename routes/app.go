@@ -104,7 +104,7 @@ func SetupGinRoutes(
 		c.HTML(http.StatusOK, "index.html", nil)
 	})
 	h.NoRoute(brHandler, func(c *gin.Context) {
-		c.HTML(http.StatusNotFound, "index.html", nil)
+		c.HTML(http.StatusOK, "index.html", nil)
 	})
 
 	h.POST("/api/v1/admin/prompts/test", authMiddleware, testPrompt)
