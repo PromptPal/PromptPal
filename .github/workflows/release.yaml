@@ -34,7 +34,7 @@ jobs:
           - 6379:6379
 
     name: Build
-    runs-on: self-hosted
+    runs-on: jp-oracle
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
