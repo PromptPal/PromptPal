@@ -12,6 +12,7 @@ import (
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -79,6 +80,7 @@ func (s *userTestSuite) CreateTestUserWithPassword(username, email, password str
 		Save(context.Background())
 
 	assert.Nil(s.T(), err)
+	logrus.Println("uuuuuuuuuuuu", username, email, password, hash)
 	return user
 }
 
@@ -96,6 +98,7 @@ func (s *userTestSuite) CreateTestUserWithoutPassword(username, email string) *e
 		Save(context.Background())
 
 	assert.Nil(s.T(), err)
+	logrus.Println("ppppppp", username, email)
 	return user
 }
 
