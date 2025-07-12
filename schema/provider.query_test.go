@@ -17,14 +17,14 @@ import (
 
 type providerQueryTestSuite struct {
 	suite.Suite
-	uid                int
-	providerID         int
-	provider2ID        int
-	projectID          int
-	promptID           int
-	q                  QueryResolver
-	ctx                context.Context
-	testProviderConfig map[string]interface{}
+	uid                 int
+	providerID          int
+	provider2ID         int
+	projectID           int
+	promptID            int
+	q                   QueryResolver
+	ctx                 context.Context
+	testProviderConfig  map[string]interface{}
 	testProviderHeaders map[string]string
 }
 
@@ -44,12 +44,12 @@ func (s *providerQueryTestSuite) SetupSuite() {
 		EntClient.
 		User.
 		Create().
-		SetAddr(utils.RandStringRunes(16)).
+		SetAddr("test-addr-schema_provider_query_test005").
 		SetName(utils.RandStringRunes(16)).
 		SetLang("en").
 		SetPhone(utils.RandStringRunes(16)).
 		SetLevel(255).
-		SetEmail(utils.RandStringRunes(10)).
+		SetEmail("test-schema_provider_query_test005@annatarhe.com").
 		SaveX(context.Background())
 	s.uid = u.ID
 
@@ -75,7 +75,6 @@ func (s *providerQueryTestSuite) SetupSuite() {
 	defaultModel := "gpt-4"
 	description := "Test provider description"
 	organizationId := "test-org-123"
-
 
 	provider1 := service.
 		EntClient.
@@ -133,6 +132,10 @@ func (s *providerQueryTestSuite) SetupSuite() {
 		SetPrompts(promptRows).
 		SetProjectID(s.projectID).
 		SetCreatorID(s.uid).
+		SetVariables([]dbSchema.PromptVariable{
+			{Name: "variable1", Type: dbSchema.PromptVariableTypesString},
+			{Name: "variable2", Type: dbSchema.PromptVariableTypesString},
+		}).
 		SaveX(context.Background())
 	s.promptID = prompt.ID
 
@@ -156,13 +159,13 @@ func (s *providerQueryTestSuite) TestProvider_Success() {
 	assert.Equal(s.T(), 0.7, result.Temperature())
 	assert.Equal(s.T(), 0.9, result.TopP())
 	assert.Equal(s.T(), int32(4000), result.MaxTokens())
-	
+
 	// Test JSON fields
 	expectedConfig := `{"setting1":"value1","setting2":123}`
 	expectedHeaders := `{"Authorization":"Bearer test-token","X-Custom-Header":"test-value"}`
 	assert.JSONEq(s.T(), expectedConfig, result.Config())
 	assert.JSONEq(s.T(), expectedHeaders, result.Headers())
-	
+
 	// Test timestamps
 	assert.NotEmpty(s.T(), result.CreatedAt())
 	assert.NotEmpty(s.T(), result.UpdatedAt())
@@ -243,7 +246,7 @@ func (s *providerQueryTestSuite) TestProjectProvider_NotFound() {
 		ProjectId: 99999,
 	})
 
-	assert.Nil(s.T(), err) // Should not return error for not found
+	assert.Nil(s.T(), err)      // Should not return error for not found
 	assert.Nil(s.T(), result.p) // Should return empty response
 }
 

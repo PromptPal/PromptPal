@@ -38,12 +38,12 @@ func (s *providerTestSuite) SetupSuite() {
 		EntClient.
 		User.
 		Create().
-		SetAddr(utils.RandStringRunes(16)).
+		SetAddr("test-addr-schema_provider_test005").
 		SetName(utils.RandStringRunes(16)).
 		SetLang("en").
 		SetPhone(utils.RandStringRunes(16)).
 		SetLevel(255).
-		SetEmail(utils.RandStringRunes(10)).
+		SetEmail("test-schema_provider_test005@annatarhe.com").
 		SaveX(context.Background())
 	s.uid = u.ID
 
@@ -73,6 +73,10 @@ func (s *providerTestSuite) SetupSuite() {
 		SetPrompts(promptRows).
 		SetProjectID(s.projectID).
 		SetCreatorID(s.uid).
+		SetVariables([]dbSchema.PromptVariable{
+			{Name: "variable1", Type: dbSchema.PromptVariableTypesString},
+			{Name: "variable2", Type: dbSchema.PromptVariableTypesString},
+		}).
 		SaveX(context.Background())
 	s.promptID = prompt.ID
 }
