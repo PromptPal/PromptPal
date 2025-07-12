@@ -116,6 +116,8 @@ func (s *userTestSuite) TestPasswordAuthWithUsername() {
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), testUser.ID, result.User.ID)
 	assert.NotEmpty(s.T(), result.Token)
+
+	service.EntClient.User.DeleteOneID(testUser.ID).Exec(context.Background())
 }
 
 func (s *userTestSuite) TestPasswordAuthWithEmail() {
@@ -135,11 +137,13 @@ func (s *userTestSuite) TestPasswordAuthWithEmail() {
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), testUser.ID, result.User.ID)
 	assert.NotEmpty(s.T(), result.Token)
+
+	service.EntClient.User.DeleteOneID(testUser.ID).Exec(context.Background())
 }
 
 func (s *userTestSuite) TestPasswordAuthInvalidCredentials() {
 	// Create test user with password
-	s.CreateTestUserWithPassword("invaliduser", "invalid@example.com", "validpassword123")
+	u := s.CreateTestUserWithPassword("invaliduser", "invalid@example.com", "validpassword123")
 
 	w := httptest.NewRecorder()
 	payload := `{"username": "invaliduser", "password": "wrongpassword"}`
@@ -153,6 +157,8 @@ func (s *userTestSuite) TestPasswordAuthInvalidCredentials() {
 	err := json.Unmarshal(w.Body.Bytes(), &result)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), "invalid credentials", result.ErrorMessage)
+
+	service.EntClient.User.DeleteOneID(u.ID).Exec(context.Background())
 }
 
 func (s *userTestSuite) TestPasswordAuthUserNotFound() {
@@ -172,7 +178,7 @@ func (s *userTestSuite) TestPasswordAuthUserNotFound() {
 
 func (s *userTestSuite) TestPasswordAuthUserWithoutPassword() {
 	// Create test user without password
-	s.CreateTestUserWithoutPassword("nopassuser", "nopass@example.com")
+	u := s.CreateTestUserWithoutPassword("nopassuser", "nopass@example.com")
 
 	w := httptest.NewRecorder()
 	payload := `{"username": "nopassuser", "password": "anypassword"}`
@@ -186,6 +192,8 @@ func (s *userTestSuite) TestPasswordAuthUserWithoutPassword() {
 	err := json.Unmarshal(w.Body.Bytes(), &result)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), "invalid credentials", result.ErrorMessage)
+
+	service.EntClient.User.DeleteOneID(u.ID).Exec(context.Background())
 }
 
 func (s *userTestSuite) TestPasswordAuthInvalidRequestFormat() {

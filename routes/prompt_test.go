@@ -68,8 +68,8 @@ func (s *promptTestSuite) createTestData() {
 	// Create test user
 	user, err := service.EntClient.User.
 		Create().
-		SetUsername("testuser").
-		SetEmail("test@example.com").
+		SetUsername("annnatarhe.route_prompt").
+		SetEmail("annnatarhe.route_prompt@example.com").
 		SetAddr("0x1234567890123456789012345678901234567890").
 		SetName("Test User").
 		SetPhone("").
