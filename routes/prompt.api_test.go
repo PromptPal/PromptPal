@@ -73,7 +73,7 @@ func (s *promptAPITestSuite) createTestData() {
 		Create().
 		SetUsername("annnatarhe.route_prompt_api").
 		SetEmail("annnatarhe.route_prompt_api@example.com").
-		SetAddr("0x1234567890123456789016345678901234567890").
+		SetAddr("0x1234567890" + "route_prompt_api").
 		SetName("Test User").
 		SetPhone("").
 		SetLang("en").
