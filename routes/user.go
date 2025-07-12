@@ -124,8 +124,10 @@ func passwordAuthHandler(c *gin.Context) {
 	if u.PasswordHash == "" {
 		c.JSON(http.StatusUnauthorized, errorResponse{
 			ErrorCode:    http.StatusUnauthorized,
-			ErrorMessage: "password authentication not enabled for this user",
+			ErrorMessage: "invalid credentials",
 		})
+		return
+	}
 		return
 	}
 
