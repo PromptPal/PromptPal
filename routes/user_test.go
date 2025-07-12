@@ -37,7 +37,7 @@ func (s *userTestSuite) SetupTest() {
 
 func (s *userTestSuite) GetAuthToken() (result authResponse, err error) {
 	w := httptest.NewRecorder()
-	payload := `{"address": "0x4910c609fBC895434a0A5E3E46B1Eb4b64Cff2B8", "signature": "signature", "message": "message"}`
+	payload := `{"address": "0x4-routes-user_test", "signature": "signature", "message": "message"}`
 	req, _ := http.NewRequest("POST", "/api/v1/auth/login", strings.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	s.router.ServeHTTP(w, req)
@@ -49,14 +49,14 @@ func (s *userTestSuite) GetAuthToken() (result authResponse, err error) {
 func (s *userTestSuite) TestAuthMethod() {
 	s.w3.On(
 		"VerifySignature",
-		"0x4910c609fBC895434a0A5E3E46B1Eb4b64Cff2B8",
+		"0x4-routes-user_test",
 		"message",
 		"signature",
 	).Return(true, nil)
 
 	result, err := s.GetAuthToken()
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), "0x4910c609fbc895434a0a5e3e46b1eb4b64cff2b8", result.User.Addr)
+	assert.Equal(s.T(), "0x4-routes-user_test", result.User.Addr)
 	assert.NotEmpty(s.T(), result.Token)
 }
 

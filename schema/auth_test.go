@@ -27,7 +27,7 @@ func (s *authTestSuite) SetupSuite() {
 	w3.
 		On(
 			"VerifySignature",
-			"0x4910c609fBC895434a0A5E3E46B1Eb4b64Cff2B8",
+			"0x4-schema_auth_test",
 			"message",
 			"signature",
 		).
@@ -38,7 +38,7 @@ func (s *authTestSuite) TestAuth() {
 	q := QueryResolver{}
 	res, err := q.Auth(context.Background(), authInput{
 		Auth: authAuthData{
-			Address:   "0x4910c609fBC895434a0A5E3E46B1Eb4b64Cff2B8",
+			Address:   "0x4-schema_auth_test",
 			Message:   "message",
 			Signature: "signature",
 		},
@@ -46,7 +46,7 @@ func (s *authTestSuite) TestAuth() {
 
 	assert.Nil(s.T(), err)
 	assert.EqualValues(s.T(),
-		strings.ToLower("0x4910c609fBC895434a0A5E3E46B1Eb4b64Cff2B8"),
+		strings.ToLower("0x4-schema_auth_test"),
 		res.User().Addr(),
 	)
 	assert.NotEmpty(s.T(), res.Token())

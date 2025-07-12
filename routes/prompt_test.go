@@ -18,7 +18,6 @@ import (
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/cache/v9"
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/sashabaranov/go-openai"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
