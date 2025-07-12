@@ -27,7 +27,7 @@ func (s *authTestSuite) SetupSuite() {
 	w3.
 		On(
 			"VerifySignature",
-			"0x4910c609fBC895434a0A5E3E46B1Eb4b64Cff2B8",
+			"test-addr-0x4-schema_auth_test_7777",
 			"message",
 			"signature",
 		).
@@ -35,10 +35,22 @@ func (s *authTestSuite) SetupSuite() {
 }
 
 func (s *authTestSuite) TestAuth() {
+	user, err := service.EntClient.User.
+		Create().
+		SetUsername("0x4-schema_auth_test_7777").
+		SetEmail("0x4-schema_auth_test_7777@annatarhe.com").
+		SetPasswordHash("hash").
+		SetAddr("test-addr-0x4-schema_auth_test_7777").
+		SetName("Test User").
+		SetPhone("").
+		SetLang("en").
+		SetLevel(1).
+		Save(context.Background())
+	assert.Nil(s.T(), err)
 	q := QueryResolver{}
 	res, err := q.Auth(context.Background(), authInput{
 		Auth: authAuthData{
-			Address:   "0x4910c609fBC895434a0A5E3E46B1Eb4b64Cff2B8",
+			Address:   "test-addr-0x4-schema_auth_test_7777",
 			Message:   "message",
 			Signature: "signature",
 		},
@@ -46,10 +58,12 @@ func (s *authTestSuite) TestAuth() {
 
 	assert.Nil(s.T(), err)
 	assert.EqualValues(s.T(),
-		strings.ToLower("0x4910c609fBC895434a0A5E3E46B1Eb4b64Cff2B8"),
+		strings.ToLower("test-addr-0x4-schema_auth_test_7777"),
 		res.User().Addr(),
 	)
 	assert.NotEmpty(s.T(), res.Token())
+
+	service.EntClient.User.DeleteOneID(user.ID).Exec(context.Background())
 }
 
 // Helper method to create a test user with password
@@ -57,7 +71,7 @@ func (s *authTestSuite) CreateTestUserWithPassword(username, email, password str
 	passwordService := service.NewPasswordService()
 	hash, err := passwordService.HashPassword(password)
 	assert.Nil(s.T(), err)
-	
+
 	user, err := service.EntClient.User.
 		Create().
 		SetUsername(username).
@@ -69,7 +83,7 @@ func (s *authTestSuite) CreateTestUserWithPassword(username, email, password str
 		SetLang("en").
 		SetLevel(1).
 		Save(context.Background())
-	
+
 	assert.Nil(s.T(), err)
 	return user
 }
@@ -86,7 +100,7 @@ func (s *authTestSuite) CreateTestUserWithoutPassword(username, email string) *e
 		SetLang("en").
 		SetLevel(1).
 		Save(context.Background())
-	
+
 	assert.Nil(s.T(), err)
 	return user
 }
@@ -94,7 +108,7 @@ func (s *authTestSuite) CreateTestUserWithoutPassword(username, email string) *e
 func (s *authTestSuite) TestPasswordAuthWithUsername() {
 	// Create test user with password
 	testUser := s.CreateTestUserWithPassword("graphqluser", "graphql@example.com", "validpassword123")
-	
+
 	q := QueryResolver{}
 	res, err := q.PasswordAuth(context.Background(), passwordAuthInput{
 		Auth: passwordAuthData{
@@ -106,12 +120,14 @@ func (s *authTestSuite) TestPasswordAuthWithUsername() {
 	assert.Nil(s.T(), err)
 	assert.EqualValues(s.T(), testUser.ID, res.User().ID())
 	assert.NotEmpty(s.T(), res.Token())
+
+	service.EntClient.User.DeleteOneID(testUser.ID).Exec(context.Background())
 }
 
 func (s *authTestSuite) TestPasswordAuthWithEmail() {
 	// Create test user with password
 	testUser := s.CreateTestUserWithPassword("graphqlemail", "graphqlemail@example.com", "validpassword123")
-	
+
 	q := QueryResolver{}
 	res, err := q.PasswordAuth(context.Background(), passwordAuthInput{
 		Auth: passwordAuthData{
@@ -123,12 +139,14 @@ func (s *authTestSuite) TestPasswordAuthWithEmail() {
 	assert.Nil(s.T(), err)
 	assert.EqualValues(s.T(), testUser.ID, res.User().ID())
 	assert.NotEmpty(s.T(), res.Token())
+
+	service.EntClient.User.DeleteOneID(testUser.ID).Exec(context.Background())
 }
 
 func (s *authTestSuite) TestPasswordAuthInvalidCredentials() {
 	// Create test user with password
-	s.CreateTestUserWithPassword("graphqlinvalid", "graphqlinvalid@example.com", "validpassword123")
-	
+	testUser := s.CreateTestUserWithPassword("graphqlinvalid", "graphqlinvalid@example.com", "validpassword123")
+
 	q := QueryResolver{}
 	_, err := q.PasswordAuth(context.Background(), passwordAuthInput{
 		Auth: passwordAuthData{
@@ -139,6 +157,8 @@ func (s *authTestSuite) TestPasswordAuthInvalidCredentials() {
 
 	assert.NotNil(s.T(), err)
 	assert.Contains(s.T(), err.Error(), "invalid credentials")
+
+	service.EntClient.User.DeleteOneID(testUser.ID).Exec(context.Background())
 }
 
 func (s *authTestSuite) TestPasswordAuthUserNotFound() {
@@ -156,8 +176,8 @@ func (s *authTestSuite) TestPasswordAuthUserNotFound() {
 
 func (s *authTestSuite) TestPasswordAuthUserWithoutPassword() {
 	// Create test user without password
-	s.CreateTestUserWithoutPassword("graphqlnopass", "graphqlnopass@example.com")
-	
+	testUser := s.CreateTestUserWithoutPassword("graphqlnopass", "graphqlnopass@example.com")
+
 	q := QueryResolver{}
 	_, err := q.PasswordAuth(context.Background(), passwordAuthInput{
 		Auth: passwordAuthData{
@@ -168,6 +188,8 @@ func (s *authTestSuite) TestPasswordAuthUserWithoutPassword() {
 
 	assert.NotNil(s.T(), err)
 	assert.Contains(s.T(), err.Error(), "invalid credentials")
+
+	service.EntClient.User.DeleteOneID(testUser.ID).Exec(context.Background())
 }
 
 func (s *authTestSuite) TearDownSuite() {

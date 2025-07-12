@@ -21,6 +21,7 @@ import (
 	"github.com/PromptPal/PromptPal/utils"
 	"github.com/gin-gonic/gin"
 	openai "github.com/sashabaranov/go-openai"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -28,6 +29,7 @@ import (
 
 type callTestSuite struct {
 	suite.Suite
+	user         *ent.User
 	pjID         int
 	promptID     int
 	providerID   int
@@ -66,14 +68,29 @@ func (s *callTestSuite) SetupSuite() {
 	// 	},
 	// })
 
-	pjName := utils.RandStringRunes(1 << 4)
+	user, err := service.EntClient.User.
+		Create().
+		SetUsername("annatarhe_user_schema_call_test001").
+		SetEmail("annatarhe_user_schema_call_test001@annatarhe.com").
+		SetPasswordHash("hash").
+		SetAddr("test-addr-annatarhe_user_schema_call_test001").
+		SetName("Test User9").
+		SetPhone("").
+		SetLang("en").
+		SetLevel(1).
+		Save(context.Background())
+	assert.Nil(s.T(), err)
+
+	s.user = user
+
+	pjName := "annatarhe_pj_schema_call_test"
 	openAIToken := utils.RandStringRunes(1 << 8)
 
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
-		UserID: 1,
+		UserID: user.ID,
 	})
 
-	provider, _ := q.CreateProvider(ctx, createProviderArgs{
+	provider, err := q.CreateProvider(ctx, createProviderArgs{
 		Data: createProviderData{
 			Name:     pjName,
 			Source:   "openai",
@@ -83,13 +100,23 @@ func (s *callTestSuite) SetupSuite() {
 		},
 	})
 
-	pj, _ := q.CreateProject(ctx, createProjectArgs{
+	if err != nil {
+		logrus.Println(err.Error())
+	}
+	assert.Nil(s.T(), err)
+
+	pj, exp := q.CreateProject(ctx, createProjectArgs{
 		Data: createProjectData{
 			Name:        &pjName,
 			OpenAIToken: &openAIToken,
 			ProviderId:  provider.ID(),
 		},
 	})
+
+	if exp != nil {
+		logrus.Println(exp.Error())
+	}
+	assert.Nil(s.T(), exp)
 
 	s.pjID = int(pj.ID())
 	s.providerID = int(provider.ID())
@@ -152,7 +179,7 @@ func (s *callTestSuite) TestCreatePrompt() {
 	q := QueryResolver{}
 
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
-		UserID: 1,
+		UserID: s.user.ID,
 	})
 
 	result, err := q.CreatePrompt(ctx, createPromptArgs{
@@ -194,7 +221,7 @@ func (s *callTestSuite) TestCreatePrompt() {
 func (s *callTestSuite) TestListPrompt() {
 	q := QueryResolver{}
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
-		UserID: 1,
+		UserID: s.user.ID,
 	})
 
 	resp := q.Prompts(ctx, promptsArgs{
@@ -216,7 +243,7 @@ func (s *callTestSuite) TestListPrompt() {
 func (s *callTestSuite) TestGetPrompt() {
 	q := QueryResolver{}
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
-		UserID: 1,
+		UserID: s.user.ID,
 	})
 	result, err := q.Prompt(ctx, promptArgs{
 		ID: int32(s.promptID),
@@ -261,7 +288,7 @@ func (s *callTestSuite) TestPerformCall() {
 	// test project metrics
 	q := QueryResolver{}
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
-		UserID: 1,
+		UserID: s.user.ID,
 	})
 
 	pj, err := q.Project(ctx, projectArgs{
@@ -320,6 +347,7 @@ func (s *callTestSuite) TearDownSuite() {
 	service.EntClient.Prompt.DeleteOneID(s.promptID).ExecX(context.Background())
 	service.EntClient.Project.DeleteOneID(s.pjID).ExecX(context.Background())
 	service.EntClient.Provider.DeleteOneID(s.providerID).ExecX(context.Background())
+	service.EntClient.User.DeleteOneID(s.user.ID).ExecX(context.Background())
 	service.Close()
 }
 

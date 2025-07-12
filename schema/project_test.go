@@ -2,7 +2,6 @@ package schema
 
 import (
 	"context"
-	"log"
 	"testing"
 
 	"github.com/PromptPal/PromptPal/config"
@@ -91,7 +90,6 @@ func (s *projectTestSuite) TestListProject() {
 	})
 	assert.Nil(s.T(), err)
 	edges := result.Edges()
-	log.Println("result: ", result.projects)
 	assert.EqualValues(s.T(), 1, result.Count())
 	assert.Len(s.T(), edges, int(result.Count()))
 
@@ -198,6 +196,7 @@ func (s *projectTestSuite) TestUpdateProject() {
 }
 
 func (s *projectTestSuite) TearDownSuite() {
+	service.EntClient.User.DeleteOneID(s.uid).ExecX(context.Background())
 	service.Close()
 }
 
