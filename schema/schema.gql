@@ -19,7 +19,7 @@ type Query {
 
   prompts(projectId: Int!, pagination: PaginationInput!): PromptList!
   prompt(id: Int!, filters: PromptSearchFilters): Prompt!
-  user(id: Int!): User!
+  user(id: Int): User!
   calls(promptId: Int!, pagination: PaginationInput!): PromptCallList!
 
   # Provider queries

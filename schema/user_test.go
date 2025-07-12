@@ -68,8 +68,9 @@ func (s *userTestSuite) TestGetUser() {
 		UserID: theUserID,
 	})
 
+	id := int32(theUserID)
 	result, err := q.User(ctx, userArgs{
-		ID: int32(theUserID),
+		ID: &id,
 	})
 
 	assert.Nil(s.T(), err)
@@ -86,7 +87,7 @@ func (s *userTestSuite) TestGetMe() {
 	})
 
 	result, err := q.User(ctx, userArgs{
-		ID: int32(-1),
+		ID: nil,
 	})
 
 	assert.Nil(s.T(), err)
@@ -94,6 +95,82 @@ func (s *userTestSuite) TestGetMe() {
 	assert.EqualValues(s.T(), theUserID, result.ID())
 	assert.NotEmpty(s.T(), result.Name())
 	assert.NotEmpty(s.T(), result.Addr())
+}
+
+func (s *userTestSuite) TestGetUserWithAllFields() {
+	theUserID := service.EntClient.User.Query().FirstIDX(context.Background())
+	q := QueryResolver{}
+
+	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
+		UserID: theUserID,
+	})
+
+	id := int32(theUserID)
+	result, err := q.User(ctx, userArgs{
+		ID: &id,
+	})
+
+	assert.Nil(s.T(), err)
+
+	// Test all fields are present
+	assert.EqualValues(s.T(), theUserID, result.ID())
+	assert.NotEmpty(s.T(), result.Name())
+	assert.NotEmpty(s.T(), result.Addr())
+	
+	// Test new fields (may be empty but should not panic)
+	assert.NotNil(s.T(), result.Avatar())
+	assert.NotNil(s.T(), result.Email())
+	assert.NotNil(s.T(), result.Phone())
+	assert.NotNil(s.T(), result.Lang())
+	assert.GreaterOrEqual(s.T(), result.Level(), int32(0))
+	assert.NotNil(s.T(), result.Source())
+}
+
+func (s *userTestSuite) TestGetCurrentUserWithAllFields() {
+	theUserID := service.EntClient.User.Query().FirstIDX(context.Background())
+	q := QueryResolver{}
+
+	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
+		UserID: theUserID,
+	})
+
+	// Test with nil ID (current user)
+	result, err := q.User(ctx, userArgs{
+		ID: nil,
+	})
+
+	assert.Nil(s.T(), err)
+
+	// Test all fields are present for current user
+	assert.EqualValues(s.T(), theUserID, result.ID())
+	assert.NotEmpty(s.T(), result.Name())
+	assert.NotEmpty(s.T(), result.Addr())
+	
+	// Test new fields
+	assert.NotNil(s.T(), result.Avatar())
+	assert.NotNil(s.T(), result.Email())
+	assert.NotNil(s.T(), result.Phone())
+	assert.NotNil(s.T(), result.Lang())
+	assert.GreaterOrEqual(s.T(), result.Level(), int32(0))
+	assert.NotNil(s.T(), result.Source())
+}
+
+func (s *userTestSuite) TestGetUserNotFound() {
+	theUserID := service.EntClient.User.Query().FirstIDX(context.Background())
+	q := QueryResolver{}
+
+	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
+		UserID: theUserID,
+	})
+
+	// Test with non-existent user ID
+	nonExistentID := int32(99999)
+	result, err := q.User(ctx, userArgs{
+		ID: &nonExistentID,
+	})
+
+	assert.NotNil(s.T(), err)
+	assert.Empty(s.T(), result.u)
 }
 
 func (s *userTestSuite) TearDownSuite() {
