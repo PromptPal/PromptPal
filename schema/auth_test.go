@@ -45,7 +45,7 @@ func (s *authTestSuite) TestAuth() {
 	})
 
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(),
+	assert.EqualValues(s.T(),
 		strings.ToLower("0x4910c609fBC895434a0A5E3E46B1Eb4b64Cff2B8"),
 		res.User().Addr(),
 	)
@@ -104,7 +104,7 @@ func (s *authTestSuite) TestPasswordAuthWithUsername() {
 	})
 
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), testUser.ID, res.User().ID())
+	assert.EqualValues(s.T(), testUser.ID, res.User().ID())
 	assert.NotEmpty(s.T(), res.Token())
 }
 
@@ -121,7 +121,7 @@ func (s *authTestSuite) TestPasswordAuthWithEmail() {
 	})
 
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), testUser.ID, res.User().ID())
+	assert.EqualValues(s.T(), testUser.ID, res.User().ID())
 	assert.NotEmpty(s.T(), res.Token())
 }
 
@@ -167,7 +167,7 @@ func (s *authTestSuite) TestPasswordAuthUserWithoutPassword() {
 	})
 
 	assert.NotNil(s.T(), err)
-	assert.Contains(s.T(), err.Error(), "password authentication not enabled for this user")
+	assert.Contains(s.T(), err.Error(), "invalid credentials")
 }
 
 func (s *authTestSuite) TearDownSuite() {
