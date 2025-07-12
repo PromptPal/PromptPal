@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.16.0](https://github.com/PromptPal/PromptPal/compare/v1.15.11...v1.16.0) (2025-07-12)
+
+
+### Features
+
+* implement user API support with optional ID parameter ([b736791](https://github.com/PromptPal/PromptPal/commit/b736791f82458ed5fd92fdb4bd3a418b4f3127c0))
+* implement user API support with optional ID parameter ([f77d07a](https://github.com/PromptPal/PromptPal/commit/f77d07a036000f05ad2531bc2b556f0880de2106)), closes [#97](https://github.com/PromptPal/PromptPal/issues/97)
+
+
+### Bug Fixes
+
+* add mockery configuration and update test files ([82b4ca1](https://github.com/PromptPal/PromptPal/commit/82b4ca1f05031c17e06855f5e6230c3c882fc133))
+* add mockery configuration and update test files ([55157e9](https://github.com/PromptPal/PromptPal/commit/55157e9def1b9e34d845d7b988a743fed0d749e0))
+* change SPA fallback status code from 404 to 200 ([b311eaa](https://github.com/PromptPal/PromptPal/commit/b311eaaad439370b133047d22f60790ae8f82f07))
+* change SPA fallback status code from 404 to 200 ([d8bfaa0](https://github.com/PromptPal/PromptPal/commit/d8bfaa07d383789e9e367bda2295f99ff756b254)), closes [#92](https://github.com/PromptPal/PromptPal/issues/92)
+* **ci:** add claude setting file to let it can use tools ([e180c4f](https://github.com/PromptPal/PromptPal/commit/e180c4f62eedf2afa8781693c3c0fbad907e5b96))
+* **ci:** revert to ubuntu-latest runners for workflow stability ([8a0d9ea](https://github.com/PromptPal/PromptPal/commit/8a0d9ea56e7d5d477e4792e18787ef8c20f30c88))
+* **ci:** run go generate before mockery in workflows ([d17aee9](https://github.com/PromptPal/PromptPal/commit/d17aee9bbf32f8273499425784012e9a6e221f28))
+* **ci:** standardize CI configuration and remove debug logging ([43b9cd1](https://github.com/PromptPal/PromptPal/commit/43b9cd1ca6e8fd2004a04d32770c91ca4561831c))
+* **ci:** update CI workflow to use mockery v3 ([f58d09e](https://github.com/PromptPal/PromptPal/commit/f58d09e2d686a9ba4c36f7e9d565d9d8e662ff4d))
+* **claude:** fix claude permission allow list ([43c02a6](https://github.com/PromptPal/PromptPal/commit/43c02a6c2fc93ea8493351259bcd84e0574862c8))
+* **test:** standardize Redis URL format in test environments ([addc779](https://github.com/PromptPal/PromptPal/commit/addc779af6cb413825dc33cc944177c4264b125e))
+
 ## [1.15.11](https://github.com/PromptPal/PromptPal/compare/v1.15.10...v1.15.11) (2025-07-10)
 
 
