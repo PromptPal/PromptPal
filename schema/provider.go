@@ -253,6 +253,11 @@ type removeProviderFromProjectArgs struct {
 }
 
 func (q QueryResolver) RemoveProviderFromProject(ctx context.Context, args removeProviderFromProjectArgs) (bool, error) {
+	// Get the project
+	pj, err := service.EntClient.Project.Get(ctx, int(args.ProjectId))
+	if err != nil {
+		return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
+	}
 	// Find providers associated with this project
 	providers, err := service.EntClient.Provider.Query().
 		Where(
@@ -270,15 +275,9 @@ func (q QueryResolver) RemoveProviderFromProject(ctx context.Context, args remov
 		return true, nil
 	}
 
-	// Get the project
-	project, err := service.EntClient.Project.Get(ctx, int(args.ProjectId))
-	if err != nil {
-		return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
-	}
-
 	// Remove the association for each provider
 	for _, provider := range providers {
-		_, err = provider.Update().RemoveProject(project).Save(ctx)
+		_, err = provider.Update().RemoveProject(pj).Save(ctx)
 		if err != nil {
 			return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
 		}
@@ -319,6 +318,12 @@ type removeProviderFromPromptArgs struct {
 }
 
 func (q QueryResolver) RemoveProviderFromPrompt(ctx context.Context, args removeProviderFromPromptArgs) (bool, error) {
+	// Get the prompt
+	pt, err := service.EntClient.Prompt.Get(ctx, int(args.PromptId))
+	if err != nil {
+		return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
+	}
+
 	// Find providers associated with this prompt
 	providers, err := service.EntClient.Provider.Query().
 		Where(
@@ -336,15 +341,9 @@ func (q QueryResolver) RemoveProviderFromPrompt(ctx context.Context, args remove
 		return true, nil
 	}
 
-	// Get the prompt
-	prompt, err := service.EntClient.Prompt.Get(ctx, int(args.PromptId))
-	if err != nil {
-		return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
-	}
-
 	// Remove the association for each provider
 	for _, provider := range providers {
-		_, err = provider.Update().RemovePrompt(prompt).Save(ctx)
+		_, err = provider.Update().RemovePrompt(pt).Save(ctx)
 		if err != nil {
 			return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
 		}
