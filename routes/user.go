@@ -128,8 +128,6 @@ func passwordAuthHandler(c *gin.Context) {
 		})
 		return
 	}
-		return
-	}
 
 	// Verify password
 	if err := passwordService.VerifyPassword(u.PasswordHash, payload.Password); err != nil {
