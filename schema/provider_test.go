@@ -2,7 +2,6 @@ package schema
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"testing"
 
