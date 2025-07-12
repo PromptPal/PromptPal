@@ -8,6 +8,12 @@ type User {
   id: Int!
   name: String!
   addr: String!
+  avatar: String!
+  email: String!
+  phone: String!
+  lang: String!
+  level: Int!
+  source: String!
 }
 
 type Auth {
