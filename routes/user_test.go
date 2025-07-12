@@ -19,6 +19,7 @@ import (
 type userTestSuite struct {
 	suite.Suite
 	router *gin.Engine
+	w3     *service.MockWeb3Service
 }
 
 // Make sure that VariableThatShouldStartAtFive is set to five
@@ -30,6 +31,7 @@ func (s *userTestSuite) SetupTest() {
 	hs := service.NewHashIDService()
 
 	service.InitDB()
+	s.w3 = w3
 	s.router = SetupGinRoutes("test", w3, iai, hs, nil)
 }
 
@@ -45,6 +47,13 @@ func (s *userTestSuite) GetAuthToken() (result authResponse, err error) {
 }
 
 func (s *userTestSuite) TestAuthMethod() {
+	s.w3.On(
+		"VerifySignature",
+		"0x4910c609fBC895434a0A5E3E46B1Eb4b64Cff2B8",
+		"message",
+		"signature",
+	).Return(true, nil)
+
 	result, err := s.GetAuthToken()
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), "0x4910c609fbc895434a0a5e3e46b1eb4b64cff2b8", result.User.Addr)
