@@ -9,6 +9,9 @@
 *.dylib
 .DS_Store
 
+# Go build output
+promptpal
+
 # Test binary, built with `go test -c`
 *.test
 
