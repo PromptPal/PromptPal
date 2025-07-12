@@ -29,15 +29,6 @@ func (s *userTestSuite) SetupTest() {
 	iai := service.NewMockIsomorphicAIService(s.T())
 	hs := service.NewHashIDService()
 
-	w3.
-		On(
-			"VerifySignature",
-			"0x4910c609fBC895434a0A5E3E46B1Eb4b64Cff2B8",
-			"message",
-			"signature",
-		).
-		Return(true, nil)
-
 	service.InitDB()
 	s.router = SetupGinRoutes("test", w3, iai, hs, nil)
 }
@@ -65,7 +56,7 @@ func (s *userTestSuite) CreateTestUserWithPassword(username, email, password str
 	passwordService := service.NewPasswordService()
 	hash, err := passwordService.HashPassword(password)
 	assert.Nil(s.T(), err)
-	
+
 	user, err := service.EntClient.User.
 		Create().
 		SetUsername(username).
@@ -77,7 +68,7 @@ func (s *userTestSuite) CreateTestUserWithPassword(username, email, password str
 		SetLang("en").
 		SetLevel(1).
 		Save(context.Background())
-	
+
 	assert.Nil(s.T(), err)
 	return user
 }
@@ -94,7 +85,7 @@ func (s *userTestSuite) CreateTestUserWithoutPassword(username, email string) *e
 		SetLang("en").
 		SetLevel(1).
 		Save(context.Background())
-	
+
 	assert.Nil(s.T(), err)
 	return user
 }
@@ -102,15 +93,15 @@ func (s *userTestSuite) CreateTestUserWithoutPassword(username, email string) *e
 func (s *userTestSuite) TestPasswordAuthWithUsername() {
 	// Create test user with password
 	testUser := s.CreateTestUserWithPassword("testuser", "test@example.com", "validpassword123")
-	
+
 	w := httptest.NewRecorder()
 	payload := `{"username": "testuser", "password": "validpassword123"}`
 	req, _ := http.NewRequest("POST", "/api/v1/auth/password-login", strings.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	s.router.ServeHTTP(w, req)
-	
+
 	assert.Equal(s.T(), 200, w.Code)
-	
+
 	var result authResponse
 	err := json.Unmarshal(w.Body.Bytes(), &result)
 	assert.Nil(s.T(), err)
@@ -121,15 +112,15 @@ func (s *userTestSuite) TestPasswordAuthWithUsername() {
 func (s *userTestSuite) TestPasswordAuthWithEmail() {
 	// Create test user with password
 	testUser := s.CreateTestUserWithPassword("emailuser", "email@example.com", "validpassword123")
-	
+
 	w := httptest.NewRecorder()
 	payload := `{"username": "email@example.com", "password": "validpassword123"}`
 	req, _ := http.NewRequest("POST", "/api/v1/auth/password-login", strings.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	s.router.ServeHTTP(w, req)
-	
+
 	assert.Equal(s.T(), 200, w.Code)
-	
+
 	var result authResponse
 	err := json.Unmarshal(w.Body.Bytes(), &result)
 	assert.Nil(s.T(), err)
@@ -140,15 +131,15 @@ func (s *userTestSuite) TestPasswordAuthWithEmail() {
 func (s *userTestSuite) TestPasswordAuthInvalidCredentials() {
 	// Create test user with password
 	s.CreateTestUserWithPassword("invaliduser", "invalid@example.com", "validpassword123")
-	
+
 	w := httptest.NewRecorder()
 	payload := `{"username": "invaliduser", "password": "wrongpassword"}`
 	req, _ := http.NewRequest("POST", "/api/v1/auth/password-login", strings.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	s.router.ServeHTTP(w, req)
-	
+
 	assert.Equal(s.T(), 401, w.Code)
-	
+
 	var result errorResponse
 	err := json.Unmarshal(w.Body.Bytes(), &result)
 	assert.Nil(s.T(), err)
@@ -161,9 +152,9 @@ func (s *userTestSuite) TestPasswordAuthUserNotFound() {
 	req, _ := http.NewRequest("POST", "/api/v1/auth/password-login", strings.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	s.router.ServeHTTP(w, req)
-	
+
 	assert.Equal(s.T(), 401, w.Code)
-	
+
 	var result errorResponse
 	err := json.Unmarshal(w.Body.Bytes(), &result)
 	assert.Nil(s.T(), err)
@@ -173,19 +164,19 @@ func (s *userTestSuite) TestPasswordAuthUserNotFound() {
 func (s *userTestSuite) TestPasswordAuthUserWithoutPassword() {
 	// Create test user without password
 	s.CreateTestUserWithoutPassword("nopassuser", "nopass@example.com")
-	
+
 	w := httptest.NewRecorder()
 	payload := `{"username": "nopassuser", "password": "anypassword"}`
 	req, _ := http.NewRequest("POST", "/api/v1/auth/password-login", strings.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	s.router.ServeHTTP(w, req)
-	
+
 	assert.Equal(s.T(), 401, w.Code)
-	
+
 	var result errorResponse
 	err := json.Unmarshal(w.Body.Bytes(), &result)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), "password authentication not enabled for this user", result.ErrorMessage)
+	assert.Equal(s.T(), "invalid credentials", result.ErrorMessage)
 }
 
 func (s *userTestSuite) TestPasswordAuthInvalidRequestFormat() {
@@ -194,9 +185,9 @@ func (s *userTestSuite) TestPasswordAuthInvalidRequestFormat() {
 	req, _ := http.NewRequest("POST", "/api/v1/auth/password-login", strings.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	s.router.ServeHTTP(w, req)
-	
+
 	assert.Equal(s.T(), 400, w.Code)
-	
+
 	var result errorResponse
 	err := json.Unmarshal(w.Body.Bytes(), &result)
 	assert.Nil(s.T(), err)
@@ -209,9 +200,9 @@ func (s *userTestSuite) TestPasswordAuthMissingFields() {
 	req, _ := http.NewRequest("POST", "/api/v1/auth/password-login", strings.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	s.router.ServeHTTP(w, req)
-	
+
 	assert.Equal(s.T(), 400, w.Code)
-	
+
 	var result errorResponse
 	err := json.Unmarshal(w.Body.Bytes(), &result)
 	assert.Nil(s.T(), err)
