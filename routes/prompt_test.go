@@ -58,7 +58,7 @@ func (s *promptTestSuite) SetupTest() {
 
 	// Create minimal gin router for testing
 	gin.SetMode(gin.TestMode)
-	s.router = gin.New()
+	s.router = SetupGinRoutes("test", s.w3, s.iai, s.hashid, nil)
 
 	// Create test data
 	s.createTestData()
