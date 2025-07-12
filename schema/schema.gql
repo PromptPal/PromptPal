@@ -14,6 +14,7 @@ schema {
 
 type Query {
   auth(auth: AuthInput!): Auth!
+  passwordAuth(auth: PasswordAuthInput!): Auth!
   project(id: Int!): Project!
   projects(pagination: PaginationInput!): ProjectList!
 

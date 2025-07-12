@@ -68,3 +68,60 @@ func (a authResponse) Token() string {
 func (a authResponse) User() userResponse {
 	return userResponse{u: a.u}
 }
+
+type passwordAuthInput struct {
+	Auth passwordAuthData
+}
+
+type passwordAuthData struct {
+	Username string
+	Password string
+}
+
+func (q QueryResolver) PasswordAuth(ctx context.Context, args passwordAuthInput) (result authResponse, err error) {
+	payload := args.Auth
+	passwordService := service.NewPasswordService()
+
+	// Try to find user by username or email
+	var u *ent.User
+
+	// First try to find by username
+	u, err = service.EntClient.User.Query().
+		Where(user.Username(payload.Username)).
+		Only(ctx)
+
+	// If not found by username, try by email
+	if ent.IsNotFound(err) {
+		u, err = service.EntClient.User.Query().
+			Where(user.Email(payload.Username)).
+			Only(ctx)
+	}
+
+	if err != nil {
+		err = NewGraphQLHttpError(http.StatusUnauthorized, errors.New("invalid credentials"))
+		return
+	}
+
+	// Check if user has a password hash
+	if u.PasswordHash == "" {
+		err = NewGraphQLHttpError(http.StatusUnauthorized, errors.New("password authentication not enabled for this user"))
+		return
+	}
+
+	// Verify password
+	if verifyErr := passwordService.VerifyPassword(u.PasswordHash, payload.Password); verifyErr != nil {
+		err = NewGraphQLHttpError(http.StatusUnauthorized, errors.New("invalid credentials"))
+		return
+	}
+
+	// Generate JWT token
+	token, err := service.SignJWT(u, time.Hour*24*30)
+	if err != nil {
+		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return
+	}
+
+	result.token = token
+	result.u = u
+	return
+}
