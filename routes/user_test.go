@@ -117,12 +117,12 @@ func (s *userTestSuite) CreateTestUserWithoutPassword(username, email string) *e
 	return user
 }
 
-func (s *userTestSuite) TestPasswordAuthWithUsername() {
+func (s *userTestSuite) TestPasswordAuthWithEmail() {
 	// Create test user with password
 	testUser := s.CreateTestUserWithPassword("ahh", "test@example.com", "validpassword123")
 
 	w := httptest.NewRecorder()
-	payload := `{"username": "ahh", "password": "validpassword123"}`
+	payload := `{"email": "test@example.com", "password": "validpassword123"}`
 	req, _ := http.NewRequest("POST", "/api/v1/auth/password-login", strings.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	s.router.ServeHTTP(w, req)
@@ -138,23 +138,22 @@ func (s *userTestSuite) TestPasswordAuthWithUsername() {
 	service.EntClient.User.DeleteOneID(testUser.ID).Exec(context.Background())
 }
 
-func (s *userTestSuite) TestPasswordAuthWithEmail() {
+func (s *userTestSuite) TestPasswordAuthInvalidEmail() {
 	// Create test user with password
 	testUser := s.CreateTestUserWithPassword("emailuser1", "email@example.com", "validpassword123")
 
 	w := httptest.NewRecorder()
-	payload := `{"username": "email@example.com", "password": "validpassword123"}`
+	payload := `{"email": "wrong@example.com", "password": "validpassword123"}`
 	req, _ := http.NewRequest("POST", "/api/v1/auth/password-login", strings.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	s.router.ServeHTTP(w, req)
 
-	assert.Equal(s.T(), 200, w.Code)
+	assert.Equal(s.T(), 401, w.Code)
 
-	var result authResponse
+	var result errorResponse
 	err := json.Unmarshal(w.Body.Bytes(), &result)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), testUser.ID, result.User.ID)
-	assert.NotEmpty(s.T(), result.Token)
+	assert.Equal(s.T(), "invalid credentials", result.ErrorMessage)
 
 	service.EntClient.User.DeleteOneID(testUser.ID).Exec(context.Background())
 }
@@ -164,7 +163,7 @@ func (s *userTestSuite) TestPasswordAuthInvalidCredentials() {
 	u := s.CreateTestUserWithPassword("invaliduser2", "invalid@example.com", "validpassword123")
 
 	w := httptest.NewRecorder()
-	payload := `{"username": "invaliduser2", "password": "wrongpassword"}`
+	payload := `{"email": "invalid@example.com", "password": "wrongpassword"}`
 	req, _ := http.NewRequest("POST", "/api/v1/auth/password-login", strings.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	s.router.ServeHTTP(w, req)
@@ -181,7 +180,7 @@ func (s *userTestSuite) TestPasswordAuthInvalidCredentials() {
 
 func (s *userTestSuite) TestPasswordAuthUserNotFound() {
 	w := httptest.NewRecorder()
-	payload := `{"username": "nonexistentuser", "password": "anypassword"}`
+	payload := `{"email": "nonexistent@example.com", "password": "anypassword"}`
 	req, _ := http.NewRequest("POST", "/api/v1/auth/password-login", strings.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	s.router.ServeHTTP(w, req)
@@ -199,7 +198,7 @@ func (s *userTestSuite) TestPasswordAuthUserWithoutPassword() {
 	u := s.CreateTestUserWithoutPassword("nopassuser4", "nopass@example.com")
 
 	w := httptest.NewRecorder()
-	payload := `{"username": "nopassuser4", "password": "anypassword"}`
+	payload := `{"email": "nopass@example.com", "password": "anypassword"}`
 	req, _ := http.NewRequest("POST", "/api/v1/auth/password-login", strings.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	s.router.ServeHTTP(w, req)
@@ -231,7 +230,7 @@ func (s *userTestSuite) TestPasswordAuthInvalidRequestFormat() {
 
 func (s *userTestSuite) TestPasswordAuthMissingFields() {
 	w := httptest.NewRecorder()
-	payload := `{"username": "ahh"}` // missing password
+	payload := `{"email": "ahh@example.com"}` // missing password
 	req, _ := http.NewRequest("POST", "/api/v1/auth/password-login", strings.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	s.router.ServeHTTP(w, req)
