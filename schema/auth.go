@@ -104,8 +104,9 @@ func (q QueryResolver) PasswordAuth(ctx context.Context, args passwordAuthInput)
 
 	// Check if user has a password hash
 	if u.PasswordHash == "" {
-		err = NewGraphQLHttpError(http.StatusUnauthorized, errors.New("password authentication not enabled for this user"))
+		err = NewGraphQLHttpError(http.StatusUnauthorized, errors.New("invalid credentials"))
 		return
+	}
 	}
 
 	// Verify password
