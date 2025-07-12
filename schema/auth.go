@@ -107,7 +107,6 @@ func (q QueryResolver) PasswordAuth(ctx context.Context, args passwordAuthInput)
 		err = NewGraphQLHttpError(http.StatusUnauthorized, errors.New("invalid credentials"))
 		return
 	}
-	}
 
 	// Verify password
 	if verifyErr := passwordService.VerifyPassword(u.PasswordHash, payload.Password); verifyErr != nil {

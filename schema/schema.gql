@@ -14,7 +14,6 @@ schema {
 
 type Query {
   auth(auth: AuthInput!): Auth!
-  passwordAuth(auth: PasswordAuthInput!): Auth!
   project(id: Int!): Project!
   projects(pagination: PaginationInput!): ProjectList!
 
@@ -29,6 +28,7 @@ type Query {
 }
 
 type Mutation {
+  passwordAuth(auth: PasswordAuthInput!): Auth!
   createProject(data: ProjectPayload!): Project!
   updateProject(id: Int!, data: ProjectPayload!): Project!
   deleteProject(id: Int!): Boolean!
