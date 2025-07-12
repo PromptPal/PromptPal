@@ -5,7 +5,7 @@ input AuthInput {
 }
 
 input PasswordAuthInput {
-  username: String!
+  email: String!
   password: String!
 }
 

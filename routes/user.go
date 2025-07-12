@@ -80,7 +80,7 @@ func authHandler(c *gin.Context) {
 }
 
 type passwordAuthPayload struct {
-	Username string `json:"username" binding:"required"`
+	Email string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
@@ -96,21 +96,10 @@ func passwordAuthHandler(c *gin.Context) {
 
 	passwordService := service.NewPasswordService()
 
-	// Try to find user by username or email
-	var u *ent.User
-	var err error
-
-	// First try to find by username
-	u, err = service.EntClient.User.Query().
-		Where(user.Username(payload.Username)).
+	// Find user by email
+	u, err := service.EntClient.User.Query().
+		Where(user.Email(payload.Email)).
 		Only(c)
-
-	// If not found by username, try by email
-	if ent.IsNotFound(err) {
-		u, err = service.EntClient.User.Query().
-			Where(user.Email(payload.Username)).
-			Only(c)
-	}
 
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, errorResponse{

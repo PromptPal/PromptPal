@@ -74,7 +74,7 @@ type passwordAuthInput struct {
 }
 
 type passwordAuthData struct {
-	Username string
+	Email string
 	Password string
 }
 
@@ -82,20 +82,10 @@ func (q QueryResolver) PasswordAuth(ctx context.Context, args passwordAuthInput)
 	payload := args.Auth
 	passwordService := service.NewPasswordService()
 
-	// Try to find user by username or email
-	var u *ent.User
-
-	// First try to find by username
-	u, err = service.EntClient.User.Query().
-		Where(user.Username(payload.Username)).
+	// Find user by email
+	u, err := service.EntClient.User.Query().
+		Where(user.Email(payload.Email)).
 		Only(ctx)
-
-	// If not found by username, try by email
-	if ent.IsNotFound(err) {
-		u, err = service.EntClient.User.Query().
-			Where(user.Email(payload.Username)).
-			Only(ctx)
-	}
 
 	if err != nil {
 		err = NewGraphQLHttpError(http.StatusUnauthorized, errors.New("invalid credentials"))
