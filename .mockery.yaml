@@ -1,4 +1,4 @@
-# Mockery v2 configuration
+# Mockery v3 configuration
 # https://vektra.github.io/mockery/latest/configuration/
 
 all: false

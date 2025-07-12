@@ -50,6 +50,7 @@ jobs:
           echo "" > ./routes/.env.testing
           rm ./schema/.env.testing
           echo "" > ./schema/.env.testing
+          echo "<h1>hello</h1>" > ./public/index.html
       - name: Init or clean DB
         env:
           PGPASSWORD: postgres
