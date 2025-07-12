@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.17.0](https://github.com/PromptPal/PromptPal/compare/v1.16.0...v1.17.0) (2025-07-12)
+
+
+### Features
+
+* change authentication from username+password to email+password ([6448dd7](https://github.com/PromptPal/PromptPal/commit/6448dd714f972d23bba2b1c2d0e7f37b4c17dcee))
+* change authentication from username+password to email+password ([c2afd74](https://github.com/PromptPal/PromptPal/commit/c2afd743ef6d480a57c84a9bb533aae711dd6853))
+* implement username/password authentication system ([570365f](https://github.com/PromptPal/PromptPal/commit/570365f5a5f1a3bb625ba50b73b2debb1220500c))
+* implement username/password authentication system ([39d71a3](https://github.com/PromptPal/PromptPal/commit/39d71a3d404fac5df1fd0467caeb53fc576abe9e))
+
+
+### Bug Fixes
+
+* clean up auth implementation and move passwordAuth to mutation ([5c5a325](https://github.com/PromptPal/PromptPal/commit/5c5a32530cdf7713517b4fc93a3975b7a782d325))
+* remove duplicate return statements in passwordAuthHandler ([18ca192](https://github.com/PromptPal/PromptPal/commit/18ca19277f1ee4d5c6e11c4175c30bc7f6e075d2))
+* remove unused imports from test files ([291156d](https://github.com/PromptPal/PromptPal/commit/291156d66ff74ff3aaa7db59465eb89cef622254))
+* reorder cleanup operations in test teardown ([10b08e7](https://github.com/PromptPal/PromptPal/commit/10b08e7a8adf3da928b2b550822d9d3d2a8b0ed7))
+
 ## [1.16.0](https://github.com/PromptPal/PromptPal/compare/v1.15.11...v1.16.0) (2025-07-12)
 
 
