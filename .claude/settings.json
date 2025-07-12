@@ -8,7 +8,8 @@
       "Bash(ls:*)",
       "Bash(npx eslint:*)",
       "Bash(gh pr create:*)",
-      "Bash(go install:*)"
+      "Bash(go install:*)",
+      "Bash(git:*)"
     ],
     "deny": []
   }
