@@ -32,12 +32,13 @@ func (s *userTestSuite) SetupTest() {
 
 	service.InitDB()
 	s.w3 = w3
+	gin.SetMode(gin.TestMode)
 	s.router = SetupGinRoutes("test", w3, iai, hs, nil)
 }
 
 func (s *userTestSuite) GetAuthToken() (result authResponse, err error) {
 	w := httptest.NewRecorder()
-	payload := `{"address": "0x4-routes-user_test", "signature": "signature", "message": "message"}`
+	payload := `{"address": "test-addr-30x4-routes-user_test333", "signature": "signature", "message": "message"}`
 	req, _ := http.NewRequest("POST", "/api/v1/auth/login", strings.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	s.router.ServeHTTP(w, req)
@@ -47,17 +48,34 @@ func (s *userTestSuite) GetAuthToken() (result authResponse, err error) {
 }
 
 func (s *userTestSuite) TestAuthMethod() {
+
+	user, err := service.EntClient.User.
+		Create().
+		SetUsername("30x4-routes-user_test333").
+		SetEmail("30x4-routes-user_test333@example.com").
+		SetPasswordHash("hhhhhhh").
+		SetAddr("test-addr-30x4-routes-user_test333").
+		SetName("Test User 3333").
+		SetPhone("").
+		SetLang("en").
+		SetLevel(1).
+		Save(context.Background())
+
+	assert.Nil(s.T(), err)
+
 	s.w3.On(
 		"VerifySignature",
-		"0x4-routes-user_test",
+		"test-addr-30x4-routes-user_test333",
 		"message",
 		"signature",
 	).Return(true, nil)
 
 	result, err := s.GetAuthToken()
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), "0x4-routes-user_test", result.User.Addr)
+	assert.Equal(s.T(), "test-addr-30x4-routes-user_test333", result.User.Addr)
 	assert.NotEmpty(s.T(), result.Token)
+
+	service.EntClient.User.DeleteOneID(user.ID).Exec(context.Background())
 }
 
 // Helper method to create a test user with password

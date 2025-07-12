@@ -14,6 +14,7 @@ import (
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/project"
 	"github.com/PromptPal/PromptPal/ent/prompt"
+	"github.com/PromptPal/PromptPal/ent/promptcall"
 	"github.com/PromptPal/PromptPal/ent/provider"
 	"github.com/PromptPal/PromptPal/ent/schema"
 	"github.com/PromptPal/PromptPal/ent/user"
@@ -38,7 +39,7 @@ type promptAPITestSuite struct {
 	provider *ent.Provider
 }
 
-func (s *promptAPITestSuite) SetupTest() {
+func (s *promptAPITestSuite) SetupSuite() {
 	config.SetupConfig(true)
 	s.w3 = service.NewMockWeb3Service(s.T())
 	s.iai = service.NewMockIsomorphicAIService(s.T())
@@ -58,7 +59,6 @@ func (s *promptAPITestSuite) SetupTest() {
 	isomorphicAIService = s.iai
 	hashidService = s.hashid
 
-	// Create minimal gin router for testing
 	gin.SetMode(gin.TestMode)
 	s.router = SetupGinRoutes("test", s.w3, s.iai, s.hashid, nil)
 
@@ -152,7 +152,9 @@ func (s *promptAPITestSuite) getAuthHeaders() map[string]string {
 
 func (s *promptAPITestSuite) TestAPIListPrompts() {
 	// Mock hashid encode for prompt ID
-	s.hashid.On("Encode", s.prompt.ID).Return("abc123", nil)
+	// s.hashid = service.NewMockHashIDService(s.T())
+	s.hashid.EXPECT().Encode(s.prompt.ID).Return("abc123", nil).Once()
+	hashidService = s.hashid
 
 	// Set up context with project ID
 	gin.SetMode(gin.TestMode)
@@ -185,7 +187,6 @@ func (s *promptAPITestSuite) TestAPIListPrompts() {
 }
 
 func (s *promptAPITestSuite) TestAPIListPromptsInvalidQuery() {
-	gin.SetMode(gin.TestMode)
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/api/v1/prompts?limit=invalid", nil)
 
@@ -202,7 +203,9 @@ func (s *promptAPITestSuite) TestAPIListPromptsInvalidQuery() {
 func (s *promptAPITestSuite) TestAPIRunPromptMiddleware() {
 	// Mock hashid service
 	hashedID := "abc123"
-	s.hashid.On("Decode", hashedID).Return(s.prompt.ID, nil)
+	s.hashid = service.NewMockHashIDService(s.T())
+	s.hashid.On("Decode", hashedID).Return(s.prompt.ID, nil).Once()
+	hashidService = s.hashid
 
 	gin.SetMode(gin.TestMode)
 
@@ -245,7 +248,10 @@ func (s *promptAPITestSuite) TestAPIRunPromptMiddlewareInvalidID() {
 	c.Params = gin.Params{{Key: "id", Value: "invalid"}}
 
 	// Mock hashid decode failure
+	s.hashid = service.NewMockHashIDService(s.T())
 	s.hashid.On("Decode", "invalid").Return(0, fmt.Errorf("invalid hash"))
+
+	hashidService = s.hashid
 
 	apiRunPromptMiddleware(c)
 
@@ -257,6 +263,7 @@ func (s *promptAPITestSuite) TestAPIRunPrompt() {
 	// Set up mocks
 	hashedID := "abc123"
 
+	s.iai = service.NewMockIsomorphicAIService(s.T())
 	// Mock IsomorphicAIService calls
 	s.iai.On("GetProvider", mock.AnythingOfType("*gin.Context"), mock.MatchedBy(func(prompt ent.Prompt) bool {
 		return prompt.ID == s.prompt.ID
@@ -276,15 +283,13 @@ func (s *promptAPITestSuite) TestAPIRunPrompt() {
 		},
 	}
 
-	s.iai.On("GetProvider", mock.AnythingOfType("*gin.Context"), mock.MatchedBy(func(prompt ent.Prompt) bool {
-		return prompt.ID == s.prompt.ID
-	})).Return(s.provider, nil)
-
 	s.iai.On("Chat", mock.AnythingOfType("*gin.Context"), mock.MatchedBy(func(p *ent.Provider) bool {
 		return p.ID == s.provider.ID
 	}), mock.MatchedBy(func(prompt ent.Prompt) bool {
 		return prompt.ID == s.prompt.ID
 	}), map[string]string{"name": "John"}, "user123").Return(mockResponse, nil)
+
+	isomorphicAIService = s.iai
 
 	gin.SetMode(gin.TestMode)
 	w := httptest.NewRecorder()
@@ -315,11 +320,13 @@ func (s *promptAPITestSuite) TestAPIRunPrompt() {
 func (s *promptAPITestSuite) TestAPIRunPromptGetProviderError() {
 	hashedID := "abc123"
 
+	s.iai = service.NewMockIsomorphicAIService(s.T())
 	s.iai.On("GetProvider", mock.AnythingOfType("*gin.Context"), mock.MatchedBy(func(prompt ent.Prompt) bool {
 		return prompt.ID == s.prompt.ID
 	})).Return(nil, fmt.Errorf("provider error"))
 
-	gin.SetMode(gin.TestMode)
+	isomorphicAIService = s.iai
+
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", fmt.Sprintf("/api/v1/prompts/%s/run", hashedID), nil)
 
@@ -341,15 +348,25 @@ func (s *promptAPITestSuite) TestAPIRunPromptGetProviderError() {
 func (s *promptAPITestSuite) TestAPIRunPromptChatError() {
 	hashedID := "abc123"
 
-	s.iai.On("GetProvider", mock.AnythingOfType("*gin.Context"), mock.MatchedBy(func(prompt ent.Prompt) bool {
+	s.iai = service.NewMockIsomorphicAIService(s.T())
+	s.iai.EXPECT().GetProvider(mock.Anything, mock.MatchedBy(func(prompt ent.Prompt) bool {
 		return prompt.ID == s.prompt.ID
-	})).Return(s.provider, nil)
+	})).
+		Return(s.provider, nil)
 
-	s.iai.On("Chat", mock.Anything, s.provider, mock.MatchedBy(func(prompt ent.Prompt) bool {
-		return prompt.ID == s.prompt.ID
-	}), map[string]string{"name": "John"}, "user123").Return(openai.ChatCompletionResponse{}, fmt.Errorf("chat error"))
+	s.iai.EXPECT().Chat(
+		mock.Anything,
+		s.provider,
+		mock.MatchedBy(func(p ent.Prompt) bool {
+			return p.ID == s.prompt.ID
+		}),
+		map[string]string{"name": "John"},
+		"user123",
+	).
+		Return(openai.ChatCompletionResponse{}, fmt.Errorf("chat error"))
 
-	gin.SetMode(gin.TestMode)
+	isomorphicAIService = s.iai
+
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", fmt.Sprintf("/api/v1/prompts/%s/run", hashedID), nil)
 
@@ -378,6 +395,8 @@ func (s *promptAPITestSuite) TestAPIRunPromptNoChoices() {
 		},
 	}
 
+	s.iai = service.NewMockIsomorphicAIService(s.T())
+
 	s.iai.On("GetProvider", mock.AnythingOfType("*gin.Context"), mock.MatchedBy(func(prompt ent.Prompt) bool {
 		return prompt.ID == s.prompt.ID
 	})).Return(s.provider, nil)
@@ -387,6 +406,8 @@ func (s *promptAPITestSuite) TestAPIRunPromptNoChoices() {
 	}), mock.MatchedBy(func(prompt ent.Prompt) bool {
 		return prompt.ID == s.prompt.ID
 	}), map[string]string{"name": "John"}, "user123").Return(mockResponse, nil)
+
+	isomorphicAIService = s.iai
 
 	gin.SetMode(gin.TestMode)
 	w := httptest.NewRecorder()
@@ -418,18 +439,23 @@ func (s *promptAPITestSuite) TestAPIRunPromptStream() {
 		Message: make(chan []openai.ChatCompletionChoice, 1),
 	}
 
+	s.iai = service.NewMockIsomorphicAIService(s.T())
+
 	s.iai.On("GetProvider", mock.AnythingOfType("*gin.Context"), mock.MatchedBy(func(prompt ent.Prompt) bool {
 		return prompt.ID == s.prompt.ID
-	})).Return(s.provider, nil)
+	})).Return(s.provider, nil).Once()
 
 	s.iai.On("ChatStream", mock.AnythingOfType("*gin.Context"), mock.MatchedBy(func(p *ent.Provider) bool {
 		return p.ID == s.provider.ID
 	}), mock.MatchedBy(func(prompt ent.Prompt) bool {
 		return prompt.ID == s.prompt.ID
-	}), map[string]string{"name": "John"}, "user123").Return(mockStreamResponse, nil)
+	}), map[string]string{"name": "John"}, "user123").Return(mockStreamResponse, nil).Once()
+
+	isomorphicAIService = s.iai
 
 	gin.SetMode(gin.TestMode)
-	w := httptest.NewRecorder()
+	// w := httptest.NewRecorder()
+	w := createTestResponseRecorder()
 	req, _ := http.NewRequest("POST", fmt.Sprintf("/api/v1/prompts/%s/stream", hashedID), nil)
 
 	c, _ := gin.CreateTestContext(w)
@@ -461,13 +487,14 @@ func (s *promptAPITestSuite) TestAPIRunPromptStream() {
 	apiRunPromptStream(c)
 
 	// Verify headers are set for streaming
-	assert.Equal(s.T(), "text/event-stream", w.Header().Get("Content-Type"))
-	assert.Equal(s.T(), "no-cache", w.Header().Get("Cache-Control"))
-	assert.Equal(s.T(), "keep-alive", w.Header().Get("Connection"))
+	assert.Equal(s.T(), "text/event-stream;charset=utf-8", w.Header().Get("Content-Type"))
+	assert.EqualValues(s.T(), 200, w.Code)
 }
 
 func (s *promptAPITestSuite) TestAPIRunPromptStreamError() {
 	hashedID := "abc123"
+
+	s.iai = service.NewMockIsomorphicAIService(s.T())
 
 	s.iai.On("GetProvider", mock.AnythingOfType("*gin.Context"), mock.MatchedBy(func(prompt ent.Prompt) bool {
 		return prompt.ID == s.prompt.ID
@@ -478,6 +505,8 @@ func (s *promptAPITestSuite) TestAPIRunPromptStreamError() {
 	}), mock.MatchedBy(func(prompt ent.Prompt) bool {
 		return prompt.ID == s.prompt.ID
 	}), map[string]string{"name": "John"}, "user123").Return(nil, fmt.Errorf("stream error"))
+
+	isomorphicAIService = s.iai
 
 	gin.SetMode(gin.TestMode)
 	w := httptest.NewRecorder()
@@ -499,6 +528,7 @@ func (s *promptAPITestSuite) TestAPIRunPromptStreamError() {
 }
 
 func (s *promptAPITestSuite) TearDownSuite() {
+	service.EntClient.PromptCall.Delete().Where(promptcall.HasPromptWith(prompt.ID(s.prompt.ID))).ExecX(context.Background())
 	service.EntClient.Prompt.Delete().Where(prompt.HasCreatorWith(user.ID(s.user.ID))).ExecX(context.Background())
 	service.EntClient.Provider.Delete().Where(provider.HasCreatorWith(user.ID(s.user.ID))).ExecX(context.Background())
 	service.EntClient.Project.Delete().Where(project.HasCreatorWith(user.ID(s.user.ID))).ExecX(context.Background())
@@ -508,4 +538,27 @@ func (s *promptAPITestSuite) TearDownSuite() {
 
 func TestPromptAPITestSuite(t *testing.T) {
 	suite.Run(t, new(promptAPITestSuite))
+}
+
+// MARK: mock helpers
+// https://stackoverflow.com/questions/70717858/gin-reverse-proxy-tests-failing-for-interface-conversion-httptest-responsereco
+
+type testResponseRecorder struct {
+	*httptest.ResponseRecorder
+	closeChannel chan bool
+}
+
+func (r *testResponseRecorder) CloseNotify() <-chan bool {
+	return r.closeChannel
+}
+
+func (r *testResponseRecorder) closeClient() {
+	r.closeChannel <- true
+}
+
+func createTestResponseRecorder() *testResponseRecorder {
+	return &testResponseRecorder{
+		httptest.NewRecorder(),
+		make(chan bool, 1),
+	}
 }

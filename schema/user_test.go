@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/PromptPal/PromptPal/config"
+	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/PromptPal/PromptPal/utils"
 	"github.com/stretchr/testify/assert"
@@ -13,6 +14,7 @@ import (
 
 type userTestSuite struct {
 	suite.Suite
+	user       *ent.User
 	pjID       int
 	promptName string
 	promptID   int
@@ -31,11 +33,26 @@ func (s *userTestSuite) SetupSuite() {
 
 	q := QueryResolver{}
 
-	pjName := utils.RandStringRunes(1 << 3)
+	pjName := "annatarhe_pj_schema_user_test"
 	openAIToken := utils.RandStringRunes(1 << 8)
 
+	user, err := service.EntClient.User.
+		Create().
+		SetUsername("annatarhe_user_schema_user_test").
+		SetEmail("annatarhe_user_schema_user_test001@annatarhe.com").
+		SetPasswordHash("hash").
+		SetAddr("test-addr-annatarhe_user_schema_user_test001").
+		SetName("Test User9").
+		SetPhone("").
+		SetLang("en").
+		SetLevel(1).
+		Save(context.Background())
+	assert.Nil(s.T(), err)
+
+	s.user = user
+
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
-		UserID: 1,
+		UserID: user.ID,
 	})
 
 	provider, _ := q.CreateProvider(ctx, createProviderArgs{
@@ -47,13 +64,15 @@ func (s *userTestSuite) SetupSuite() {
 			Config:   "{}",
 		},
 	})
-	pj, _ := q.CreateProject(ctx, createProjectArgs{
+	pj, exp := q.CreateProject(ctx, createProjectArgs{
 		Data: createProjectData{
 			Name:        &pjName,
 			OpenAIToken: &openAIToken,
 			ProviderId:  int32(provider.ID()),
 		},
 	})
+
+	assert.Nil(s.T(), exp)
 
 	s.pjID = int(pj.ID())
 	s.promptName = "test-prompt"
@@ -116,7 +135,7 @@ func (s *userTestSuite) TestGetUserWithAllFields() {
 	assert.EqualValues(s.T(), theUserID, result.ID())
 	assert.NotEmpty(s.T(), result.Name())
 	assert.NotEmpty(s.T(), result.Addr())
-	
+
 	// Test new fields (may be empty but should not panic)
 	assert.NotNil(s.T(), result.Avatar())
 	assert.NotNil(s.T(), result.Email())
@@ -145,7 +164,7 @@ func (s *userTestSuite) TestGetCurrentUserWithAllFields() {
 	assert.EqualValues(s.T(), theUserID, result.ID())
 	assert.NotEmpty(s.T(), result.Name())
 	assert.NotEmpty(s.T(), result.Addr())
-	
+
 	// Test new fields
 	assert.NotNil(s.T(), result.Avatar())
 	assert.NotNil(s.T(), result.Email())
@@ -176,6 +195,7 @@ func (s *userTestSuite) TestGetUserNotFound() {
 func (s *userTestSuite) TearDownSuite() {
 	service.EntClient.Project.DeleteOneID(s.pjID).ExecX(context.Background())
 	service.EntClient.Provider.DeleteOneID(s.providerID).ExecX(context.Background())
+	service.EntClient.User.DeleteOneID(s.user.ID).ExecX(context.Background())
 	service.Close()
 }
 

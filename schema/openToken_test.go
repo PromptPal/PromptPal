@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/PromptPal/PromptPal/config"
+	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/PromptPal/PromptPal/utils"
 	"github.com/stretchr/testify/assert"
@@ -13,6 +14,7 @@ import (
 
 type openTokenTestSuite struct {
 	suite.Suite
+	user       *ent.User
 	pjID       int
 	providerID int
 	otID       int
@@ -29,11 +31,26 @@ func (s *openTokenTestSuite) SetupSuite() {
 
 	q := QueryResolver{}
 
-	pjName := utils.RandStringRunes(1 << 4)
+	pjName := "annatarhe_pj_schema_openToken_test"
 	openAIToken := utils.RandStringRunes(1 << 8)
 
+	user, err := service.EntClient.User.
+		Create().
+		SetUsername("annatarhe_user_schema_call_test002").
+		SetEmail("annatarhe_user_schema_call_test002@annatarhe.com").
+		SetPasswordHash("hash").
+		SetAddr("test-addr-annatarhe_user_schema_call_test002").
+		SetName("Test User10").
+		SetPhone("").
+		SetLang("en").
+		SetLevel(1).
+		Save(context.Background())
+	assert.Nil(s.T(), err)
+
+	s.user = user
+
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
-		UserID: 1,
+		UserID: user.ID,
 	})
 
 	provider, _ := q.CreateProvider(ctx, createProviderArgs{
@@ -45,13 +62,15 @@ func (s *openTokenTestSuite) SetupSuite() {
 			Config:   "{}",
 		},
 	})
-	pj, _ := q.CreateProject(ctx, createProjectArgs{
+	pj, exp := q.CreateProject(ctx, createProjectArgs{
 		Data: createProjectData{
 			Name:        &pjName,
 			OpenAIToken: &openAIToken,
 			ProviderId:  int32(provider.ID()),
 		},
 	})
+
+	assert.Nil(s.T(), exp)
 
 	s.pjID = int(pj.ID())
 	s.providerID = int(provider.ID())
@@ -61,7 +80,7 @@ func (s *openTokenTestSuite) TestCreateOpenToken() {
 	q := QueryResolver{}
 
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
-		UserID: 1,
+		UserID: s.user.ID,
 	})
 
 	name := utils.RandStringRunes(1 << 3)
@@ -90,7 +109,7 @@ func (s *openTokenTestSuite) TestCreateOpenToken() {
 func (s *openTokenTestSuite) TestListOpenToken() {
 	q := QueryResolver{}
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
-		UserID: 1,
+		UserID: s.user.ID,
 	})
 
 	resp, err := q.Project(ctx, projectArgs{
@@ -115,7 +134,7 @@ func (s *openTokenTestSuite) TestListOpenToken() {
 func (s *openTokenTestSuite) TestPurgeOpenToken() {
 	q := QueryResolver{}
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
-		UserID: 1,
+		UserID: s.user.ID,
 	})
 
 	result, err := q.DeleteOpenToken(ctx, deleteOpenTokenArgs{
@@ -128,6 +147,7 @@ func (s *openTokenTestSuite) TestPurgeOpenToken() {
 func (s *openTokenTestSuite) TearDownSuite() {
 	service.EntClient.Project.DeleteOneID(s.pjID).ExecX(context.Background())
 	service.EntClient.Provider.DeleteOneID(s.providerID).ExecX(context.Background())
+	service.EntClient.User.DeleteOneID(s.user.ID).ExecX(context.Background())
 	service.Close()
 }
 

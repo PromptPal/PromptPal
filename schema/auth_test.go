@@ -27,7 +27,7 @@ func (s *authTestSuite) SetupSuite() {
 	w3.
 		On(
 			"VerifySignature",
-			"0x4-schema_auth_test",
+			"test-addr-0x4-schema_auth_test_7777",
 			"message",
 			"signature",
 		).
@@ -35,10 +35,22 @@ func (s *authTestSuite) SetupSuite() {
 }
 
 func (s *authTestSuite) TestAuth() {
+	user, err := service.EntClient.User.
+		Create().
+		SetUsername("0x4-schema_auth_test_7777").
+		SetEmail("0x4-schema_auth_test_7777@annatarhe.com").
+		SetPasswordHash("hash").
+		SetAddr("test-addr-0x4-schema_auth_test_7777").
+		SetName("Test User").
+		SetPhone("").
+		SetLang("en").
+		SetLevel(1).
+		Save(context.Background())
+	assert.Nil(s.T(), err)
 	q := QueryResolver{}
 	res, err := q.Auth(context.Background(), authInput{
 		Auth: authAuthData{
-			Address:   "0x4-schema_auth_test",
+			Address:   "test-addr-0x4-schema_auth_test_7777",
 			Message:   "message",
 			Signature: "signature",
 		},
@@ -46,10 +58,12 @@ func (s *authTestSuite) TestAuth() {
 
 	assert.Nil(s.T(), err)
 	assert.EqualValues(s.T(),
-		strings.ToLower("0x4-schema_auth_test"),
+		strings.ToLower("test-addr-0x4-schema_auth_test_7777"),
 		res.User().Addr(),
 	)
 	assert.NotEmpty(s.T(), res.Token())
+
+	service.EntClient.User.DeleteOneID(user.ID).Exec(context.Background())
 }
 
 // Helper method to create a test user with password

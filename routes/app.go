@@ -99,8 +99,13 @@ func SetupGinRoutes(
 		h.POST("/api/v2/graphql", authMiddleware, graphqlExecuteHandler)
 	}
 
-	h.LoadHTMLFiles("./public/index.html")
-	h.Static("/public", "./public")
+	if gin.Mode() == gin.TestMode {
+		h.LoadHTMLFiles("../public/index.html")
+		h.Static("/public", "../public")
+	} else {
+		h.LoadHTMLFiles("./public/index.html")
+		h.Static("/public", "./public")
+	}
 	h.GET("/", brHandler, func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", nil)
 	})

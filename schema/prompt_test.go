@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/PromptPal/PromptPal/config"
+	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/history"
 	"github.com/PromptPal/PromptPal/ent/prompt"
 	dbSchema "github.com/PromptPal/PromptPal/ent/schema"
@@ -16,6 +17,7 @@ import (
 
 type promptTestSuite struct {
 	suite.Suite
+	user       *ent.User
 	pjID       int
 	promptName string
 	promptID   int
@@ -34,11 +36,26 @@ func (s *promptTestSuite) SetupSuite() {
 
 	q := QueryResolver{}
 
-	pjName := utils.RandStringRunes(1 << 4)
+	pjName := "annatarhe_pj_schema_prompt_test"
 	openAIToken := utils.RandStringRunes(1 << 8)
 
+	user, err := service.EntClient.User.
+		Create().
+		SetUsername("annatarhe_user_schema_prompt_test006").
+		SetEmail("annatarhe_user_schema_prompt_test006@annatarhe.com").
+		SetPasswordHash("hash").
+		SetAddr("test-addr-annatarhe_user_schema_prompt_test006").
+		SetName("Test User11").
+		SetPhone("").
+		SetLang("en").
+		SetLevel(1).
+		Save(context.Background())
+	assert.Nil(s.T(), err)
+
+	s.user = user
+
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
-		UserID: 1,
+		UserID: user.ID,
 	})
 
 	provider, _ := q.CreateProvider(ctx, createProviderArgs{
@@ -50,13 +67,15 @@ func (s *promptTestSuite) SetupSuite() {
 			Config:   "{}",
 		},
 	})
-	pj, _ := q.CreateProject(ctx, createProjectArgs{
+	pj, exp := q.CreateProject(ctx, createProjectArgs{
 		Data: createProjectData{
 			Name:        &pjName,
 			OpenAIToken: &openAIToken,
 			ProviderId:  int32(provider.ID()),
 		},
 	})
+
+	s.Nil(exp)
 
 	s.pjID = int(pj.ID())
 	s.promptName = "test-prompt"
@@ -67,7 +86,7 @@ func (s *promptTestSuite) TestCreatePrompt() {
 	q := QueryResolver{}
 
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
-		UserID: 1,
+		UserID: s.user.ID,
 	})
 
 	result, err := q.CreatePrompt(ctx, createPromptArgs{
@@ -107,7 +126,7 @@ func (s *promptTestSuite) TestCreatePrompt() {
 func (s *promptTestSuite) TestListPrompt() {
 	q := QueryResolver{}
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
-		UserID: 1,
+		UserID: s.user.ID,
 	})
 
 	resp := q.Prompts(ctx, promptsArgs{
@@ -129,7 +148,7 @@ func (s *promptTestSuite) TestListPrompt() {
 func (s *promptTestSuite) TestGetPrompt() {
 	q := QueryResolver{}
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
-		UserID: 1,
+		UserID: s.user.ID,
 	})
 	result, err := q.Prompt(ctx, promptArgs{
 		ID: int32(s.promptID),
@@ -145,7 +164,7 @@ func (s *promptTestSuite) TestGetPrompt() {
 func (s *promptTestSuite) TestUpdatePrompt() {
 	q := QueryResolver{}
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
-		UserID: 1,
+		UserID: s.user.ID,
 	})
 
 	truthy := true
@@ -225,7 +244,7 @@ func (s *promptTestSuite) TestUpdatePrompt() {
 
 	modifier, err := hsEdge.ModifiedBy(ctx)
 	assert.Nil(s.T(), err)
-	assert.EqualValues(s.T(), 1, modifier.ID())
+	assert.EqualValues(s.T(), s.user.ID, modifier.ID())
 }
 
 func (s *promptTestSuite) TearDownSuite() {
@@ -233,6 +252,7 @@ func (s *promptTestSuite) TearDownSuite() {
 	service.EntClient.Prompt.DeleteOneID(s.promptID).ExecX(context.Background())
 	service.EntClient.Project.DeleteOneID(s.pjID).ExecX(context.Background())
 	service.EntClient.Provider.DeleteOneID(s.providerID).ExecX(context.Background())
+	service.EntClient.User.DeleteOneID(s.user.ID).ExecX(context.Background())
 	service.Close()
 }
 

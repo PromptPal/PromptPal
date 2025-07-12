@@ -35,7 +35,7 @@ type promptTestSuite struct {
 	provider *ent.Provider
 }
 
-func (s *promptTestSuite) SetupTest() {
+func (s *promptTestSuite) SetupSuite() {
 	config.SetupConfig(true)
 	s.w3 = service.NewMockWeb3Service(s.T())
 	s.iai = service.NewMockIsomorphicAIService(s.T())
@@ -55,7 +55,6 @@ func (s *promptTestSuite) SetupTest() {
 	isomorphicAIService = s.iai
 	hashidService = s.hashid
 
-	// Create minimal gin router for testing
 	gin.SetMode(gin.TestMode)
 	s.router = SetupGinRoutes("test", s.w3, s.iai, s.hashid, nil)
 
@@ -169,7 +168,7 @@ func (s *promptTestSuite) TestTestPrompt() {
 		}), // prompt
 		payload.Variables, // variables
 		"",                // userId (empty for test prompt)
-	).Return(mockResponse, nil)
+	).Return(mockResponse, nil).Once()
 
 	// Prepare request
 	payloadBytes, err := json.Marshal(payload)
@@ -437,7 +436,7 @@ func (s *promptTestSuite) TestTestPromptWithVariableSubstitution() {
 		}),
 		payload.Variables,
 		"",
-	).Return(mockResponse, nil)
+	).Return(mockResponse, nil).Once()
 
 	payloadBytes, err := json.Marshal(payload)
 	assert.Nil(s.T(), err)
@@ -519,7 +518,7 @@ func (s *promptTestSuite) TestTestPromptWithMultipleMessages() {
 		}),
 		payload.Variables,
 		"",
-	).Return(mockResponse, nil)
+	).Return(mockResponse, nil).Once()
 
 	payloadBytes, err := json.Marshal(payload)
 	assert.Nil(s.T(), err)
