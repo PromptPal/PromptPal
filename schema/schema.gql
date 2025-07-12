@@ -28,6 +28,7 @@ type Query {
 }
 
 type Mutation {
+  passwordAuth(auth: PasswordAuthInput!): Auth!
   createProject(data: ProjectPayload!): Project!
   updateProject(id: Int!, data: ProjectPayload!): Project!
   deleteProject(id: Int!): Boolean!

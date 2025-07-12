@@ -90,6 +90,7 @@ func SetupGinRoutes(
 
 	authRoutes := h.Group("/api/v1/auth", brHandler)
 	authRoutes.POST("/login", authHandler)
+	authRoutes.POST("/password-login", passwordAuthHandler)
 
 	if graphqlSchema != nil {
 		if true {
