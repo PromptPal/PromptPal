@@ -634,8 +634,8 @@ func (s *providerTestSuite) TestRemoveProviderFromPrompt_PromptNotFound() {
 
 func (s *providerTestSuite) TearDownSuite() {
 	// Clean up test data
-	service.EntClient.Project.DeleteOneID(s.projectID).ExecX(context.Background())
 	service.EntClient.Prompt.DeleteOneID(s.promptID).ExecX(context.Background())
+	service.EntClient.Project.DeleteOneID(s.projectID).ExecX(context.Background())
 	service.EntClient.User.DeleteOneID(s.uid).ExecX(context.Background())
 
 	service.Close()

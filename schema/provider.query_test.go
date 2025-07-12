@@ -389,8 +389,8 @@ func (s *providerQueryTestSuite) TearDownSuite() {
 	// Clean up test data
 	service.EntClient.Provider.DeleteOneID(s.providerID).ExecX(context.Background())
 	service.EntClient.Provider.DeleteOneID(s.provider2ID).ExecX(context.Background())
-	service.EntClient.Project.DeleteOneID(s.projectID).ExecX(context.Background())
 	service.EntClient.Prompt.DeleteOneID(s.promptID).ExecX(context.Background())
+	service.EntClient.Project.DeleteOneID(s.projectID).ExecX(context.Background())
 	service.EntClient.User.DeleteOneID(s.uid).ExecX(context.Background())
 
 	// Clear cache
