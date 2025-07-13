@@ -48,7 +48,6 @@ func (s *userTestSuite) GetAuthToken() (result authResponse, err error) {
 }
 
 func (s *userTestSuite) TestAuthMethod() {
-
 	user, err := service.EntClient.User.
 		Create().
 		SetUsername("30x4-routes-user_test333").

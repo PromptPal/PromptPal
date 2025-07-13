@@ -59,6 +59,7 @@ jobs:
           go install github.com/vektra/mockery/v3@v3.5.0
           go generate ./...
           mockery
+          echo "<h1>hello</h1>" > ./public/index.html
       - name: Init or clean DB
         env:
           PGPASSWORD: postgres
@@ -83,6 +84,7 @@ jobs:
         run: |
           make release
           chmod +x up-pp-api
+          rm -rf public/
 
       - uses: dsaltares/fetch-gh-release-asset@master
         if: ${{ steps.release.outputs.release_created }}
