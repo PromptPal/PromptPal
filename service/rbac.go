@@ -20,21 +20,26 @@ const (
 	RoleProjectView  = "PROJECT_VIEWER"
 
 	// Permissions
-	PermSystemAdmin      = "system:admin"
-	PermProjectAdmin     = "project:admin"
-	PermProjectEdit      = "project:edit"
-	PermProjectView      = "project:view"
-	PermPromptCreate     = "prompt:create"
-	PermPromptEdit       = "prompt:edit"
-	PermPromptDelete     = "prompt:delete"
-	PermPromptView       = "prompt:view"
-	PermMetricsView      = "metrics:view"
-	PermUserManage       = "user:manage"
-	PermProjectManage    = "project:manage"
+	PermSystemAdmin   = "system:admin"
+	PermProjectAdmin  = "project:admin"
+	PermProjectEdit   = "project:edit"
+	PermProjectView   = "project:view"
+	PermPromptCreate  = "prompt:create"
+	PermPromptEdit    = "prompt:edit"
+	PermPromptDelete  = "prompt:delete"
+	PermPromptView    = "prompt:view"
+	PermMetricsView   = "metrics:view"
+	PermUserManage    = "user:manage"
+	PermProjectManage = "project:manage"
 )
 
 // RBACService interface defines the RBAC operations
 type RBACService interface {
+	InitializeRBACData(ctx context.Context) error
+	MigrateExistingUsers(ctx context.Context) error
+	GetUserProjectRoles(ctx context.Context, userID, projectID int) ([]*ent.Role, error)
+	IsProjectOwner(ctx context.Context, userID, projectID int) (bool, error)
+
 	HasPermission(ctx context.Context, userID int, projectID *int, permissionName string) (bool, error)
 	AssignUserToProject(ctx context.Context, userID, projectID int, roleName string) error
 	RemoveUserFromProject(ctx context.Context, userID, projectID int, roleName string) error
@@ -80,7 +85,7 @@ func (s *rbacService) InitializeRBACData(ctx context.Context) error {
 		if err != nil {
 			return fmt.Errorf("failed to check permission %s: %w", perm.name, err)
 		}
-		
+
 		if !exists {
 			_, err := s.client.Permission.Create().
 				SetName(perm.name).
@@ -315,7 +320,7 @@ func (s *rbacService) IsProjectOwner(ctx context.Context, userID, projectID int)
 	if err != nil {
 		return false, err
 	}
-	
+
 	// Check if the project's creator_id matches the userID (0 means no creator set)
 	return project.CreatorID != 0 && project.CreatorID == userID, nil
 }

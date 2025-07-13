@@ -47,7 +47,7 @@ func (s *callTestSuite) SetupSuite() {
 
 	service.InitDB()
 	service.InitRedis(config.GetRuntimeConfig().RedisURL)
-	
+
 	rbac := service.NewMockRBACService(s.T())
 	// Configure mock expectations for RBAC permissions
 	rbac.On("HasPermission", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(true, nil)

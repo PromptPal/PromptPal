@@ -9,7 +9,6 @@ import (
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -23,10 +22,9 @@ func (s *authTestSuite) SetupSuite() {
 	hs := service.NewHashIDService()
 
 	service.InitDB()
-	
+
 	rbac := service.NewMockRBACService(s.T())
 	// Configure mock expectations for RBAC permissions
-	rbac.On("HasPermission", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(true, nil)
 	Setup(hs, w3, rbac)
 
 	w3.
@@ -117,7 +115,7 @@ func (s *authTestSuite) TestPasswordAuthWithEmail() {
 	q := QueryResolver{}
 	res, err := q.PasswordAuth(context.Background(), passwordAuthInput{
 		Auth: passwordAuthData{
-			Email: "graphql@example.com",
+			Email:    "graphql@example.com",
 			Password: "validpassword123",
 		},
 	})
@@ -136,7 +134,7 @@ func (s *authTestSuite) TestPasswordAuthInvalidEmail() {
 	q := QueryResolver{}
 	_, err := q.PasswordAuth(context.Background(), passwordAuthInput{
 		Auth: passwordAuthData{
-			Email: "wrongemail@example.com",
+			Email:    "wrongemail@example.com",
 			Password: "validpassword123",
 		},
 	})
@@ -154,7 +152,7 @@ func (s *authTestSuite) TestPasswordAuthInvalidCredentials() {
 	q := QueryResolver{}
 	_, err := q.PasswordAuth(context.Background(), passwordAuthInput{
 		Auth: passwordAuthData{
-			Email: "graphqlinvalid@example.com",
+			Email:    "graphqlinvalid@example.com",
 			Password: "wrongpassword",
 		},
 	})
@@ -169,7 +167,7 @@ func (s *authTestSuite) TestPasswordAuthUserNotFound() {
 	q := QueryResolver{}
 	_, err := q.PasswordAuth(context.Background(), passwordAuthInput{
 		Auth: passwordAuthData{
-			Email: "nonexistent@example.com",
+			Email:    "nonexistent@example.com",
 			Password: "anypassword",
 		},
 	})
@@ -185,7 +183,7 @@ func (s *authTestSuite) TestPasswordAuthUserWithoutPassword() {
 	q := QueryResolver{}
 	_, err := q.PasswordAuth(context.Background(), passwordAuthInput{
 		Auth: passwordAuthData{
-			Email: "graphqlnopass@example.com",
+			Email:    "graphqlnopass@example.com",
 			Password: "anypassword",
 		},
 	})

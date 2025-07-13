@@ -4,15 +4,15 @@ import (
 	"context"
 	"testing"
 
+	"github.com/PromptPal/PromptPal/config"
 	"github.com/PromptPal/PromptPal/ent"
-	"github.com/PromptPal/PromptPal/ent/enttest"
-	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 func setupTestDB(t *testing.T) *ent.Client {
-	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
-	return client
+	config.SetupConfig(true)
+	InitDB()
+	InitRedis(config.GetRuntimeConfig().RedisURL)
+	return EntClient
 }
 
 func TestRBACService_InitializeRBACData(t *testing.T) {
