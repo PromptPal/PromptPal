@@ -106,7 +106,10 @@ func (r createUserResponse) Password() string {
 
 func (q QueryResolver) CreateUser(ctx context.Context, args createUserArgs) (createUserResponse, error) {
 	// Get current user from context
-	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	ctxValue, ok := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	if !ok {
+		return createUserResponse{}, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("authentication required"))
+	}
 	currentUser, err := service.EntClient.User.Get(ctx, ctxValue.UserID)
 	if err != nil {
 		return createUserResponse{}, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("authentication required"))
