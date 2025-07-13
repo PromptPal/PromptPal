@@ -200,10 +200,10 @@ func (s *userTestSuite) TestCreateUser() {
 	// Create an admin user first
 	adminUser, err := service.EntClient.User.
 		Create().
-		SetUsername("admin_test_user").
-		SetEmail("admin@test.com").
+		SetUsername("admin_test_user_schema_user_203").
+		SetEmail("admin_test_user_schema_user_203@test.com").
 		SetPasswordHash("hash").
-		SetAddr("admin-addr").
+		SetAddr("admin-addr_schema_user").
 		SetName("Admin User").
 		SetPhone("").
 		SetLang("en").
@@ -217,19 +217,20 @@ func (s *userTestSuite) TestCreateUser() {
 		UserID: adminUser.ID,
 	})
 
+	newCreatedUserName := "annatarhe_schema_user_test_224"
 	// Test successful user creation
 	result, err := q.CreateUser(ctx, createUserArgs{
 		Data: createUserData{
-			Name:  "Test User",
-			Email: "test@example.com",
+			Name:  newCreatedUserName,
+			Email: newCreatedUserName + "@annatarhe.com",
 		},
 	})
 
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), result.User().u)
-	assert.Equal(s.T(), "Test User", result.User().Name())
-	assert.Equal(s.T(), "test@example.com", result.User().Email())
-	assert.NotEmpty(s.T(), result.Password()) // Should have generated password
+	assert.Equal(s.T(), newCreatedUserName, result.User().Name())
+	assert.Equal(s.T(), newCreatedUserName+"@annatarhe.com", result.User().Email())
+	assert.NotEmpty(s.T(), result.Password())            // Should have generated password
 	assert.Equal(s.T(), int32(1), result.User().Level()) // Default level
 	assert.Equal(s.T(), "password", result.User().Source())
 
@@ -319,8 +320,8 @@ func (s *userTestSuite) TestCreateUserUnauthenticated() {
 	// Test should fail without authentication
 	result, err := q.CreateUser(ctx, createUserArgs{
 		Data: createUserData{
-			Name:  "Should Fail",
-			Email: "fail@example.com",
+			Name:  "Should Fail2222",
+			Email: "fail2222@example.com",
 		},
 	})
 
@@ -353,8 +354,8 @@ func (s *userTestSuite) TestCreateUserPasswordGeneration() {
 	// Create multiple users and verify passwords are different
 	result1, err1 := q.CreateUser(ctx, createUserArgs{
 		Data: createUserData{
-			Name:  "Test User 1",
-			Email: "test1@example.com",
+			Name:  "test1_schema_user_358",
+			Email: "test1_schema_user_358@example.com",
 		},
 	})
 	assert.Nil(s.T(), err1)
@@ -362,8 +363,8 @@ func (s *userTestSuite) TestCreateUserPasswordGeneration() {
 
 	result2, err2 := q.CreateUser(ctx, createUserArgs{
 		Data: createUserData{
-			Name:  "Test User 2",
-			Email: "test2@example.com",
+			Name:  "test1_schema_user_366",
+			Email: "test1_schema_user_366@example.com",
 		},
 	})
 	assert.Nil(s.T(), err2)
@@ -371,7 +372,7 @@ func (s *userTestSuite) TestCreateUserPasswordGeneration() {
 
 	// Passwords should be different
 	assert.NotEqual(s.T(), result1.Password(), result2.Password())
-	
+
 	// Passwords should be of expected length (12 characters)
 	assert.Equal(s.T(), 12, len(result1.Password()))
 	assert.Equal(s.T(), 12, len(result2.Password()))
