@@ -25,6 +25,19 @@ type providerResponse struct {
 }
 
 func (q QueryResolver) Provider(ctx context.Context, args providerArgs) (res providerResponse, err error) {
+	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	
+	// Check RBAC permission for provider view (system admin required due to sensitive API keys)
+	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
+	if err != nil {
+		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return
+	}
+	if !hasPermission {
+		err = NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to view provider"))
+		return
+	}
+	
 	// Check if provider exists in cache
 	err = service.Cache.Get(ctx, fmt.Sprintf("provider:%d", args.ID), &res.p)
 
@@ -60,6 +73,19 @@ type providersResponse struct {
 }
 
 func (q QueryResolver) Providers(ctx context.Context, args providersArgs) (res providersResponse, err error) {
+	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	
+	// Check RBAC permission for providers list (system admin required due to sensitive API keys)
+	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
+	if err != nil {
+		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return
+	}
+	if !hasPermission {
+		err = NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to list providers"))
+		return
+	}
+	
 	providers, err := service.
 		EntClient.
 		Provider.
@@ -83,6 +109,20 @@ type projectProviderArgs struct {
 }
 
 func (q QueryResolver) ProjectProvider(ctx context.Context, args projectProviderArgs) (res providerResponse, err error) {
+	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	
+	// Check RBAC permission for project provider view
+	projectID := int(args.ProjectId)
+	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectView)
+	if err != nil {
+		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return
+	}
+	if !hasPermission {
+		err = NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to view project provider"))
+		return
+	}
+	
 	p, err := service.
 		EntClient.
 		Provider.

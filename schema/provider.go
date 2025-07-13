@@ -3,6 +3,7 @@ package schema
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -36,6 +37,16 @@ type createProviderArgs struct {
 
 func (q QueryResolver) CreateProvider(ctx context.Context, args createProviderArgs) (providerResponse, error) {
 	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	
+	// Check RBAC permission for provider creation (system admin required due to sensitive API keys)
+	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
+	if err != nil {
+		return providerResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
+	}
+	if !hasPermission {
+		return providerResponse{}, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to create provider"))
+	}
+	
 	data := args.Data
 	// Start building the provider
 	stat := service.
@@ -122,6 +133,17 @@ type updateProviderArgs struct {
 }
 
 func (q QueryResolver) UpdateProvider(ctx context.Context, args updateProviderArgs) (providerResponse, error) {
+	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	
+	// Check RBAC permission for provider update (system admin required due to sensitive API keys)
+	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
+	if err != nil {
+		return providerResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
+	}
+	if !hasPermission {
+		return providerResponse{}, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to update provider"))
+	}
+	
 	updater := service.EntClient.Provider.UpdateOneID(int(args.ID))
 
 	if args.Data.Name != nil {
@@ -197,6 +219,17 @@ type deleteProviderArgs struct {
 }
 
 func (q QueryResolver) DeleteProvider(ctx context.Context, args deleteProviderArgs) (bool, error) {
+	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	
+	// Check RBAC permission for provider deletion (system admin required due to sensitive API keys)
+	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
+	if err != nil {
+		return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
+	}
+	if !hasPermission {
+		return false, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to delete provider"))
+	}
+	
 	tx, err := service.EntClient.Tx(ctx)
 
 	if err != nil {

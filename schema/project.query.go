@@ -2,6 +2,7 @@ package schema
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"time"
 
@@ -21,6 +22,20 @@ type projectResponse struct {
 }
 
 func (q QueryResolver) Project(ctx context.Context, args projectArgs) (res projectResponse, err error) {
+	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	
+	// Check RBAC permission for project view
+	projectID := int(args.ID)
+	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectView)
+	if err != nil {
+		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return
+	}
+	if !hasPermission {
+		err = NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to view project"))
+		return
+	}
+	
 	pj, err := service.
 		EntClient.
 		Project.
@@ -46,6 +61,19 @@ type projectsResponse struct {
 }
 
 func (q QueryResolver) Projects(ctx context.Context, args projectsArgs) (res projectsResponse, err error) {
+	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	
+	// Check RBAC permission for listing projects
+	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, nil, service.PermProjectView)
+	if err != nil {
+		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return
+	}
+	if !hasPermission {
+		err = NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to list projects"))
+		return
+	}
+	
 	pjs, err := service.
 		EntClient.
 		Project.

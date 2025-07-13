@@ -39,7 +39,20 @@ type openTokenResponse struct {
 }
 
 func (q QueryResolver) CreateOpenToken(ctx context.Context, args createOpenTokenArgs) (result createOpenTokenResponse, err error) {
+	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
 	pid := int(args.Data.ProjectID)
+	
+	// Check RBAC permission for open token creation
+	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, &pid, service.PermProjectEdit)
+	if err != nil {
+		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return
+	}
+	if !hasPermission {
+		err = NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to create open token"))
+		return
+	}
+	
 	// TODO: put int tx
 	previousCount, err := service.
 		EntClient.
@@ -58,7 +71,6 @@ func (q QueryResolver) CreateOpenToken(ctx context.Context, args createOpenToken
 	}
 
 	payload := args.Data
-	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
 
 	tk := strings.Replace(uuid.New().String(), "-", "", -1)
 	expireAt := time.Now().Add(time.Second * time.Duration(payload.TTL))
@@ -104,8 +116,24 @@ type openTokenUpdate struct {
 }
 
 func (q QueryResolver) UpdateOpenToken(ctx context.Context, args openTokenUpdate) (openTokenResponse, error) {
-	// TODO: check user permission...
-	// ctxVal := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	
+	// First get the token to check its project permissions
+	existingToken, err := service.EntClient.OpenToken.Get(ctx, int(args.ID))
+	if err != nil {
+		return openTokenResponse{}, NewGraphQLHttpError(http.StatusNotFound, err)
+	}
+	
+	// Check RBAC permission for open token update
+	projectID := existingToken.ProjectOpenTokens
+	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectEdit)
+	if err != nil {
+		return openTokenResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
+	}
+	if !hasPermission {
+		return openTokenResponse{}, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to update open token"))
+	}
+	
 	stat := service.
 		EntClient.
 		OpenToken.
@@ -143,10 +171,25 @@ type deleteOpenTokenArgs struct {
 }
 
 func (q QueryResolver) DeleteOpenToken(ctx context.Context, args deleteOpenTokenArgs) (bool, error) {
-	// TODO: check user permission...
-	// ctxVal := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	
+	// First get the token to check its project permissions
+	existingToken, err := service.EntClient.OpenToken.Get(ctx, int(args.ID))
+	if err != nil {
+		return false, NewGraphQLHttpError(http.StatusNotFound, err)
+	}
+	
+	// Check RBAC permission for open token deletion
+	projectID := existingToken.ProjectOpenTokens
+	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectEdit)
+	if err != nil {
+		return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
+	}
+	if !hasPermission {
+		return false, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to delete open token"))
+	}
 
-	err := service.
+	err = service.
 		EntClient.
 		OpenToken.
 		DeleteOneID(int(args.ID)).

@@ -42,6 +42,15 @@ func (q QueryResolver) CreateProject(ctx context.Context, args createProjectArgs
 		return projectResponse{}, NewGraphQLHttpError(http.StatusBadRequest, errors.New("name is required"))
 	}
 	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	
+	// Check RBAC permission for project creation
+	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, nil, service.PermProjectManage)
+	if err != nil {
+		return projectResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
+	}
+	if !hasPermission {
+		return projectResponse{}, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to create project"))
+	}
 	stat := service.
 		EntClient.
 		Project.
@@ -79,6 +88,18 @@ type updateProjectArgs struct {
 }
 
 func (q QueryResolver) UpdateProject(ctx context.Context, args updateProjectArgs) (projectResponse, error) {
+	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	
+	// Check RBAC permission for project update
+	projectID := int(args.ID)
+	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectEdit)
+	if err != nil {
+		return projectResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
+	}
+	if !hasPermission {
+		return projectResponse{}, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to update project"))
+	}
+	
 	updater := service.EntClient.Project.UpdateOneID(int(args.ID))
 
 	if args.Data.Enabled != nil {
@@ -134,6 +155,17 @@ type deleteProjectArgs struct {
 }
 
 func (q QueryResolver) DeleteProject(ctx context.Context, args deleteProjectArgs) (bool, error) {
+	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	
+	// Check RBAC permission for project deletion
+	projectID := int(args.ID)
+	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectManage)
+	if err != nil {
+		return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
+	}
+	if !hasPermission {
+		return false, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to delete project"))
+	}
 
 	tx, err := service.EntClient.Tx(ctx)
 
