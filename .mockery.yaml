@@ -22,3 +22,6 @@ packages:
       HashIDService:
         config:
           all: true
+      RBACService:
+        config:
+          all: true

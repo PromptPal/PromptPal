@@ -2,6 +2,7 @@ package schema
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"time"
 
@@ -23,6 +24,20 @@ type promptsResponse struct {
 }
 
 func (q QueryResolver) Prompts(ctx context.Context, args promptsArgs) (res promptsResponse) {
+	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	
+	// Check RBAC permission for viewing prompts in this project
+	projectID := int(args.ProjectID)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermPromptView)
+	if err != nil {
+		// Return empty result on permission error
+		return
+	}
+	if !hasPermission {
+		// Return empty result on insufficient permissions
+		return
+	}
+	
 	res.stat = service.EntClient.
 		Debug().
 		Prompt.Query().
@@ -43,11 +58,26 @@ type promptArgs struct {
 }
 
 func (q QueryResolver) Prompt(ctx context.Context, args promptArgs) (res promptResponse, err error) {
+	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	
 	p, err := service.EntClient.Prompt.Get(ctx, int(args.ID))
 	if err != nil {
 		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
 		return
 	}
+	
+	// Check RBAC permission for viewing this prompt
+	projectID := p.ProjectId
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermPromptView)
+	if err != nil {
+		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return
+	}
+	if !hasPermission {
+		err = NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to view prompt"))
+		return
+	}
+	
 	res.prompt = p
 	res.filters = args.Filters
 	return

@@ -8,6 +8,7 @@ import (
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/PromptPal/PromptPal/utils"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -26,7 +27,11 @@ func (s *projectTestSuite) SetupSuite() {
 
 	service.InitDB()
 	service.InitRedis(config.GetRuntimeConfig().RedisURL)
-	Setup(hs, w3)
+	
+	rbac := service.NewMockRBACService(s.T())
+	// Configure mock expectations for RBAC permissions
+	rbac.On("HasPermission", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(true, nil)
+	Setup(hs, w3, rbac)
 
 	u := service.
 		EntClient.

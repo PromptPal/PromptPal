@@ -20,31 +20,43 @@ const (
 	RoleProjectView  = "PROJECT_VIEWER"
 
 	// Permissions
-	PermSystemAdmin      = "system:admin"
-	PermProjectAdmin     = "project:admin"
-	PermProjectEdit      = "project:edit"
-	PermProjectView      = "project:view"
-	PermPromptCreate     = "prompt:create"
-	PermPromptEdit       = "prompt:edit"
-	PermPromptDelete     = "prompt:delete"
-	PermPromptView       = "prompt:view"
-	PermMetricsView      = "metrics:view"
-	PermUserManage       = "user:manage"
-	PermProjectManage    = "project:manage"
+	PermSystemAdmin   = "system:admin"
+	PermProjectAdmin  = "project:admin"
+	PermProjectEdit   = "project:edit"
+	PermProjectView   = "project:view"
+	PermPromptCreate  = "prompt:create"
+	PermPromptEdit    = "prompt:edit"
+	PermPromptDelete  = "prompt:delete"
+	PermPromptView    = "prompt:view"
+	PermMetricsView   = "metrics:view"
+	PermUserManage    = "user:manage"
+	PermProjectManage = "project:manage"
 )
 
-type RBACService struct {
+// RBACService interface defines the RBAC operations
+type RBACService interface {
+	InitializeRBACData(ctx context.Context) error
+	MigrateExistingUsers(ctx context.Context) error
+	GetUserProjectRoles(ctx context.Context, userID, projectID int) ([]*ent.Role, error)
+	IsProjectOwner(ctx context.Context, userID, projectID int) (bool, error)
+
+	HasPermission(ctx context.Context, userID int, projectID *int, permissionName string) (bool, error)
+	AssignUserToProject(ctx context.Context, userID, projectID int, roleName string) error
+	RemoveUserFromProject(ctx context.Context, userID, projectID int, roleName string) error
+}
+
+type rbacService struct {
 	client *ent.Client
 }
 
-func NewRBACService(client *ent.Client) *RBACService {
-	return &RBACService{
+func NewRBACService(client *ent.Client) RBACService {
+	return &rbacService{
 		client: client,
 	}
 }
 
 // InitializeRBACData creates the default roles and permissions
-func (s *RBACService) InitializeRBACData(ctx context.Context) error {
+func (s *rbacService) InitializeRBACData(ctx context.Context) error {
 	// Create permissions first
 	permissions := []struct {
 		name        string
@@ -73,7 +85,7 @@ func (s *RBACService) InitializeRBACData(ctx context.Context) error {
 		if err != nil {
 			return fmt.Errorf("failed to check permission %s: %w", perm.name, err)
 		}
-		
+
 		if !exists {
 			_, err := s.client.Permission.Create().
 				SetName(perm.name).
@@ -150,7 +162,7 @@ func (s *RBACService) InitializeRBACData(ctx context.Context) error {
 }
 
 // HasPermission checks if a user has a specific permission in a project
-func (s *RBACService) HasPermission(ctx context.Context, userID int, projectID *int, permissionName string) (bool, error) {
+func (s *rbacService) HasPermission(ctx context.Context, userID int, projectID *int, permissionName string) (bool, error) {
 	// Check if user is system admin (legacy level check and new RBAC)
 	u, err := s.client.User.Query().
 		Where(user.ID(userID)).
@@ -174,7 +186,7 @@ func (s *RBACService) HasPermission(ctx context.Context, userID int, projectID *
 }
 
 // hasSystemPermission checks system-level permissions
-func (s *RBACService) hasSystemPermission(ctx context.Context, userID int, permissionName string) (bool, error) {
+func (s *rbacService) hasSystemPermission(ctx context.Context, userID int, permissionName string) (bool, error) {
 	// Check if user has system admin role
 	count, err := s.client.UserProjectRole.Query().
 		Where(
@@ -203,7 +215,7 @@ func (s *RBACService) hasSystemPermission(ctx context.Context, userID int, permi
 }
 
 // hasProjectPermission checks project-level permissions
-func (s *RBACService) hasProjectPermission(ctx context.Context, userID, projectID int, permissionName string) (bool, error) {
+func (s *rbacService) hasProjectPermission(ctx context.Context, userID, projectID int, permissionName string) (bool, error) {
 	count, err := s.client.UserProjectRole.Query().
 		Where(
 			userprojectrole.UserID(userID),
@@ -217,7 +229,7 @@ func (s *RBACService) hasProjectPermission(ctx context.Context, userID, projectI
 }
 
 // AssignUserToProject assigns a role to a user for a specific project
-func (s *RBACService) AssignUserToProject(ctx context.Context, userID, projectID int, roleName string) error {
+func (s *rbacService) AssignUserToProject(ctx context.Context, userID, projectID int, roleName string) error {
 	// Get role
 	roleEntity, err := s.client.Role.Query().
 		Where(role.Name(roleName)).
@@ -257,7 +269,7 @@ func (s *RBACService) AssignUserToProject(ctx context.Context, userID, projectID
 }
 
 // RemoveUserFromProject removes a user's role from a project
-func (s *RBACService) RemoveUserFromProject(ctx context.Context, userID, projectID int, roleName string) error {
+func (s *rbacService) RemoveUserFromProject(ctx context.Context, userID, projectID int, roleName string) error {
 	// Get role
 	roleEntity, err := s.client.Role.Query().
 		Where(role.Name(roleName)).
@@ -285,7 +297,7 @@ func (s *RBACService) RemoveUserFromProject(ctx context.Context, userID, project
 }
 
 // GetUserProjectRoles returns all roles a user has in a project
-func (s *RBACService) GetUserProjectRoles(ctx context.Context, userID, projectID int) ([]*ent.Role, error) {
+func (s *rbacService) GetUserProjectRoles(ctx context.Context, userID, projectID int) ([]*ent.Role, error) {
 	roles, err := s.client.Role.Query().
 		Where(
 			role.HasUserProjectRolesWith(
@@ -302,19 +314,19 @@ func (s *RBACService) GetUserProjectRoles(ctx context.Context, userID, projectID
 }
 
 // IsProjectOwner checks if a user is the original creator/owner of a project
-func (s *RBACService) IsProjectOwner(ctx context.Context, userID, projectID int) (bool, error) {
+func (s *rbacService) IsProjectOwner(ctx context.Context, userID, projectID int) (bool, error) {
 	// Query project by ID and check if the creator_id matches the userID
 	project, err := s.client.Project.Get(ctx, projectID)
 	if err != nil {
 		return false, err
 	}
-	
+
 	// Check if the project's creator_id matches the userID (0 means no creator set)
 	return project.CreatorID != 0 && project.CreatorID == userID, nil
 }
 
 // MigrateExistingUsers migrates users from the old level system to RBAC
-func (s *RBACService) MigrateExistingUsers(ctx context.Context) error {
+func (s *rbacService) MigrateExistingUsers(ctx context.Context) error {
 	users, err := s.client.User.Query().All(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to query users for migration: %w", err)

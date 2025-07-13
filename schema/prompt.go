@@ -35,6 +35,16 @@ type createPromptArgs struct {
 func (q QueryResolver) CreatePrompt(ctx context.Context, args createPromptArgs) (promptResponse, error) {
 	payload := args.Data
 	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	
+	// Check RBAC permission for prompt creation
+	projectID := int(payload.ProjectID)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermPromptCreate)
+	if err != nil {
+		return promptResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
+	}
+	if !hasPermission {
+		return promptResponse{}, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to create prompt"))
+	}
 
 	stat := service.
 		EntClient.
@@ -83,6 +93,26 @@ type updatePromptArgs struct {
 func (q QueryResolver) UpdatePrompt(ctx context.Context, args updatePromptArgs) (result promptResponse, err error) {
 	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
 	payload := args.Data
+	
+	// First get the prompt to check project permissions
+	oldPrompt, err := service.EntClient.Prompt.Get(ctx, int(args.ID))
+	if err != nil {
+		err = NewGraphQLHttpError(http.StatusNotFound, err)
+		return
+	}
+	
+	// Check RBAC permission for prompt update
+	projectID := oldPrompt.ProjectId
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermPromptEdit)
+	if err != nil {
+		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return
+	}
+	if !hasPermission {
+		err = NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to update prompt"))
+		return
+	}
+	
 	tx, err := service.EntClient.Tx(ctx)
 
 	if err != nil {
@@ -90,12 +120,7 @@ func (q QueryResolver) UpdatePrompt(ctx context.Context, args updatePromptArgs) 
 		return
 	}
 
-	oldPrompt, err := tx.Prompt.Get(ctx, int(args.ID))
-	if err != nil {
-		tx.Rollback()
-		err = NewGraphQLHttpError(http.StatusNotFound, err)
-		return
-	}
+	// We already have oldPrompt, so no need to get it again
 
 	snapshotData := schema.PromptComplete{
 		Name:        oldPrompt.Name,
@@ -177,5 +202,29 @@ type deletePromptArgs struct {
 }
 
 func (q QueryResolver) DeletePrompt(ctx context.Context, args deletePromptArgs) (bool, error) {
-	return false, NewGraphQLHttpError(http.StatusNotImplemented, errors.New("not implemented"))
+	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+	
+	// First get the prompt to check project permissions
+	prompt, err := service.EntClient.Prompt.Get(ctx, int(args.ID))
+	if err != nil {
+		return false, NewGraphQLHttpError(http.StatusNotFound, err)
+	}
+	
+	// Check RBAC permission for prompt deletion
+	projectID := prompt.ProjectId
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermPromptDelete)
+	if err != nil {
+		return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
+	}
+	if !hasPermission {
+		return false, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to delete prompt"))
+	}
+	
+	// Delete the prompt
+	err = service.EntClient.Prompt.DeleteOneID(int(args.ID)).Exec(ctx)
+	if err != nil {
+		return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
+	}
+	
+	return true, nil
 }
