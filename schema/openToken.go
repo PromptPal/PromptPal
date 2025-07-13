@@ -43,7 +43,7 @@ func (q QueryResolver) CreateOpenToken(ctx context.Context, args createOpenToken
 	pid := int(args.Data.ProjectID)
 	
 	// Check RBAC permission for open token creation
-	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, &pid, service.PermProjectEdit)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &pid, service.PermProjectEdit)
 	if err != nil {
 		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
 		return
@@ -126,7 +126,7 @@ func (q QueryResolver) UpdateOpenToken(ctx context.Context, args openTokenUpdate
 	
 	// Check RBAC permission for open token update
 	projectID := existingToken.ProjectOpenTokens
-	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectEdit)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectEdit)
 	if err != nil {
 		return openTokenResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
@@ -181,7 +181,7 @@ func (q QueryResolver) DeleteOpenToken(ctx context.Context, args deleteOpenToken
 	
 	// Check RBAC permission for open token deletion
 	projectID := existingToken.ProjectOpenTokens
-	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectEdit)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectEdit)
 	if err != nil {
 		return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}

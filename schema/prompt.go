@@ -38,7 +38,7 @@ func (q QueryResolver) CreatePrompt(ctx context.Context, args createPromptArgs) 
 	
 	// Check RBAC permission for prompt creation
 	projectID := int(payload.ProjectID)
-	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermPromptCreate)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermPromptCreate)
 	if err != nil {
 		return promptResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
@@ -103,7 +103,7 @@ func (q QueryResolver) UpdatePrompt(ctx context.Context, args updatePromptArgs) 
 	
 	// Check RBAC permission for prompt update
 	projectID := oldPrompt.ProjectId
-	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermPromptEdit)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermPromptEdit)
 	if err != nil {
 		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
 		return
@@ -212,7 +212,7 @@ func (q QueryResolver) DeletePrompt(ctx context.Context, args deletePromptArgs) 
 	
 	// Check RBAC permission for prompt deletion
 	projectID := prompt.ProjectId
-	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermPromptDelete)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermPromptDelete)
 	if err != nil {
 		return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}

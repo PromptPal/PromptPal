@@ -29,6 +29,7 @@ func startHTTPServer() {
 	w3 := service.NewWeb3Service()
 	iai := service.NewIsomorphicAIService()
 	hi := service.NewHashIDService()
+	rbac := service.NewRBACService(service.EntClient)
 	if err := service.InitRedis(config.GetRuntimeConfig().RedisURL); err != nil {
 		logrus.Panicln("Failed to connect to Redis: ", err)
 	}
@@ -37,7 +38,7 @@ func startHTTPServer() {
 		&schema.QueryResolver{},
 	)
 
-	schema.Setup(hi, w3)
+	schema.Setup(hi, w3, rbac)
 	h := routes.SetupGinRoutes(GitCommit, w3, iai, hi, graphqlSchema)
 	server := &http.Server{
 		Addr:    publicDomain,

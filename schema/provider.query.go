@@ -28,7 +28,7 @@ func (q QueryResolver) Provider(ctx context.Context, args providerArgs) (res pro
 	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
 	
 	// Check RBAC permission for provider view (system admin required due to sensitive API keys)
-	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
 	if err != nil {
 		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
 		return
@@ -76,7 +76,7 @@ func (q QueryResolver) Providers(ctx context.Context, args providersArgs) (res p
 	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
 	
 	// Check RBAC permission for providers list (system admin required due to sensitive API keys)
-	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
 	if err != nil {
 		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
 		return
@@ -113,7 +113,7 @@ func (q QueryResolver) ProjectProvider(ctx context.Context, args projectProvider
 	
 	// Check RBAC permission for project provider view
 	projectID := int(args.ProjectId)
-	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectView)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectView)
 	if err != nil {
 		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
 		return

@@ -26,7 +26,7 @@ func (q QueryResolver) Project(ctx context.Context, args projectArgs) (res proje
 	
 	// Check RBAC permission for project view
 	projectID := int(args.ID)
-	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectView)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectView)
 	if err != nil {
 		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
 		return
@@ -64,7 +64,7 @@ func (q QueryResolver) Projects(ctx context.Context, args projectsArgs) (res pro
 	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
 	
 	// Check RBAC permission for listing projects
-	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, nil, service.PermProjectView)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, nil, service.PermProjectView)
 	if err != nil {
 		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
 		return

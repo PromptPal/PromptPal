@@ -39,7 +39,7 @@ func (q QueryResolver) CreateProvider(ctx context.Context, args createProviderAr
 	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
 	
 	// Check RBAC permission for provider creation (system admin required due to sensitive API keys)
-	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
 	if err != nil {
 		return providerResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
@@ -136,7 +136,7 @@ func (q QueryResolver) UpdateProvider(ctx context.Context, args updateProviderAr
 	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
 	
 	// Check RBAC permission for provider update (system admin required due to sensitive API keys)
-	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
 	if err != nil {
 		return providerResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
@@ -222,7 +222,7 @@ func (q QueryResolver) DeleteProvider(ctx context.Context, args deleteProviderAr
 	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
 	
 	// Check RBAC permission for provider deletion (system admin required due to sensitive API keys)
-	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
 	if err != nil {
 		return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}

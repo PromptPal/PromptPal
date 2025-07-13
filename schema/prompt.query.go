@@ -28,7 +28,7 @@ func (q QueryResolver) Prompts(ctx context.Context, args promptsArgs) (res promp
 	
 	// Check RBAC permission for viewing prompts in this project
 	projectID := int(args.ProjectID)
-	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermPromptView)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermPromptView)
 	if err != nil {
 		// Return empty result on permission error
 		return
@@ -68,7 +68,7 @@ func (q QueryResolver) Prompt(ctx context.Context, args promptArgs) (res promptR
 	
 	// Check RBAC permission for viewing this prompt
 	projectID := p.ProjectId
-	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermPromptView)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermPromptView)
 	if err != nil {
 		err = NewGraphQLHttpError(http.StatusInternalServerError, err)
 		return

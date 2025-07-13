@@ -44,7 +44,7 @@ func (q QueryResolver) CreateProject(ctx context.Context, args createProjectArgs
 	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
 	
 	// Check RBAC permission for project creation
-	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, nil, service.PermProjectManage)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, nil, service.PermProjectManage)
 	if err != nil {
 		return projectResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
@@ -92,7 +92,7 @@ func (q QueryResolver) UpdateProject(ctx context.Context, args updateProjectArgs
 	
 	// Check RBAC permission for project update
 	projectID := int(args.ID)
-	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectEdit)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectEdit)
 	if err != nil {
 		return projectResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
@@ -159,7 +159,7 @@ func (q QueryResolver) DeleteProject(ctx context.Context, args deleteProjectArgs
 	
 	// Check RBAC permission for project deletion
 	projectID := int(args.ID)
-	hasPermission, err := service.RBACServiceInstance.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectManage)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectManage)
 	if err != nil {
 		return false, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
