@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -158,8 +159,10 @@ func RequireProjectPermission(permission string, requireProject bool) gin.Handle
 			// If still no project ID and required, check URL parameter
 			if projectID == nil {
 				if pidStr := c.Param("projectId"); pidStr != "" {
-					// Convert string to int - this would need proper parsing
-					// For now, we'll require the caller to set it in context
+					// Convert string to int
+					if pidInt, err := strconv.Atoi(pidStr); err == nil {
+						projectID = &pidInt
+					}
 				}
 			}
 

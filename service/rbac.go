@@ -115,6 +115,10 @@ func (s *RBACService) InitializeRBACData(ctx context.Context) error {
 			Where(role.Name(roleName)).
 			Only(ctx)
 		if err != nil {
+			if !ent.IsNotFound(err) {
+				// This is an unexpected error
+				return fmt.Errorf("failed to query role %s: %w", roleName, err)
+			}
 			// Role doesn't exist, create it
 			roleEntity, err = s.client.Role.Create().
 				SetName(roleName).
@@ -219,7 +223,10 @@ func (s *RBACService) AssignUserToProject(ctx context.Context, userID, projectID
 		Where(role.Name(roleName)).
 		Only(ctx)
 	if err != nil {
-		return fmt.Errorf("role %s not found: %w", roleName, err)
+		if ent.IsNotFound(err) {
+			return fmt.Errorf("role %s not found", roleName)
+		}
+		return fmt.Errorf("failed to query role %s: %w", roleName, err)
 	}
 
 	// Check if assignment already exists
@@ -256,7 +263,10 @@ func (s *RBACService) RemoveUserFromProject(ctx context.Context, userID, project
 		Where(role.Name(roleName)).
 		Only(ctx)
 	if err != nil {
-		return fmt.Errorf("role %s not found: %w", roleName, err)
+		if ent.IsNotFound(err) {
+			return fmt.Errorf("role %s not found", roleName)
+		}
+		return fmt.Errorf("failed to query role %s: %w", roleName, err)
 	}
 
 	// Remove assignment

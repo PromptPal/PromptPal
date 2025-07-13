@@ -52,9 +52,12 @@ func initAdminFromEnv() {
 	for _, u := range uc {
 		_, err := u.Save(context.Background())
 		if err != nil {
-			// Ignore conflicts (user already exists)
-			// In production, you might want to handle this more gracefully
-			logrus.Debugln("user already exists or other conflict: ", err)
+			if ent.IsConstraintError(err) {
+				logrus.Debugln("admin user already exists, skipping:", err)
+			} else {
+				// Log other errors more seriously
+				logrus.Errorln("failed creating admin user: ", err)
+			}
 		}
 	}
 
