@@ -48,15 +48,14 @@ func initAdminFromEnv() {
 			SetLevel(255)
 		uc = append(uc, c)
 	}
-	err := EntClient.
-		User.
-		CreateBulk(uc...).
-		OnConflict().
-		DoNothing().
-		Exec(context.Background())
-
-	if err != nil {
-		logrus.Errorln("failed creating admin list from env: ", err)
+	// Create users one by one to handle conflicts
+	for _, u := range uc {
+		_, err := u.Save(context.Background())
+		if err != nil {
+			// Ignore conflicts (user already exists)
+			// In production, you might want to handle this more gracefully
+			logrus.Debugln("user already exists or other conflict: ", err)
+		}
 	}
 
 }

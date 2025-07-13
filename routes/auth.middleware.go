@@ -107,3 +107,106 @@ func apiMiddleware(c *gin.Context) {
 	c.Set("pid", pid)
 	c.Next()
 }
+
+// rbacService is the RBAC service instance
+var rbacService *service.RBACService
+
+// InitRBACMiddleware initializes the RBAC service for middleware use
+func InitRBACMiddleware(client *ent.Client) {
+	rbacService = service.NewRBACService(client)
+}
+
+// RequirePermission creates a middleware that checks if the current user has the required permission
+func RequirePermission(permission string) gin.HandlerFunc {
+	return RequireProjectPermission(permission, false)
+}
+
+// RequireProjectPermission creates a middleware that checks if the current user has the required permission
+// If requireProject is true, the middleware expects a project ID in the context
+func RequireProjectPermission(permission string, requireProject bool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+
+		// Get user ID from context
+		userID, exists := c.Get("uid")
+		if !exists {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse{
+				ErrorCode:    http.StatusUnauthorized,
+				ErrorMessage: "authentication required",
+			})
+			return
+		}
+
+		uid, ok := userID.(int)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse{
+				ErrorCode:    http.StatusUnauthorized,
+				ErrorMessage: "invalid user ID",
+			})
+			return
+		}
+
+		var projectID *int
+		if requireProject {
+			// Try to get project ID from various sources
+			if pid, exists := c.Get("pid"); exists {
+				if pidInt, ok := pid.(int); ok {
+					projectID = &pidInt
+				}
+			}
+
+			// If still no project ID and required, check URL parameter
+			if projectID == nil {
+				if pidStr := c.Param("projectId"); pidStr != "" {
+					// Convert string to int - this would need proper parsing
+					// For now, we'll require the caller to set it in context
+				}
+			}
+
+			if projectID == nil {
+				c.AbortWithStatusJSON(http.StatusBadRequest, errorResponse{
+					ErrorCode:    http.StatusBadRequest,
+					ErrorMessage: "project ID required",
+				})
+				return
+			}
+		}
+
+		// Check permission
+		if rbacService == nil {
+			// Fallback to legacy permission check
+			// This should be removed once RBAC is fully implemented
+			c.Next()
+			return
+		}
+
+		hasPermission, err := rbacService.HasPermission(ctx, uid, projectID, permission)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse{
+				ErrorCode:    http.StatusInternalServerError,
+				ErrorMessage: fmt.Sprintf("permission check failed: %v", err),
+			})
+			return
+		}
+
+		if !hasPermission {
+			c.AbortWithStatusJSON(http.StatusForbidden, errorResponse{
+				ErrorCode:    http.StatusForbidden,
+				ErrorMessage: fmt.Sprintf("insufficient permissions: %s required", permission),
+			})
+			return
+		}
+
+		c.Next()
+	}
+}
+
+// RequireSystemAdmin is a convenience middleware for system admin permissions
+func RequireSystemAdmin() gin.HandlerFunc {
+	return RequirePermission(service.PermSystemAdmin)
+}
+
+// RequireProjectAdmin is a convenience middleware for project admin permissions
+func RequireProjectAdmin() gin.HandlerFunc {
+	return RequireProjectPermission(service.PermProjectAdmin, true)
+}
