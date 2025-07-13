@@ -1,0 +1,5 @@
+# sample regex patterns
+ignore:
+  - "config/"
+  - "ent/"
+  - "main.go"
