@@ -192,6 +192,192 @@ func (s *userTestSuite) TestGetUserNotFound() {
 	assert.Empty(s.T(), result.u)
 }
 
+func (s *userTestSuite) TestCreateUser() {
+	// Create an admin user first
+	adminUser, err := service.EntClient.User.
+		Create().
+		SetUsername("admin_test_user").
+		SetEmail("admin@test.com").
+		SetPasswordHash("hash").
+		SetAddr("admin-addr").
+		SetName("Admin User").
+		SetPhone("").
+		SetLang("en").
+		SetLevel(200). // Admin level > 100
+		Save(context.Background())
+	assert.Nil(s.T(), err)
+	defer service.EntClient.User.DeleteOneID(adminUser.ID).ExecX(context.Background())
+
+	q := QueryResolver{}
+	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
+		UserID: adminUser.ID,
+	})
+
+	// Test successful user creation
+	result, err := q.CreateUser(ctx, createUserArgs{
+		Data: createUserData{
+			Name:  "Test User",
+			Email: "test@example.com",
+		},
+	})
+
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), result.User().u)
+	assert.Equal(s.T(), "Test User", result.User().Name())
+	assert.Equal(s.T(), "test@example.com", result.User().Email())
+	assert.NotEmpty(s.T(), result.Password()) // Should have generated password
+	assert.Equal(s.T(), int32(1), result.User().Level()) // Default level
+	assert.Equal(s.T(), "password", result.User().Source())
+
+	// Clean up created user
+	defer service.EntClient.User.DeleteOneID(int(result.User().ID())).ExecX(context.Background())
+}
+
+func (s *userTestSuite) TestCreateUserWithAllFields() {
+	// Create an admin user first
+	adminUser, err := service.EntClient.User.
+		Create().
+		SetUsername("admin_test_user2").
+		SetEmail("admin2@test.com").
+		SetPasswordHash("hash").
+		SetAddr("admin-addr2").
+		SetName("Admin User 2").
+		SetPhone("").
+		SetLang("en").
+		SetLevel(255). // Max admin level
+		Save(context.Background())
+	assert.Nil(s.T(), err)
+	defer service.EntClient.User.DeleteOneID(adminUser.ID).ExecX(context.Background())
+
+	q := QueryResolver{}
+	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
+		UserID: adminUser.ID,
+	})
+
+	phone := "123-456-7890"
+	lang := "fr"
+	level := int32(50)
+	avatar := "https://example.com/avatar.jpg"
+	username := "testuser123"
+
+	// Test user creation with all optional fields
+	result, err := q.CreateUser(ctx, createUserArgs{
+		Data: createUserData{
+			Name:     "Full Test User",
+			Email:    "fulltest@example.com",
+			Phone:    &phone,
+			Lang:     &lang,
+			Level:    &level,
+			Avatar:   &avatar,
+			Username: &username,
+		},
+	})
+
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), result.User().u)
+	assert.Equal(s.T(), "Full Test User", result.User().Name())
+	assert.Equal(s.T(), "fulltest@example.com", result.User().Email())
+	assert.Equal(s.T(), phone, result.User().Phone())
+	assert.Equal(s.T(), lang, result.User().Lang())
+	assert.Equal(s.T(), level, result.User().Level())
+	assert.Equal(s.T(), avatar, result.User().Avatar())
+	assert.NotEmpty(s.T(), result.Password())
+
+	// Clean up created user
+	defer service.EntClient.User.DeleteOneID(int(result.User().ID())).ExecX(context.Background())
+}
+
+func (s *userTestSuite) TestCreateUserNonAdmin() {
+	// Use regular user (level 1)
+	q := QueryResolver{}
+	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
+		UserID: s.user.ID, // Regular user with level 1
+	})
+
+	// Test should fail for non-admin user
+	result, err := q.CreateUser(ctx, createUserArgs{
+		Data: createUserData{
+			Name:  "Should Fail",
+			Email: "fail@example.com",
+		},
+	})
+
+	assert.NotNil(s.T(), err)
+	assert.Contains(s.T(), err.Error(), "admin privileges required")
+	assert.Empty(s.T(), result.u)
+}
+
+func (s *userTestSuite) TestCreateUserUnauthenticated() {
+	q := QueryResolver{}
+	// No context or invalid context
+	ctx := context.Background()
+
+	// Test should fail without authentication
+	result, err := q.CreateUser(ctx, createUserArgs{
+		Data: createUserData{
+			Name:  "Should Fail",
+			Email: "fail@example.com",
+		},
+	})
+
+	assert.NotNil(s.T(), err)
+	assert.Contains(s.T(), err.Error(), "authentication required")
+	assert.Empty(s.T(), result.u)
+}
+
+func (s *userTestSuite) TestCreateUserPasswordGeneration() {
+	// Create an admin user first
+	adminUser, err := service.EntClient.User.
+		Create().
+		SetUsername("admin_test_user3").
+		SetEmail("admin3@test.com").
+		SetPasswordHash("hash").
+		SetAddr("admin-addr3").
+		SetName("Admin User 3").
+		SetPhone("").
+		SetLang("en").
+		SetLevel(150). // Admin level > 100
+		Save(context.Background())
+	assert.Nil(s.T(), err)
+	defer service.EntClient.User.DeleteOneID(adminUser.ID).ExecX(context.Background())
+
+	q := QueryResolver{}
+	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
+		UserID: adminUser.ID,
+	})
+
+	// Create multiple users and verify passwords are different
+	result1, err1 := q.CreateUser(ctx, createUserArgs{
+		Data: createUserData{
+			Name:  "Test User 1",
+			Email: "test1@example.com",
+		},
+	})
+	assert.Nil(s.T(), err1)
+	defer service.EntClient.User.DeleteOneID(int(result1.User().ID())).ExecX(context.Background())
+
+	result2, err2 := q.CreateUser(ctx, createUserArgs{
+		Data: createUserData{
+			Name:  "Test User 2",
+			Email: "test2@example.com",
+		},
+	})
+	assert.Nil(s.T(), err2)
+	defer service.EntClient.User.DeleteOneID(int(result2.User().ID())).ExecX(context.Background())
+
+	// Passwords should be different
+	assert.NotEqual(s.T(), result1.Password(), result2.Password())
+	
+	// Passwords should be of expected length (12 characters)
+	assert.Equal(s.T(), 12, len(result1.Password()))
+	assert.Equal(s.T(), 12, len(result2.Password()))
+
+	// Test that the generated password can be used for authentication
+	passwordService := service.NewPasswordService()
+	err = passwordService.VerifyPassword(result1.User().u.PasswordHash, result1.Password())
+	assert.Nil(s.T(), err) // Should verify successfully
+}
+
 func (s *userTestSuite) TearDownSuite() {
 	service.EntClient.Project.DeleteOneID(s.pjID).ExecX(context.Background())
 	service.EntClient.Provider.DeleteOneID(s.providerID).ExecX(context.Background())

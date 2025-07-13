@@ -112,6 +112,35 @@ func (s *passwordTestSuite) TestValidatePassword() {
 	assert.Contains(s.T(), err.Error(), "password must be at least 6 characters long")
 }
 
+func (s *passwordTestSuite) TestGenerateRandomPassword() {
+	// Test default minimum length
+	password, err := s.passwordService.GenerateRandomPassword(6)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 6, len(password))
+	
+	// Test custom length
+	password, err = s.passwordService.GenerateRandomPassword(12)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 12, len(password))
+	
+	// Test that passwords are different
+	password1, err1 := s.passwordService.GenerateRandomPassword(10)
+	password2, err2 := s.passwordService.GenerateRandomPassword(10)
+	assert.Nil(s.T(), err1)
+	assert.Nil(s.T(), err2)
+	assert.NotEqual(s.T(), password1, password2)
+	
+	// Test below minimum length (should adjust to minimum)
+	password, err = s.passwordService.GenerateRandomPassword(3)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 6, len(password)) // Should be adjusted to minimum
+	
+	// Test above maximum length (should adjust to maximum)
+	password, err = s.passwordService.GenerateRandomPassword(200)
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), 128, len(password)) // Should be adjusted to maximum
+}
+
 func TestPasswordTestSuite(t *testing.T) {
 	suite.Run(t, new(passwordTestSuite))
 }

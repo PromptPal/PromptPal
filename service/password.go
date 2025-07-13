@@ -1,7 +1,9 @@
 package service
 
 import (
+	"crypto/rand"
 	"fmt"
+	"math/big"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -46,4 +48,35 @@ func (s *PasswordService) ValidatePassword(password string) error {
 		return fmt.Errorf("password must be at most %d characters long", maxPasswordLength)
 	}
 	return nil
+}
+
+// GenerateRandomPassword generates a secure random password
+func (s *PasswordService) GenerateRandomPassword(length int) (string, error) {
+	if length < minPasswordLength {
+		length = minPasswordLength
+	}
+	if length > maxPasswordLength {
+		length = maxPasswordLength
+	}
+
+	// Character sets for password generation
+	const (
+		lowercase = "abcdefghijklmnopqrstuvwxyz"
+		uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		digits    = "0123456789"
+		special   = "!@#$%^&*()_+-=[]{}|;:,.<>?"
+	)
+	
+	charset := lowercase + uppercase + digits + special
+	password := make([]byte, length)
+	
+	for i := range password {
+		randomIndex, err := rand.Int(rand.Reader, big.NewInt(int64(len(charset))))
+		if err != nil {
+			return "", fmt.Errorf("failed to generate random password: %w", err)
+		}
+		password[i] = charset[randomIndex.Int64()]
+	}
+	
+	return string(password), nil
 }
