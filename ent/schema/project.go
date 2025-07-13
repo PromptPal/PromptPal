@@ -52,6 +52,7 @@ func (Project) Edges() []ent.Edge {
 		edge.To("provider", Provider.Type).
 			Unique().
 			Field("providerId"),
+		edge.To("userProjectRoles", UserProjectRole.Type),
 	}
 }
 

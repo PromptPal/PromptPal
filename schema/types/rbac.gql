@@ -1,0 +1,71 @@
+type Role {
+  id: ID!
+  name: String!
+  description: String
+  isSystemRole: Boolean!
+  permissions: [Permission!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Permission {
+  id: ID!
+  name: String!
+  description: String
+  resource: String
+  action: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type UserProjectRole {
+  id: ID!
+  user: User!
+  project: Project!
+  role: Role!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input AssignRoleInput {
+  userId: ID!
+  projectId: ID!
+  roleName: String!
+}
+
+input RemoveRoleInput {
+  userId: ID!
+  projectId: ID!
+  roleName: String!
+}
+
+type AssignRoleResponse {
+  success: Boolean!
+  message: String
+}
+
+type RemoveRoleResponse {
+  success: Boolean!
+  message: String
+}
+
+type RoleList {
+  count: Int!
+  edges: [Role!]!
+}
+
+type PermissionList {
+  count: Int!
+  edges: [Permission!]!
+}
+
+extend type Query {
+  roles: RoleList!
+  permissions: PermissionList!
+  userProjectRoles(userId: ID, projectId: ID): [UserProjectRole!]!
+}
+
+extend type Mutation {
+  assignUserToProject(input: AssignRoleInput!): AssignRoleResponse!
+  removeUserFromProject(input: RemoveRoleInput!): RemoveRoleResponse!
+}

@@ -115,8 +115,15 @@ func (q QueryResolver) CreateUser(ctx context.Context, args createUserArgs) (cre
 		return createUserResponse{}, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("authentication required"))
 	}
 
-	// Check if current user is admin (level > 100)
-	if currentUser.Level <= 100 {
+	// Check permissions using RBAC
+	rbacService := service.NewRBACService(service.EntClient)
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, nil, service.PermUserManage)
+	if err != nil {
+		return createUserResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
+	}
+	
+	// Fallback to legacy permission check for backward compatibility
+	if !hasPermission && currentUser.Level <= 100 {
 		return createUserResponse{}, NewGraphQLHttpError(http.StatusForbidden, errors.New("admin privileges required"))
 	}
 
