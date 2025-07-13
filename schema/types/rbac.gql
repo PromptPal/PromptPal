@@ -49,9 +49,19 @@ type RemoveRoleResponse {
   message: String
 }
 
+type RoleList {
+  count: Int!
+  edges: [Role!]!
+}
+
+type PermissionList {
+  count: Int!
+  edges: [Permission!]!
+}
+
 extend type Query {
-  roles: [Role!]!
-  permissions: [Permission!]!
+  roles: RoleList!
+  permissions: PermissionList!
   userProjectRoles(userId: ID, projectId: ID): [UserProjectRole!]!
 }
 

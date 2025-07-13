@@ -142,64 +142,100 @@ func (upr userProjectRoleResponse) UpdatedAt() string {
 	return upr.upr.UpdateTime.Format("2006-01-02T15:04:05Z")
 }
 
+// List response types
+
+type roleListResponse struct {
+	count int
+	edges []roleResponse
+}
+
+func (r roleListResponse) Count() int {
+	return r.count
+}
+
+func (r roleListResponse) Edges() []roleResponse {
+	return r.edges
+}
+
+type permissionListResponse struct {
+	count int
+	edges []permissionResponse
+}
+
+func (p permissionListResponse) Count() int {
+	return p.count
+}
+
+func (p permissionListResponse) Edges() []permissionResponse {
+	return p.edges
+}
+
 // Query resolvers
 
-func (q QueryResolver) Roles(ctx context.Context) ([]roleResponse, error) {
+func (q QueryResolver) Roles(ctx context.Context) (roleListResponse, error) {
 	// Check if user has permission to view roles
 	ctxValue, ok := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
 	if !ok {
-		return nil, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("authentication required"))
+		return roleListResponse{}, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("authentication required"))
 	}
 
 	rbacService := service.NewRBACService(service.EntClient)
 	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
 	if err != nil {
-		return nil, NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return roleListResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
 
 	if !hasPermission {
-		return nil, NewGraphQLHttpError(http.StatusForbidden, errors.New("admin privileges required"))
+		return roleListResponse{}, NewGraphQLHttpError(http.StatusForbidden, errors.New("admin privileges required"))
 	}
 
 	roles, err := service.EntClient.Role.Query().All(ctx)
 	if err != nil {
-		return nil, NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return roleListResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
 
-	result := make([]roleResponse, len(roles))
+	edges := make([]roleResponse, len(roles))
 	for i, r := range roles {
-		result[i] = roleResponse{r: r}
+		edges[i] = roleResponse{r: r}
 	}
-	return result, nil
+
+	return roleListResponse{
+		count: len(roles),
+		edges: edges,
+	}, nil
 }
 
-func (q QueryResolver) Permissions(ctx context.Context) ([]permissionResponse, error) {
+func (q QueryResolver) Permissions(ctx context.Context) (permissionListResponse, error) {
 	// Check if user has permission to view permissions
 	ctxValue, ok := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
 	if !ok {
-		return nil, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("authentication required"))
+		return permissionListResponse{}, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("authentication required"))
 	}
 
 	rbacService := service.NewRBACService(service.EntClient)
 	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
 	if err != nil {
-		return nil, NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return permissionListResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
 
 	if !hasPermission {
-		return nil, NewGraphQLHttpError(http.StatusForbidden, errors.New("admin privileges required"))
+		return permissionListResponse{}, NewGraphQLHttpError(http.StatusForbidden, errors.New("admin privileges required"))
 	}
 
 	permissions, err := service.EntClient.Permission.Query().All(ctx)
 	if err != nil {
-		return nil, NewGraphQLHttpError(http.StatusInternalServerError, err)
+		return permissionListResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
 
-	result := make([]permissionResponse, len(permissions))
+	edges := make([]permissionResponse, len(permissions))
 	for i, p := range permissions {
-		result[i] = permissionResponse{p: p}
+		edges[i] = permissionResponse{p: p}
 	}
-	return result, nil
+
+	return permissionListResponse{
+		count: len(permissions),
+		edges: edges,
+	}, nil
 }
 
 type userProjectRolesArgs struct {
