@@ -110,7 +110,7 @@ func apiMiddleware(c *gin.Context) {
 }
 
 // rbacService is the RBAC service instance
-var rbacService *service.RBACService
+var rbacService service.RBACService
 
 // InitRBACMiddleware initializes the RBAC service for middleware use
 func InitRBACMiddleware(client *ent.Client) {

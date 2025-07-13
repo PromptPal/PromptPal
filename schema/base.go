@@ -9,7 +9,7 @@ import (
 
 var web3Service service.Web3Service
 var hashidService service.HashIDService
-var rbacService *service.RBACService
+var rbacService service.RBACService
 
 type paginationInput struct {
 	Limit  int32
@@ -50,7 +50,7 @@ func String() string {
 func Setup(
 	hi service.HashIDService,
 	w3 service.Web3Service,
-	rbac *service.RBACService,
+	rbac service.RBACService,
 ) {
 	hashidService = hi
 	web3Service = w3
