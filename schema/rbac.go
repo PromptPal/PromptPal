@@ -198,7 +198,7 @@ func (q QueryResolver) Roles(ctx context.Context) (roleListResponse, error) {
 	for i, r := range roles {
 		edges[i] = roleResponse{r: r}
 	}
-
+	
 	return roleListResponse{
 		count: len(roles),
 		edges: edges,
@@ -231,7 +231,7 @@ func (q QueryResolver) Permissions(ctx context.Context) (permissionListResponse,
 	for i, p := range permissions {
 		edges[i] = permissionResponse{p: p}
 	}
-
+	
 	return permissionListResponse{
 		count: len(permissions),
 		edges: edges,
