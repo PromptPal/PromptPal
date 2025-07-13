@@ -29,7 +29,8 @@ func (s *userTestSuite) SetupSuite() {
 	service.InitDB()
 	service.InitRedis(config.GetRuntimeConfig().RedisURL)
 
-	Setup(hs, w3)
+	rbac := service.NewRBACService(service.EntClient)
+	Setup(hs, w3, rbac)
 
 	q := QueryResolver{}
 

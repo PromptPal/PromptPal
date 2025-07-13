@@ -22,7 +22,9 @@ func (s *authTestSuite) SetupSuite() {
 	hs := service.NewHashIDService()
 
 	service.InitDB()
-	Setup(hs, w3)
+	
+	rbac := service.NewRBACService(service.EntClient)
+	Setup(hs, w3, rbac)
 
 	w3.
 		On(
