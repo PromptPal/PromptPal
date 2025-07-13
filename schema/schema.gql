@@ -45,4 +45,7 @@ type Mutation {
   createProvider(data: ProviderPayload!): Provider!
   updateProvider(id: Int!, data: ProviderUpdatePayload!): Provider!
   deleteProvider(id: Int!): Boolean!
+
+  # User mutations
+  createUser(data: CreateUserPayload!): CreateUserResponse!
 }

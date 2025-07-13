@@ -21,6 +21,21 @@ type User {
   source: String!
 }
 
+input CreateUserPayload {
+  name: String!
+  email: String!
+  phone: String
+  lang: String
+  level: Int
+  avatar: String
+  username: String
+}
+
+type CreateUserResponse {
+  user: User!
+  password: String!
+}
+
 type Auth {
   token: String!
   user: User!
