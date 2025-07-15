@@ -31,6 +31,7 @@ var fileNames = []string{
 	"types/prompt.gql",
 	"types/history.gql",
 	"types/provider.gql",
+	"types/webhook.gql",
 }
 
 func String() string {

@@ -1,0 +1,29 @@
+#import * from './user.gql'
+#import * from './project.gql'
+
+input WebhookPayload {
+  name: String!
+  description: String
+  url: String!
+  event: String!
+  enabled: Boolean
+  projectId: Int!
+}
+
+type Webhook {
+  id: Int!
+  name: String!
+  description: String!
+  url: String!
+  event: String!
+  enabled: Boolean!
+  createdAt: String!
+  updatedAt: String!
+  creator: User!
+  project: Project!
+}
+
+type WebhookList {
+  count: Int!
+  edges: [Webhook!]!
+}
