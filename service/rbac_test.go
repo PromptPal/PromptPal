@@ -90,9 +90,9 @@ func TestRBACService_AssignUserToProject(t *testing.T) {
 
 	// Create test user
 	testUser, err := client.User.Create().
-		SetName("Test User").
-		SetAddr("test@example.com").
-		SetEmail("test@example.com").
+		SetName("test_service_rbac94").
+		SetAddr("test_service_rbac94").
+		SetEmail("test_service_rbac94@annatarhe.com").
 		SetPhone("").
 		SetLang("en").
 		SetLevel(1).
@@ -166,8 +166,8 @@ func TestRBACService_HasPermission(t *testing.T) {
 	// Create regular user
 	regularUser, err := client.User.Create().
 		SetName("Regular User").
-		SetAddr("user@example.com").
-		SetEmail("user@example.com").
+		SetAddr("test_service_rbac169").
+		SetEmail("test_service_rbac169@annatarhe.com").
 		SetPhone("").
 		SetLang("en").
 		SetLevel(1).
@@ -226,6 +226,10 @@ func TestRBACService_HasPermission(t *testing.T) {
 	if hasPermission {
 		t.Error("User with project editor role should not have project admin permission")
 	}
+
+	EntClient.Project.DeleteOneID(testProject.ID).ExecX(ctx)
+	EntClient.User.DeleteOneID(adminUser.ID).ExecX(ctx)
+	EntClient.User.DeleteOneID(regularUser.ID).ExecX(ctx)
 }
 
 func TestRBACService_RemoveUserFromProject(t *testing.T) {
@@ -244,8 +248,8 @@ func TestRBACService_RemoveUserFromProject(t *testing.T) {
 	// Create test user and project
 	testUser, err := client.User.Create().
 		SetName("Test User").
-		SetAddr("test@example.com").
-		SetEmail("test@example.com").
+		SetAddr("test_service_rbac250").
+		SetEmail("test_service_rbac250@annatarhe.com").
 		SetPhone("").
 		SetLang("en").
 		SetLevel(1).
@@ -255,7 +259,7 @@ func TestRBACService_RemoveUserFromProject(t *testing.T) {
 	}
 
 	testProject, err := client.Project.Create().
-		SetName("Test Project").
+		SetName("Test Project262").
 		SetCreatorID(testUser.ID).
 		Save(ctx)
 	if err != nil {
@@ -291,6 +295,9 @@ func TestRBACService_RemoveUserFromProject(t *testing.T) {
 	if len(userRoles) != 0 {
 		t.Errorf("Expected 0 roles after removal, got %d", len(userRoles))
 	}
+
+	EntClient.Project.DeleteOneID(testProject.ID).ExecX(ctx)
+	EntClient.User.DeleteOneID(testUser.ID).ExecX(ctx)
 }
 
 func TestRBACService_IsProjectOwner(t *testing.T) {
@@ -303,8 +310,8 @@ func TestRBACService_IsProjectOwner(t *testing.T) {
 	// Create test users
 	owner, err := client.User.Create().
 		SetName("Owner").
-		SetAddr("owner@example.com").
-		SetEmail("owner@example.com").
+		SetAddr("test_service_owner313").
+		SetEmail("test_service_owner313@annatarhe.com").
 		SetPhone("").
 		SetLang("en").
 		SetLevel(1).
@@ -315,8 +322,8 @@ func TestRBACService_IsProjectOwner(t *testing.T) {
 
 	otherUser, err := client.User.Create().
 		SetName("Other User").
-		SetAddr("other@example.com").
-		SetEmail("other@example.com").
+		SetAddr("test_service_other325@example.com").
+		SetEmail("test_service_other325@example.com").
 		SetPhone("").
 		SetLang("en").
 		SetLevel(1).
@@ -351,6 +358,10 @@ func TestRBACService_IsProjectOwner(t *testing.T) {
 	if isOwner {
 		t.Error("Non-owner should not be recognized as project owner")
 	}
+
+	EntClient.Project.DeleteOneID(testProject.ID).ExecX(ctx)
+	EntClient.User.DeleteOneID(owner.ID).ExecX(ctx)
+	EntClient.User.DeleteOneID(otherUser.ID).ExecX(ctx)
 }
 
 func TestRBACService_MigrateExistingUsers(t *testing.T) {
@@ -369,8 +380,8 @@ func TestRBACService_MigrateExistingUsers(t *testing.T) {
 	// Create test users with different levels
 	adminUser, err := client.User.Create().
 		SetName("Admin User").
-		SetAddr("admin@example.com").
-		SetEmail("admin@example.com").
+		SetAddr("test_service_admin_383@example.com").
+		SetEmail("test_service_admin_383@example.com").
 		SetPhone("").
 		SetLang("en").
 		SetLevel(255).
@@ -381,8 +392,8 @@ func TestRBACService_MigrateExistingUsers(t *testing.T) {
 
 	regularUser, err := client.User.Create().
 		SetName("Regular User").
-		SetAddr("user@example.com").
-		SetEmail("user@example.com").
+		SetAddr("test_service_regular_395@example.com").
+		SetEmail("test_service_regular_395@example.com").
 		SetPhone("").
 		SetLang("en").
 		SetLevel(1).
@@ -437,4 +448,10 @@ func TestRBACService_MigrateExistingUsers(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Second migration should not fail: %v", err)
 	}
+
+	// Clean up
+	EntClient.Project.DeleteOneID(adminProject.ID).ExecX(ctx)
+	EntClient.Project.DeleteOneID(userProject.ID).ExecX(ctx)
+	EntClient.User.DeleteOneID(adminUser.ID).ExecX(ctx)
+	EntClient.User.DeleteOneID(regularUser.ID).ExecX(ctx)
 }
