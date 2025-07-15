@@ -27,7 +27,7 @@ func (s *projectTestSuite) SetupSuite() {
 
 	service.InitDB()
 	service.InitRedis(config.GetRuntimeConfig().RedisURL)
-	
+
 	rbac := service.NewMockRBACService(s.T())
 	// Configure mock expectations for RBAC permissions
 	rbac.On("HasPermission", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(true, nil)
@@ -37,15 +37,15 @@ func (s *projectTestSuite) SetupSuite() {
 		EntClient.
 		User.
 		Create().
-		SetAddr(utils.RandStringRunes(1 << 4)).
-		SetName(utils.RandStringRunes(1 << 4)).
+		SetAddr("test-addr-schema_project_test40").
+		SetName("test-addr-schema_project_test40").
 		SetLang("en").
 		SetPhone(utils.RandStringRunes(1 << 4)).
 		SetLevel(255).
-		SetEmail(utils.RandStringRunes(1 << 3)).
+		SetEmail("test-addr-schema_project_test40").
 		SaveX(context.Background())
 	s.uid = u.ID
-	s.projectName = utils.RandStringRunes(1 << 4)
+	s.projectName = "schema_project_test_48"
 }
 
 func (s *projectTestSuite) TestCreateProject() {
@@ -83,6 +83,10 @@ func (s *projectTestSuite) TestCreateProject() {
 	assert.NotEmpty(s.T(), result.ID())
 	s.projectID = int(result.ID())
 	s.providerID = int(provider.ID())
+
+	// Clean up
+	service.EntClient.Project.DeleteOneID(int(result.ID())).ExecX(context.Background())
+	service.EntClient.Provider.DeleteOneID(int(provider.ID())).ExecX(context.Background())
 }
 
 func (s *projectTestSuite) TestListProject() {
