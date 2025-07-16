@@ -43,6 +43,7 @@ type WebhookPayload struct {
 
 // triggerWebhooks sends webhook notifications for onPromptFinished events
 func triggerWebhooks(
+	ctx context.Context,
 	pj ent.Project,
 	prompt ent.Prompt,
 	responseResult int,
@@ -54,7 +55,7 @@ func triggerWebhooks(
 	isCachedResponse bool,
 ) {
 	// Use background context to avoid cancellation when request completes
-	ctx := context.Background()
+	backgroundCtx := context.Background()
 
 	// Get all enabled webhooks for this project with onPromptFinished event
 	webhooks, err := service.EntClient.Webhook.Query().
@@ -63,7 +64,7 @@ func triggerWebhooks(
 			webhook.Event("onPromptFinished"),
 			webhook.Enabled(true),
 		).
-		All(ctx)
+		All(backgroundCtx)
 	if err != nil {
 		logrus.WithError(err).Error("Failed to query webhooks")
 		return
@@ -102,13 +103,12 @@ func triggerWebhooks(
 
 	// Send webhook requests
 	for _, webhook := range webhooks {
-		go sendWebhookRequest(webhook, payloadBytes, traceID)
+		go sendWebhookRequest(backgroundCtx, webhook, payloadBytes, traceID)
 	}
 }
 
 // sendWebhookRequest sends a single webhook request and records the call details
-func sendWebhookRequest(webhook *ent.Webhook, payloadBytes []byte, traceID string) {
-	ctx := context.Background()
+func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes []byte, traceID string) {
 	startTime := time.Now()
 
 	// Prepare request headers
