@@ -41,6 +41,24 @@ type WebhookPayload struct {
 	UserAgent string `json:"userAgent"`
 }
 
+// WebhookCallData holds all the information needed to record a webhook call
+type WebhookCallData struct {
+	WebhookID       int
+	TraceID         string
+	URL             string
+	RequestHeaders  map[string]string
+	RequestBody     string
+	StatusCode      int
+	ResponseHeaders map[string]string
+	ResponseBody    string
+	StartTime       time.Time
+	EndTime         time.Time
+	IsTimeout       bool
+	IsSuccess       bool
+	ErrorMessage    string
+	UserAgent       string
+}
+
 // triggerWebhooks sends webhook notifications for onPromptFinished events
 func triggerWebhooks(
 	ctx context.Context,
@@ -121,8 +139,22 @@ func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes 
 	req, err := http.NewRequest("POST", webhook.URL, bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		logrus.WithError(err).WithField("webhook_id", webhook.ID).Error("Failed to create webhook request")
-		recordWebhookCall(ctx, webhook.ID, traceID, webhook.URL, requestHeaders, string(payloadBytes), 
-			0, nil, "", startTime, time.Now(), true, err.Error(), requestHeaders["User-Agent"])
+		recordWebhookCall(ctx, WebhookCallData{
+			WebhookID:       webhook.ID,
+			TraceID:         traceID,
+			URL:             webhook.URL,
+			RequestHeaders:  requestHeaders,
+			RequestBody:     string(payloadBytes),
+			StatusCode:      0,
+			ResponseHeaders: nil,
+			ResponseBody:    "",
+			StartTime:       startTime,
+			EndTime:         time.Now(),
+			IsTimeout:       true,
+			IsSuccess:       false,
+			ErrorMessage:    err.Error(),
+			UserAgent:       requestHeaders["User-Agent"],
+		})
 		return
 	}
 
@@ -185,52 +217,67 @@ func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes 
 		}
 	}
 
+	// Calculate success based on status code
+	isSuccess := statusCode >= 200 && statusCode < 300
+	
 	// Record the webhook call in database
-	recordWebhookCall(ctx, webhook.ID, traceID, webhook.URL, requestHeaders, string(payloadBytes),
-		statusCode, responseHeaders, responseBody, startTime, endTime, isTimeout, errorMessage, requestHeaders["User-Agent"])
+	recordWebhookCall(ctx, WebhookCallData{
+		WebhookID:       webhook.ID,
+		TraceID:         traceID,
+		URL:             webhook.URL,
+		RequestHeaders:  requestHeaders,
+		RequestBody:     string(payloadBytes),
+		StatusCode:      statusCode,
+		ResponseHeaders: responseHeaders,
+		ResponseBody:    responseBody,
+		StartTime:       startTime,
+		EndTime:         endTime,
+		IsTimeout:       isTimeout,
+		IsSuccess:       isSuccess,
+		ErrorMessage:    errorMessage,
+		UserAgent:       requestHeaders["User-Agent"],
+	})
 }
 
 // recordWebhookCall saves webhook call details to the database
-func recordWebhookCall(ctx context.Context, webhookID int, traceID, url string, requestHeaders map[string]string,
-	requestBody string, statusCode int, responseHeaders map[string]string, responseBody string,
-	startTime, endTime time.Time, isTimeout bool, errorMessage, userAgent string) {
-
-	durationMs := endTime.Sub(startTime).Milliseconds()
+func recordWebhookCall(ctx context.Context, data WebhookCallData) {
+	durationMs := data.EndTime.Sub(data.StartTime).Milliseconds()
 
 	call := service.EntClient.WebhookCall.Create().
-		SetWebhookID(webhookID).
-		SetTraceID(traceID).
-		SetURL(url).
-		SetRequestHeaders(requestHeaders).
-		SetRequestBody(requestBody).
-		SetStartTime(startTime).
+		SetWebhookID(data.WebhookID).
+		SetTraceID(data.TraceID).
+		SetURL(data.URL).
+		SetRequestHeaders(data.RequestHeaders).
+		SetRequestBody(data.RequestBody).
+		SetStartTime(data.StartTime).
 		SetDurationMs(durationMs).
-		SetIsTimeout(isTimeout)
+		SetIsTimeout(data.IsTimeout).
+		SetIsSuccess(data.IsSuccess)
 
-	if statusCode > 0 {
-		call = call.SetStatusCode(statusCode)
+	if data.StatusCode > 0 {
+		call = call.SetStatusCode(data.StatusCode)
 	}
-	if responseHeaders != nil {
-		call = call.SetResponseHeaders(responseHeaders)
+	if data.ResponseHeaders != nil {
+		call = call.SetResponseHeaders(data.ResponseHeaders)
 	}
-	if responseBody != "" {
-		call = call.SetResponseBody(responseBody)
+	if data.ResponseBody != "" {
+		call = call.SetResponseBody(data.ResponseBody)
 	}
-	if !endTime.IsZero() {
-		call = call.SetEndTime(endTime)
+	if !data.EndTime.IsZero() {
+		call = call.SetEndTime(data.EndTime)
 	}
-	if errorMessage != "" {
-		call = call.SetErrorMessage(errorMessage)
+	if data.ErrorMessage != "" {
+		call = call.SetErrorMessage(data.ErrorMessage)
 	}
-	if userAgent != "" {
-		call = call.SetUserAgent(userAgent)
+	if data.UserAgent != "" {
+		call = call.SetUserAgent(data.UserAgent)
 	}
 
 	_, err := call.Save(ctx)
 	if err != nil {
 		logrus.WithError(err).WithFields(logrus.Fields{
-			"webhook_id": webhookID,
-			"trace_id":   traceID,
+			"webhook_id": data.WebhookID,
+			"trace_id":   data.TraceID,
 		}).Error("Failed to record webhook call")
 	}
 }
