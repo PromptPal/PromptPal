@@ -96,7 +96,7 @@ func (s *projectTestSuite) TestListProject() {
 	})
 	assert.Nil(s.T(), err)
 	edges := result.Edges()
-	assert.GreaterOrEqual(s.T(), result.Count(), 1)
+	assert.GreaterOrEqual(s.T(), int(result.Count()), 1)
 	assert.Len(s.T(), edges, int(result.Count()))
 
 	pj := edges[0]
