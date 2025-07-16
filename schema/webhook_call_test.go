@@ -36,7 +36,6 @@ func (s *webhookCallTestSuite) SetupSuite() {
 
 	rbac := service.NewMockRBACService(s.T())
 	// Configure mock expectations for RBAC permissions
-	rbac.On("HasPermission", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(true, nil)
 	Setup(hs, w3, rbac)
 
 	s.q = QueryResolver{}
@@ -88,6 +87,11 @@ func (s *webhookCallTestSuite) SetupSuite() {
 }
 
 func (s *webhookCallTestSuite) TestWebhookCalls_Success() {
+	// Configure mock expectations for RBAC permissions
+	rbac := service.NewMockRBACService(s.T())
+	rbac.On("HasPermission", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(true, nil)
+	rbacService = rbac
+
 	// Create test webhook calls
 	call1 := s.createTestWebhookCall("trace-1", "https://example.com/webhook1", 200, false)
 	call2 := s.createTestWebhookCall("trace-2", "https://example.com/webhook2", 500, false)
@@ -129,6 +133,11 @@ func (s *webhookCallTestSuite) TestWebhookCalls_Success() {
 }
 
 func (s *webhookCallTestSuite) TestWebhookCalls_WithPagination() {
+	// Configure mock expectations for RBAC permissions
+	rbac := service.NewMockRBACService(s.T())
+	rbac.On("HasPermission", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(true, nil)
+	rbacService = rbac
+
 	// Create multiple test webhook calls
 	var calls []int
 	for i := 0; i < 5; i++ {
@@ -158,7 +167,7 @@ func (s *webhookCallTestSuite) TestWebhookCalls_WithPagination() {
 	// Check count (should be total count, not limited)
 	count, err := result.Count(s.ctx)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), int32(5), count)
+	assert.EqualValues(s.T(), 5, count)
 
 	// Check edges (should be 2 items with offset 1)
 	edges, err := result.Edges(s.ctx)
@@ -192,7 +201,7 @@ func (s *webhookCallTestSuite) TestWebhookCalls_InsufficientPermissions() {
 	// Create context for different user (without permissions)
 	rbac := service.NewMockRBACService(s.T())
 	rbac.On("HasPermission", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false, nil)
-	Setup(service.NewHashIDService(), service.NewWeb3Service(), rbac)
+	rbacService = rbac
 
 	unauthorizedCtx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
 		UserID: 99999, // Different user ID
@@ -212,11 +221,6 @@ func (s *webhookCallTestSuite) TestWebhookCalls_InsufficientPermissions() {
 	ge, ok := err.(GraphQLHttpError)
 	assert.True(s.T(), ok)
 	assert.Equal(s.T(), http.StatusUnauthorized, ge.code)
-
-	// Restore original RBAC mock
-	rbac = service.NewMockRBACService(s.T())
-	rbac.On("HasPermission", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(true, nil)
-	Setup(service.NewHashIDService(), service.NewWeb3Service(), rbac)
 }
 
 func (s *webhookCallTestSuite) TestWebhookResponse_Calls() {
@@ -368,10 +372,10 @@ func (s *webhookCallTestSuite) createTestWebhookCall(traceID, url string, status
 	if statusCode > 0 {
 		call = call.SetStatusCode(statusCode)
 	}
-	
+
 	// Determine success from status code (200-299)
 	isSuccess := statusCode >= 200 && statusCode < 300
-	
+
 	if isSuccess {
 		call = call.SetResponseBody(`{"success":true}`)
 		call = call.SetResponseHeaders(map[string]string{"Content-Type": "application/json"})
