@@ -20,8 +20,8 @@ func (Webhook) Fields() []ent.Field {
 		field.String("url"),
 		field.String("event").Default("onPromptFinished"),
 		field.Bool("enabled").Default(true),
-		field.Int("creator_id").StorageKey("webhook_creator").Optional(),
-		field.Int("project_id").StorageKey("webhook_project").Optional(),
+		field.Int("creator_id").StorageKey("webhook_creator"),
+		field.Int("project_id").StorageKey("webhook_project"),
 	}
 }
 
@@ -32,12 +32,14 @@ func (Webhook) Edges() []ent.Edge {
 			From("creator", User.Type).
 			Ref("webhooks").
 			Unique().
-			Field("creator_id"),
+			Field("creator_id").
+			Required(),
 		edge.
 			From("project", Project.Type).
 			Ref("webhooks").
 			Unique().
-			Field("project_id"),
+			Field("project_id").
+			Required(),
 	}
 }
 

@@ -3,13 +3,52 @@ package schema
 import (
 	"context"
 	"errors"
+	"net"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/PromptPal/PromptPal/ent"
 	"github.com/PromptPal/PromptPal/ent/webhook"
 	"github.com/PromptPal/PromptPal/service"
 )
+
+// Event constants
+const (
+	EventOnPromptFinished = "onPromptFinished"
+)
+
+// validateWebhookURL validates webhook URL and prevents SSRF attacks
+func validateWebhookURL(urlStr string) error {
+	if urlStr == "" {
+		return errors.New("URL cannot be empty")
+	}
+
+	parsed, err := url.Parse(urlStr)
+	if err != nil {
+		return errors.New("invalid URL format")
+	}
+
+	// Only allow HTTP and HTTPS schemes
+	if parsed.Scheme != "http" && parsed.Scheme != "https" {
+		return errors.New("only HTTP and HTTPS schemes are allowed")
+	}
+
+	// Check for localhost, private IPs, and loopback addresses
+	if parsed.Hostname() != "" {
+		if parsed.Hostname() == "localhost" {
+			return errors.New("localhost URLs are not allowed")
+		}
+
+		if ip := net.ParseIP(parsed.Hostname()); ip != nil {
+			if ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() {
+				return errors.New("private, loopback, and link-local IPs are not allowed")
+			}
+		}
+	}
+
+	return nil
+}
 
 type createWebhookData struct {
 	Name        string
@@ -39,8 +78,13 @@ func (q QueryResolver) CreateWebhook(ctx context.Context, args createWebhookArgs
 	}
 
 	// Validate event type
-	if data.Event != "onPromptFinished" {
+	if data.Event != EventOnPromptFinished {
 		return webhookResponse{}, NewGraphQLHttpError(http.StatusBadRequest, errors.New("only onPromptFinished event is supported"))
+	}
+
+	// Validate URL
+	if err := validateWebhookURL(data.URL); err != nil {
+		return webhookResponse{}, NewGraphQLHttpError(http.StatusBadRequest, err)
 	}
 
 	stat := service.EntClient.Webhook.Create().
@@ -98,8 +142,15 @@ func (q QueryResolver) UpdateWebhook(ctx context.Context, args updateWebhookArgs
 	}
 
 	// Validate event type if provided
-	if args.Data.Event != nil && *args.Data.Event != "onPromptFinished" {
+	if args.Data.Event != nil && *args.Data.Event != EventOnPromptFinished {
 		return webhookResponse{}, NewGraphQLHttpError(http.StatusBadRequest, errors.New("only onPromptFinished event is supported"))
+	}
+
+	// Validate URL if provided
+	if args.Data.URL != nil {
+		if err := validateWebhookURL(*args.Data.URL); err != nil {
+			return webhookResponse{}, NewGraphQLHttpError(http.StatusBadRequest, err)
+		}
 	}
 
 	updater := service.EntClient.Webhook.UpdateOneID(int(args.ID))
@@ -169,27 +220,27 @@ type webhooksResponse struct {
 	pagination paginationInput
 }
 
-func (q QueryResolver) Webhooks(ctx context.Context, args webhooksArgs) (res webhooksResponse) {
+func (q QueryResolver) Webhooks(ctx context.Context, args webhooksArgs) (webhooksResponse, error) {
 	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
 
 	// Check RBAC permission for viewing webhooks in this project
 	projectID := int(args.ProjectID)
 	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectView)
 	if err != nil {
-		// Return empty result on permission error
-		return
+		return webhooksResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
 	if !hasPermission {
-		// Return empty result on insufficient permissions
-		return
+		return webhooksResponse{}, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to view webhooks"))
 	}
 
-	res.stat = service.EntClient.Webhook.Query().
+	stat := service.EntClient.Webhook.Query().
 		Where(webhook.ProjectID(int(args.ProjectID))).
 		Order(ent.Desc(webhook.FieldID))
 
-	res.pagination = args.Pagination
-	return
+	return webhooksResponse{
+		stat:       stat,
+		pagination: args.Pagination,
+	}, nil
 }
 
 func (w webhooksResponse) Count(ctx context.Context) (int32, error) {
