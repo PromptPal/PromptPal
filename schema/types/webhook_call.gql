@@ -13,6 +13,7 @@ type WebhookCall {
   isTimeout: Boolean!
   errorMessage: String
   userAgent: String
+  ip: String
   createdAt: String!
   updatedAt: String!
   webhook: Webhook!

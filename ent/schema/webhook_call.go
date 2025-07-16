@@ -29,6 +29,7 @@ func (WebhookCall) Fields() []ent.Field {
 		field.Bool("is_timeout").Default(false).Comment("Whether the call timed out"),
 		field.String("error_message").Optional().Comment("Error message if call failed"),
 		field.String("user_agent").Optional().Comment("User-Agent header sent with request"),
+		field.String("ip").Optional().Comment("IP address of the client that triggered the webhook"),
 	}
 }
 

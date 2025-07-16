@@ -56,6 +56,7 @@ type WebhookCallData struct {
 	IsTimeout       bool
 	ErrorMessage    string
 	UserAgent       string
+	IP              string
 }
 
 // triggerWebhooks sends webhook notifications for onPromptFinished events
@@ -120,12 +121,12 @@ func triggerWebhooks(
 
 	// Send webhook requests
 	for _, webhook := range webhooks {
-		go sendWebhookRequest(backgroundCtx, webhook, payloadBytes, traceID)
+		go sendWebhookRequest(backgroundCtx, webhook, payloadBytes, traceID, clientIP)
 	}
 }
 
 // sendWebhookRequest sends a single webhook request and records the call details
-func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes []byte, traceID string) {
+func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes []byte, traceID string, clientIP string) {
 	startTime := time.Now()
 
 	// Prepare request headers
@@ -152,6 +153,7 @@ func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes 
 			IsTimeout:       true,
 			ErrorMessage:    err.Error(),
 			UserAgent:       requestHeaders["User-Agent"],
+			IP:              clientIP,
 		})
 		return
 	}
@@ -230,6 +232,7 @@ func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes 
 		IsTimeout:       isTimeout,
 		ErrorMessage:    errorMessage,
 		UserAgent:       requestHeaders["User-Agent"],
+		IP:              clientIP,
 	})
 }
 
@@ -261,6 +264,9 @@ func recordWebhookCall(ctx context.Context, data WebhookCallData) {
 	}
 	if data.UserAgent != "" {
 		call = call.SetUserAgent(data.UserAgent)
+	}
+	if data.IP != "" {
+		call = call.SetIP(data.IP)
 	}
 
 	_, err := call.Save(ctx)

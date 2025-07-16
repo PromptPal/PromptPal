@@ -183,6 +183,13 @@ func (w webhookCallResponse) UserAgent() *string {
 	return &w.c.UserAgent
 }
 
+func (w webhookCallResponse) IP() *string {
+	if w.c.IP == "" {
+		return nil
+	}
+	return &w.c.IP
+}
+
 func (w webhookCallResponse) CreatedAt() string {
 	return w.c.CreateTime.Format(time.RFC3339)
 }
