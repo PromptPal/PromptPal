@@ -529,7 +529,7 @@ func sendWebhookRequest(webhook *ent.Webhook, payloadBytes []byte) {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "PromptPal-Webhook/1.0")
+	req.Header.Set("User-Agent", fmt.Sprintf("PromptPal-Webhook/%s", versionCommit))
 
 	resp, err := client.Do(req)
 	if err != nil {
