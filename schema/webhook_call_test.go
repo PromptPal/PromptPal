@@ -363,7 +363,6 @@ func (s *webhookCallTestSuite) createTestWebhookCall(traceID, url string, status
 		SetRequestHeaders(map[string]string{"Content-Type": "application/json"}).
 		SetRequestBody(`{"event":"onPromptFinished","test":true}`).
 		SetStartTime(time.Now()).
-		SetDurationMs(100).
 		SetIsTimeout(isTimeout)
 
 	if statusCode > 0 {

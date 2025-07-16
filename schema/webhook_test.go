@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/PromptPal/PromptPal/config"
-	dbSchema "github.com/PromptPal/PromptPal/ent/schema"
 	"github.com/PromptPal/PromptPal/service"
 	"github.com/PromptPal/PromptPal/utils"
 	"github.com/stretchr/testify/assert"
