@@ -84,9 +84,6 @@ func (s *projectTestSuite) TestCreateProject() {
 	s.projectID = int(result.ID())
 	s.providerID = int(provider.ID())
 
-	// Clean up
-	service.EntClient.Project.DeleteOneID(int(result.ID())).ExecX(context.Background())
-	service.EntClient.Provider.DeleteOneID(int(provider.ID())).ExecX(context.Background())
 }
 
 func (s *projectTestSuite) TestListProject() {
