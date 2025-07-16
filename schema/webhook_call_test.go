@@ -279,7 +279,6 @@ func (s *webhookCallTestSuite) TestWebhookCallResponse_AllFields() {
 		SetResponseBody(`{"success":true,"id":"12345"}`).
 		SetStartTime(startTime).
 		SetEndTime(endTime).
-		SetDurationMs(150).
 		SetIsTimeout(false).
 		SetIsSuccess(true).
 		SetUserAgent("PromptPal-Webhook@test").
@@ -297,7 +296,6 @@ func (s *webhookCallTestSuite) TestWebhookCallResponse_AllFields() {
 	assert.Equal(s.T(), `{"success":true,"id":"12345"}`, *callResp.ResponseBody())
 	assert.Equal(s.T(), startTime.Format(time.RFC3339), callResp.StartTime())
 	assert.Equal(s.T(), endTime.Format(time.RFC3339), *callResp.EndTime())
-	assert.Equal(s.T(), int32(150), *callResp.DurationMs())
 	assert.False(s.T(), callResp.IsTimeout())
 	assert.True(s.T(), callResp.IsSuccess())
 	assert.Nil(s.T(), callResp.ErrorMessage())
@@ -336,7 +334,6 @@ func (s *webhookCallTestSuite) TestWebhookCallResponse_OptionalFields() {
 		SetRequestHeaders(map[string]string{"Content-Type": "application/json"}).
 		SetRequestBody(`{"event":"onPromptFinished"}`).
 		SetStartTime(time.Now()).
-		SetDurationMs(5000).
 		SetIsTimeout(true).
 		SetIsSuccess(false).
 		SetErrorMessage("Connection timeout").
@@ -355,7 +352,6 @@ func (s *webhookCallTestSuite) TestWebhookCallResponse_OptionalFields() {
 	assert.True(s.T(), callResp.IsTimeout())
 	assert.False(s.T(), callResp.IsSuccess())
 	assert.Equal(s.T(), "Connection timeout", *callResp.ErrorMessage())
-	assert.Equal(s.T(), int32(5000), *callResp.DurationMs())
 
 	// Clean up
 	service.EntClient.WebhookCall.DeleteOneID(call.ID).ExecX(context.Background())
@@ -370,7 +366,6 @@ func (s *webhookCallTestSuite) createTestWebhookCall(traceID, url string, status
 		SetRequestHeaders(map[string]string{"Content-Type": "application/json"}).
 		SetRequestBody(`{"event":"onPromptFinished","test":true}`).
 		SetStartTime(time.Now()).
-		SetDurationMs(100).
 		SetIsTimeout(isTimeout).
 		SetIsSuccess(isSuccess)
 

@@ -160,14 +160,6 @@ func (w webhookCallResponse) EndTime() *string {
 	return &endTime
 }
 
-func (w webhookCallResponse) DurationMs() *int32 {
-	if w.c.DurationMs == 0 {
-		return nil
-	}
-	duration := int32(w.c.DurationMs)
-	return &duration
-}
-
 func (w webhookCallResponse) IsTimeout() bool {
 	return w.c.IsTimeout
 }

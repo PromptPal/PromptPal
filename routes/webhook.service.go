@@ -197,8 +197,6 @@ func recordWebhookCall(ctx context.Context, webhookID int, traceID, url string, 
 	requestBody string, statusCode int, responseHeaders map[string]string, responseBody string,
 	startTime, endTime time.Time, isTimeout, isSuccess bool, errorMessage, userAgent string) {
 
-	durationMs := endTime.Sub(startTime).Milliseconds()
-
 	call := service.EntClient.WebhookCall.Create().
 		SetWebhookID(webhookID).
 		SetTraceID(traceID).
@@ -206,7 +204,6 @@ func recordWebhookCall(ctx context.Context, webhookID int, traceID, url string, 
 		SetRequestHeaders(requestHeaders).
 		SetRequestBody(requestBody).
 		SetStartTime(startTime).
-		SetDurationMs(durationMs).
 		SetIsTimeout(isTimeout).
 		SetIsSuccess(isSuccess)
 

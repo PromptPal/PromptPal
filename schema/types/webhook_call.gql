@@ -10,7 +10,6 @@ type WebhookCall {
   responseBody: String
   startTime: String!
   endTime: String
-  durationMs: Int
   isTimeout: Boolean!
   isSuccess: Boolean!
   errorMessage: String

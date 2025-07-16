@@ -26,7 +26,6 @@ func (WebhookCall) Fields() []ent.Field {
 		field.Text("response_body").Optional().Comment("Response body received from webhook"),
 		field.Time("start_time").Default(time.Now).Comment("When the webhook call started"),
 		field.Time("end_time").Optional().Comment("When the webhook call completed"),
-		field.Int64("duration_ms").Optional().Comment("Duration of the call in milliseconds"),
 		field.Bool("is_timeout").Default(false).Comment("Whether the call timed out"),
 		field.Bool("is_success").Default(false).Comment("Whether the call was successful (status 2xx)"),
 		field.String("error_message").Optional().Comment("Error message if call failed"),
