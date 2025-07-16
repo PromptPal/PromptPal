@@ -54,7 +54,6 @@ type WebhookCallData struct {
 	StartTime       time.Time
 	EndTime         time.Time
 	IsTimeout       bool
-	IsSuccess       bool
 	ErrorMessage    string
 	UserAgent       string
 }
@@ -151,7 +150,6 @@ func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes 
 			StartTime:       startTime,
 			EndTime:         time.Now(),
 			IsTimeout:       true,
-			IsSuccess:       false,
 			ErrorMessage:    err.Error(),
 			UserAgent:       requestHeaders["User-Agent"],
 		})
@@ -217,9 +215,6 @@ func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes 
 		}
 	}
 
-	// Calculate success based on status code
-	isSuccess := statusCode >= 200 && statusCode < 300
-	
 	// Record the webhook call in database
 	recordWebhookCall(ctx, WebhookCallData{
 		WebhookID:       webhook.ID,
@@ -233,7 +228,6 @@ func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes 
 		StartTime:       startTime,
 		EndTime:         endTime,
 		IsTimeout:       isTimeout,
-		IsSuccess:       isSuccess,
 		ErrorMessage:    errorMessage,
 		UserAgent:       requestHeaders["User-Agent"],
 	})
@@ -241,8 +235,6 @@ func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes 
 
 // recordWebhookCall saves webhook call details to the database
 func recordWebhookCall(ctx context.Context, data WebhookCallData) {
-	durationMs := data.EndTime.Sub(data.StartTime).Milliseconds()
-
 	call := service.EntClient.WebhookCall.Create().
 		SetWebhookID(data.WebhookID).
 		SetTraceID(data.TraceID).
@@ -250,9 +242,7 @@ func recordWebhookCall(ctx context.Context, data WebhookCallData) {
 		SetRequestHeaders(data.RequestHeaders).
 		SetRequestBody(data.RequestBody).
 		SetStartTime(data.StartTime).
-		SetDurationMs(durationMs).
-		SetIsTimeout(data.IsTimeout).
-		SetIsSuccess(data.IsSuccess)
+		SetIsTimeout(data.IsTimeout)
 
 	if data.StatusCode > 0 {
 		call = call.SetStatusCode(data.StatusCode)
