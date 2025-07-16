@@ -89,9 +89,9 @@ func (s *webhookCallTestSuite) SetupSuite() {
 
 func (s *webhookCallTestSuite) TestWebhookCalls_Success() {
 	// Create test webhook calls
-	call1 := s.createTestWebhookCall("trace-1", "https://example.com/webhook1", 200, true, false)
-	call2 := s.createTestWebhookCall("trace-2", "https://example.com/webhook2", 500, false, false)
-	call3 := s.createTestWebhookCall("trace-3", "https://example.com/webhook3", 0, false, true)
+	call1 := s.createTestWebhookCall("trace-1", "https://example.com/webhook1", 200, false)
+	call2 := s.createTestWebhookCall("trace-2", "https://example.com/webhook2", 500, false)
+	call3 := s.createTestWebhookCall("trace-3", "https://example.com/webhook3", 0, true)
 
 	// Query webhook calls
 	result, err := s.q.WebhookCalls(s.ctx, webhookCallsArgs{
@@ -136,7 +136,6 @@ func (s *webhookCallTestSuite) TestWebhookCalls_WithPagination() {
 			fmt.Sprintf("trace-%d", i),
 			fmt.Sprintf("https://example.com/webhook%d", i),
 			200,
-			true,
 			false,
 		)
 		calls = append(calls, call.ID)
@@ -222,8 +221,8 @@ func (s *webhookCallTestSuite) TestWebhookCalls_InsufficientPermissions() {
 
 func (s *webhookCallTestSuite) TestWebhookResponse_Calls() {
 	// Create test webhook calls
-	call1 := s.createTestWebhookCall("trace-1", "https://example.com/webhook1", 200, true, false)
-	call2 := s.createTestWebhookCall("trace-2", "https://example.com/webhook2", 404, false, false)
+	call1 := s.createTestWebhookCall("trace-1", "https://example.com/webhook1", 200, false)
+	call2 := s.createTestWebhookCall("trace-2", "https://example.com/webhook2", 404, false)
 
 	// Get webhook response
 	webhook, err := service.EntClient.Webhook.Get(context.Background(), s.webhookID)
@@ -280,7 +279,6 @@ func (s *webhookCallTestSuite) TestWebhookCallResponse_AllFields() {
 		SetStartTime(startTime).
 		SetEndTime(endTime).
 		SetIsTimeout(false).
-		SetIsSuccess(true).
 		SetUserAgent("PromptPal-Webhook@test").
 		SaveX(context.Background())
 
@@ -335,7 +333,6 @@ func (s *webhookCallTestSuite) TestWebhookCallResponse_OptionalFields() {
 		SetRequestBody(`{"event":"onPromptFinished"}`).
 		SetStartTime(time.Now()).
 		SetIsTimeout(true).
-		SetIsSuccess(false).
 		SetErrorMessage("Connection timeout").
 		SaveX(context.Background())
 
@@ -358,7 +355,7 @@ func (s *webhookCallTestSuite) TestWebhookCallResponse_OptionalFields() {
 }
 
 // Helper method to create test webhook calls
-func (s *webhookCallTestSuite) createTestWebhookCall(traceID, url string, statusCode int, isSuccess, isTimeout bool) *ent.WebhookCall {
+func (s *webhookCallTestSuite) createTestWebhookCall(traceID, url string, statusCode int, isTimeout bool) *ent.WebhookCall {
 	call := service.EntClient.WebhookCall.Create().
 		SetWebhookID(s.webhookID).
 		SetTraceID(traceID).
@@ -366,12 +363,16 @@ func (s *webhookCallTestSuite) createTestWebhookCall(traceID, url string, status
 		SetRequestHeaders(map[string]string{"Content-Type": "application/json"}).
 		SetRequestBody(`{"event":"onPromptFinished","test":true}`).
 		SetStartTime(time.Now()).
-		SetIsTimeout(isTimeout).
-		SetIsSuccess(isSuccess)
+		SetDurationMs(100).
+		SetIsTimeout(isTimeout)
 
 	if statusCode > 0 {
 		call = call.SetStatusCode(statusCode)
 	}
+	
+	// Determine success from status code (200-299)
+	isSuccess := statusCode >= 200 && statusCode < 300
+	
 	if isSuccess {
 		call = call.SetResponseBody(`{"success":true}`)
 		call = call.SetResponseHeaders(map[string]string{"Content-Type": "application/json"})

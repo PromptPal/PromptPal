@@ -122,7 +122,7 @@ func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes 
 	if err != nil {
 		logrus.WithError(err).WithField("webhook_id", webhook.ID).Error("Failed to create webhook request")
 		recordWebhookCall(ctx, webhook.ID, traceID, webhook.URL, requestHeaders, string(payloadBytes), 
-			0, nil, "", startTime, time.Now(), true, false, err.Error(), requestHeaders["User-Agent"])
+			0, nil, "", startTime, time.Now(), true, err.Error(), requestHeaders["User-Agent"])
 		return
 	}
 
@@ -139,7 +139,6 @@ func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes 
 	var responseHeaders map[string]string
 	var responseBody string
 	var isTimeout bool
-	var isSuccess bool
 	var errorMessage string
 
 	if err != nil {
@@ -150,7 +149,6 @@ func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes 
 	} else {
 		defer resp.Body.Close()
 		statusCode = resp.StatusCode
-		isSuccess = statusCode >= 200 && statusCode < 300
 		
 		// Read response headers
 		responseHeaders = make(map[string]string)
@@ -169,7 +167,7 @@ func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes 
 			responseBody = string(bodyBytes)
 		}
 
-		if !isSuccess {
+		if !(statusCode >= 200 && statusCode < 300) {
 			logrus.WithFields(logrus.Fields{
 				"webhook_id":  webhook.ID,
 				"status_code": resp.StatusCode,
@@ -189,13 +187,15 @@ func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes 
 
 	// Record the webhook call in database
 	recordWebhookCall(ctx, webhook.ID, traceID, webhook.URL, requestHeaders, string(payloadBytes),
-		statusCode, responseHeaders, responseBody, startTime, endTime, isTimeout, isSuccess, errorMessage, requestHeaders["User-Agent"])
+		statusCode, responseHeaders, responseBody, startTime, endTime, isTimeout, errorMessage, requestHeaders["User-Agent"])
 }
 
 // recordWebhookCall saves webhook call details to the database
 func recordWebhookCall(ctx context.Context, webhookID int, traceID, url string, requestHeaders map[string]string,
 	requestBody string, statusCode int, responseHeaders map[string]string, responseBody string,
-	startTime, endTime time.Time, isTimeout, isSuccess bool, errorMessage, userAgent string) {
+	startTime, endTime time.Time, isTimeout bool, errorMessage, userAgent string) {
+
+	durationMs := endTime.Sub(startTime).Milliseconds()
 
 	call := service.EntClient.WebhookCall.Create().
 		SetWebhookID(webhookID).
@@ -204,8 +204,8 @@ func recordWebhookCall(ctx context.Context, webhookID int, traceID, url string, 
 		SetRequestHeaders(requestHeaders).
 		SetRequestBody(requestBody).
 		SetStartTime(startTime).
-		SetIsTimeout(isTimeout).
-		SetIsSuccess(isSuccess)
+		SetDurationMs(durationMs).
+		SetIsTimeout(isTimeout)
 
 	if statusCode > 0 {
 		call = call.SetStatusCode(statusCode)

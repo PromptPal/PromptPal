@@ -165,7 +165,8 @@ func (w webhookCallResponse) IsTimeout() bool {
 }
 
 func (w webhookCallResponse) IsSuccess() bool {
-	return w.c.IsSuccess
+	statusCode := w.c.StatusCode
+	return statusCode >= 200 && statusCode < 300
 }
 
 func (w webhookCallResponse) ErrorMessage() *string {
