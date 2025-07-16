@@ -432,5 +432,5 @@ func savePromptCall(
 	}
 
 	// Trigger webhooks in background
-	go triggerWebhooks(context.Background(), pj, prompt, responseResult, res, payload, endTime, startTime, ua, clientIP, isCachedResponse)
+	go triggerWebhooks(pj, prompt, responseResult, res, payload, endTime, startTime, ua, clientIP, isCachedResponse)
 }
