@@ -453,11 +453,6 @@ func (s *webhookTestSuite) TestWebhooks_UnauthorizedAccess() {
 	assert.True(s.T(), ok)
 	assert.Equal(s.T(), http.StatusUnauthorized, ge.code)
 
-	// Reset mock for other tests
-	rbac = service.NewMockRBACService(s.T())
-	rbac.On("HasPermission", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(true, nil)
-	rbacService = rbac
-
 	// Clean up
 	service.EntClient.User.DeleteOneID(unauthorizedUser.ID).ExecX(context.Background())
 }
