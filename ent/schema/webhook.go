@@ -40,6 +40,8 @@ func (Webhook) Edges() []ent.Edge {
 			Unique().
 			Field("project_id").
 			Required(),
+		edge.
+			To("calls", WebhookCall.Type),
 	}
 }
 

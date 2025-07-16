@@ -32,6 +32,7 @@ var fileNames = []string{
 	"types/history.gql",
 	"types/provider.gql",
 	"types/webhook.gql",
+	"types/webhook_call.gql",
 }
 
 func String() string {
