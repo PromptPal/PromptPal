@@ -29,11 +29,15 @@ type WebhookPayload struct {
 		Completion int `json:"completion"`
 		Total      int `json:"total"`
 	} `json:"tokens"`
-	Cached bool `json:"cached"`
-	IP     string `json:"ip"`
+	Cached    bool   `json:"cached"`
+	IP        string `json:"ip"`
 	UserAgent string `json:"userAgent"`
 }
 
+// webhookHTTPClient is a reusable HTTP client for webhook requests
+var webhookHTTPClient = &http.Client{
+	Timeout: 10 * time.Second,
+}
 // triggerWebhooks sends webhook notifications for onPromptFinished events
 func triggerWebhooks(
 	ctx context.Context,
@@ -96,10 +100,6 @@ func triggerWebhooks(
 
 // sendWebhookRequest sends a single webhook request
 func sendWebhookRequest(webhook *ent.Webhook, payloadBytes []byte) {
-	client := &http.Client{
-		Timeout: 10 * time.Second,
-	}
-
 	req, err := http.NewRequest("POST", webhook.URL, bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		logrus.WithError(err).WithField("webhook_id", webhook.ID).Error("Failed to create webhook request")
@@ -109,7 +109,7 @@ func sendWebhookRequest(webhook *ent.Webhook, payloadBytes []byte) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", fmt.Sprintf("PromptPal-Webhook/%s", versionCommit))
 
-	resp, err := client.Do(req)
+	resp, err := webhookHTTPClient.Do(req)
 	if err != nil {
 		logrus.WithError(err).WithField("webhook_id", webhook.ID).Error("Failed to send webhook request")
 		return
@@ -118,16 +118,16 @@ func sendWebhookRequest(webhook *ent.Webhook, payloadBytes []byte) {
 
 	if resp.StatusCode >= 400 {
 		logrus.WithFields(logrus.Fields{
-			"webhook_id": webhook.ID,
+			"webhook_id":  webhook.ID,
 			"status_code": resp.StatusCode,
-			"url": webhook.URL,
+			"url":         webhook.URL,
 		}).Error("Webhook request failed")
 		return
 	}
 
 	logrus.WithFields(logrus.Fields{
-		"webhook_id": webhook.ID,
+		"webhook_id":  webhook.ID,
 		"status_code": resp.StatusCode,
-		"url": webhook.URL,
+		"url":         webhook.URL,
 	}).Info("Webhook request sent successfully")
 }
