@@ -6,6 +6,7 @@
 #import * from './types/call.gql'
 #import * from './types/history.gql'
 #import * from './types/provider.gql'
+#import * from './types/webhook.gql'
 
 schema {
   query: Query
@@ -25,6 +26,9 @@ type Query {
   # Provider queries
   provider(id: Int!): Provider!
   providers(pagination: PaginationInput!): ProviderList!
+
+  # Webhook queries
+  webhooks(projectId: Int!, pagination: PaginationInput!): WebhookList!
 }
 
 type Mutation {
@@ -48,4 +52,9 @@ type Mutation {
 
   # User mutations
   createUser(data: CreateUserPayload!): CreateUserResponse!
+
+  # Webhook mutations
+  createWebhook(data: WebhookPayload!): Webhook!
+  updateWebhook(id: Int!, data: WebhookPayload!): Webhook!
+  deleteWebhook(id: Int!): Boolean!
 }

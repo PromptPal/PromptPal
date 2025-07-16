@@ -53,6 +53,7 @@ func (Project) Edges() []ent.Edge {
 			Unique().
 			Field("providerId"),
 		edge.To("userProjectRoles", UserProjectRole.Type),
+		edge.To("webhooks", Webhook.Type),
 	}
 }
 

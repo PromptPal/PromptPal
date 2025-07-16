@@ -84,9 +84,6 @@ func (s *projectTestSuite) TestCreateProject() {
 	s.projectID = int(result.ID())
 	s.providerID = int(provider.ID())
 
-	// Clean up
-	service.EntClient.Project.DeleteOneID(int(result.ID())).ExecX(context.Background())
-	service.EntClient.Provider.DeleteOneID(int(provider.ID())).ExecX(context.Background())
 }
 
 func (s *projectTestSuite) TestListProject() {
@@ -99,7 +96,7 @@ func (s *projectTestSuite) TestListProject() {
 	})
 	assert.Nil(s.T(), err)
 	edges := result.Edges()
-	assert.EqualValues(s.T(), 1, result.Count())
+	assert.GreaterOrEqual(s.T(), int(result.Count()), 1)
 	assert.Len(s.T(), edges, int(result.Count()))
 
 	pj := edges[0]

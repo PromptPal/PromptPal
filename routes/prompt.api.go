@@ -430,4 +430,7 @@ func savePromptCall(
 	if exp != nil {
 		logrus.Errorln(exp)
 	}
+
+	// Trigger webhooks in background
+go triggerWebhooks(context.Background(), pj, prompt, responseResult, res, payload, endTime, startTime, ua, clientIP, isCachedResponse)
 }

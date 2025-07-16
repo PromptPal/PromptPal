@@ -1,0 +1,38 @@
+type WebhookCall {
+  id: Int!
+  webhookId: Int!
+  traceId: String!
+  url: String!
+  requestHeaders: JSON
+  requestBody: String!
+  statusCode: Int
+  responseHeaders: JSON
+  responseBody: String
+  startTime: String!
+  endTime: String
+  isTimeout: Boolean!
+  errorMessage: String
+  userAgent: String
+  ip: String
+  createdAt: String!
+  updatedAt: String!
+  webhook: Webhook!
+}
+
+type WebhookCallsConnection {
+  count: Int!
+  edges: [WebhookCall!]!
+}
+
+input WebhookCallsInput {
+  webhookId: Int!
+  pagination: PaginationInput!
+}
+
+extend type Query {
+  webhookCalls(input: WebhookCallsInput!): WebhookCallsConnection!
+}
+
+extend type Webhook {
+  calls(pagination: PaginationInput!): WebhookCallsConnection!
+}

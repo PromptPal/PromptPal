@@ -39,6 +39,7 @@ func (User) Edges() []ent.Edge {
 		edge.To("openTokens", OpenToken.Type),
 		edge.To("providers", Provider.Type),
 		edge.To("userProjectRoles", UserProjectRole.Type),
+		edge.To("webhooks", Webhook.Type),
 	}
 }
 
