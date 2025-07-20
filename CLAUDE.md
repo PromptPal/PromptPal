@@ -112,3 +112,43 @@ Required environment variables (see `.env` template):
 - `DB_TYPE` and `DB_DSN`: Database configuration
 - `ADMIN_LIST`: Comma-separated admin addresses
 - `OPENAI_BASE_URL`: OpenAI API endpoint
+
+## Commit Rules
+
+When creating commits in this repository, follow these conventions:
+
+### Commit Message Format
+Use conventional commit format:
+```
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### Commit Types
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `style`: Code style changes (formatting, missing semi-colons, etc)
+- `refactor`: Code refactoring without functionality changes
+- `test`: Adding or updating tests
+- `chore`: Maintenance tasks, dependency updates
+- `perf`: Performance improvements
+- `ci`: Changes to CI configuration
+
+### Examples
+```
+feat(auth): add Web3 wallet authentication support
+fix(api): resolve GraphQL query timeout issues
+docs: update API documentation for new endpoints
+test(service): add unit tests for AI service providers
+```
+
+### Guidelines
+- Keep the first line under 50 characters
+- Use imperative mood in the description ("add" not "added")
+- Include scope when applicable (auth, api, service, etc.)
+- Reference issue numbers in the footer when applicable
+- Always run tests before committing
