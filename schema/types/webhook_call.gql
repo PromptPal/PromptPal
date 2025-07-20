@@ -3,10 +3,10 @@ type WebhookCall {
   webhookId: Int!
   traceId: String!
   url: String!
-  requestHeaders: JSON
+  requestHeaders: String
   requestBody: String!
   statusCode: Int
-  responseHeaders: JSON
+  responseHeaders: String
   responseBody: String
   startTime: String!
   endTime: String

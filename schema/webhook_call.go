@@ -105,7 +105,7 @@ func (w webhookCallResponse) URL() string {
 	return w.c.URL
 }
 
-func (w webhookCallResponse) RequestHeaders() *json.RawMessage {
+func (w webhookCallResponse) RequestHeaders() *string {
 	if w.c.RequestHeaders == nil {
 		return nil
 	}
@@ -113,8 +113,8 @@ func (w webhookCallResponse) RequestHeaders() *json.RawMessage {
 	if err != nil {
 		return nil
 	}
-	rawMsg := json.RawMessage(jsonBytes)
-	return &rawMsg
+	jsonString := string(jsonBytes)
+	return &jsonString
 }
 
 func (w webhookCallResponse) RequestBody() string {
@@ -129,7 +129,7 @@ func (w webhookCallResponse) StatusCode() *int32 {
 	return &statusCode
 }
 
-func (w webhookCallResponse) ResponseHeaders() *json.RawMessage {
+func (w webhookCallResponse) ResponseHeaders() *string {
 	if w.c.ResponseHeaders == nil {
 		return nil
 	}
@@ -137,8 +137,8 @@ func (w webhookCallResponse) ResponseHeaders() *json.RawMessage {
 	if err != nil {
 		return nil
 	}
-	rawMsg := json.RawMessage(jsonBytes)
-	return &rawMsg
+	jsonString := string(jsonBytes)
+	return &jsonString
 }
 
 func (w webhookCallResponse) ResponseBody() *string {

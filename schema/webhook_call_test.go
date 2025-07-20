@@ -234,10 +234,12 @@ func (s *webhookCallTestSuite) TestWebhookResponse_Calls() {
 	webhookResp := webhookResponse{w: webhook}
 
 	// Test calls method
-	result, err := webhookResp.Calls(s.ctx, paginationInput{
-		Limit:  10,
-		Offset: 0,
-	})
+	result, err := webhookResp.Calls(s.ctx,
+		webhookCallArgs{
+			paginationInput{
+				Limit:  10,
+				Offset: 0,
+			}})
 
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), result.stat)
@@ -307,14 +309,14 @@ func (s *webhookCallTestSuite) TestWebhookCallResponse_AllFields() {
 	requestHeadersJSON := callResp.RequestHeaders()
 	assert.NotNil(s.T(), requestHeadersJSON)
 	var parsedReqHeaders map[string]string
-	err := json.Unmarshal(*requestHeadersJSON, &parsedReqHeaders)
+	err := json.Unmarshal([]byte(*requestHeadersJSON), &parsedReqHeaders)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), requestHeaders, parsedReqHeaders)
 
 	responseHeadersJSON := callResp.ResponseHeaders()
 	assert.NotNil(s.T(), responseHeadersJSON)
 	var parsedRespHeaders map[string]string
-	err = json.Unmarshal(*responseHeadersJSON, &parsedRespHeaders)
+	err = json.Unmarshal([]byte(*responseHeadersJSON), &parsedRespHeaders)
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), responseHeaders, parsedRespHeaders)
 
