@@ -10,6 +10,14 @@ input WebhookPayload {
   projectId: Int!
 }
 
+input WebhookUpdatePayload {
+  name: String
+  description: String
+  url: String
+  event: String
+  enabled: Boolean
+}
+
 type Webhook {
   id: Int!
   name: String!

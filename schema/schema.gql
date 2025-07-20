@@ -55,6 +55,6 @@ type Mutation {
 
   # Webhook mutations
   createWebhook(data: WebhookPayload!): Webhook!
-  updateWebhook(id: Int!, data: WebhookPayload!): Webhook!
+  updateWebhook(id: Int!, data: WebhookUpdatePayload!): Webhook!
   deleteWebhook(id: Int!): Boolean!
 }
