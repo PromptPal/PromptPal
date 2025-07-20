@@ -36,10 +36,11 @@ type WebhookPayload struct {
 		Completion int `json:"completion"`
 		Total      int `json:"total"`
 	} `json:"tokens"`
-	Cached     bool   `json:"cached"`
-	IP         string `json:"ip"`
-	UserAgent  string `json:"userAgent"`
-	ProviderID *int   `json:"providerId,omitempty"`
+	Cached              bool    `json:"cached"`
+	IP                  string  `json:"ip"`
+	UserAgent           string  `json:"userAgent"`
+	ProviderID          *int    `json:"providerId,omitempty"`
+	ProviderDefaultModel *string `json:"providerDefaultModel,omitempty"`
 }
 
 // WebhookCallData holds all the information needed to record a webhook call
@@ -108,6 +109,18 @@ func triggerWebhooks(
 		IP:         clientIP,
 		UserAgent:  ua,
 		ProviderID: providerID,
+	}
+
+	// Fetch provider default model if provider ID is available
+	if providerID != nil {
+		provider, err := service.EntClient.Provider.Get(backgroundCtx, *providerID)
+		if err != nil {
+			logrus.WithError(err).WithField("provider_id", *providerID).Error("Failed to fetch provider for webhook payload")
+		} else {
+			if provider.DefaultModel != "" {
+				webhookPayload.ProviderDefaultModel = &provider.DefaultModel
+			}
+		}
 	}
 
 	webhookPayload.Tokens.Prompt = res.Usage.PromptTokens
