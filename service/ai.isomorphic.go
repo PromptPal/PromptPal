@@ -70,15 +70,16 @@ func (o isomorphicAIService) getIsomorphicClient(ctx context.Context, provider *
 }
 
 func (o isomorphicAIService) GetProvider(ctx context.Context, prompt ent.Prompt) (provider *ent.Provider, err error) {
-	promptProvider, err := EntClient.Provider.Get(ctx, prompt.ProviderId)
-
-	if err != nil && !ent.IsNotFound(err) {
-		return
-	}
-
-	if err == nil && promptProvider != nil {
-		provider = promptProvider
-		return
+	var promptProvider *ent.Provider
+	if prompt.ProviderId > 0 {
+		promptProvider, err = EntClient.Provider.Get(ctx, prompt.ProviderId)
+		if err != nil && !ent.IsNotFound(err) {
+			return
+		}
+		if err == nil && promptProvider != nil {
+			provider = promptProvider
+			return
+		}
 	}
 
 	err = nil
@@ -88,9 +89,12 @@ func (o isomorphicAIService) GetProvider(ctx context.Context, prompt ent.Prompt)
 		return
 	}
 
-	projectProvider, err := EntClient.Provider.Get(ctx, pj.ProviderId)
-	if err != nil && !ent.IsNotFound(err) {
-		return
+	var projectProvider *ent.Provider
+	if pj.ProviderId != nil {
+		projectProvider, err = EntClient.Provider.Get(ctx, *pj.ProviderId)
+		if err != nil && !ent.IsNotFound(err) {
+			return
+		}
 	}
 	if err == nil && projectProvider != nil {
 		provider = projectProvider

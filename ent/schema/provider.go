@@ -62,6 +62,12 @@ func (Provider) Edges() []ent.Edge {
 			From("creator", User.Type).
 			Ref("providers").
 			Unique(),
+
+		// A provider can have many prompt calls
+		edge.To("promptCalls", PromptCall.Type),
+
+		// A provider can have many webhook calls
+		edge.To("webhookCalls", WebhookCall.Type),
 	}
 }
 

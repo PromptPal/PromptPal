@@ -30,6 +30,8 @@ func (PromptCall) Fields() []ent.Field {
 		field.String("ip").Default(""),
 		// only available when prompt.debug is true
 		field.String("message").Optional().Nillable(),
+		// provider information
+		field.Int("providerId").Optional().Nillable().StorageKey("prompt_call_provider"),
 	}
 }
 
@@ -42,6 +44,10 @@ func (PromptCall) Edges() []ent.Edge {
 			Field("promptId").
 			Required(),
 		edge.From("project", Project.Type).Ref("calls").Unique(),
+		edge.From("provider", Provider.Type).
+			Ref("promptCalls").
+			Unique().
+			Field("providerId"),
 	}
 }
 

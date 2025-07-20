@@ -30,6 +30,8 @@ func (WebhookCall) Fields() []ent.Field {
 		field.String("error_message").Optional().Comment("Error message if call failed"),
 		field.String("user_agent").Optional().Comment("User-Agent header sent with request"),
 		field.String("ip").Optional().Comment("IP address of the client that triggered the webhook"),
+		// provider information
+		field.Int("providerId").Optional().StorageKey("webhook_call_provider").Comment("ID of the AI provider used"),
 	}
 }
 
@@ -42,6 +44,10 @@ func (WebhookCall) Edges() []ent.Edge {
 			Unique().
 			Field("webhook_id").
 			Required(),
+		edge.From("provider", Provider.Type).
+			Ref("webhookCalls").
+			Unique().
+			Field("providerId"),
 	}
 }
 

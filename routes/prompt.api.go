@@ -409,6 +409,11 @@ func savePromptCall(
 		SetUa(ua)
 		// SetUa(c.Request.UserAgent())
 
+	// Set provider information if available
+	if pj.ProviderId != nil {
+		stat.SetProviderID(*pj.ProviderId)
+	}
+
 	if prompt.Debug {
 		stat.SetPayload(payload.Variables)
 	}
@@ -432,5 +437,5 @@ func savePromptCall(
 	}
 
 	// Trigger webhooks in background
-go triggerWebhooks(context.Background(), pj, prompt, responseResult, res, payload, endTime, startTime, ua, clientIP, isCachedResponse)
+go triggerWebhooks(context.Background(), pj, prompt, responseResult, res, payload, endTime, startTime, ua, clientIP, isCachedResponse, pj.ProviderId)
 }
