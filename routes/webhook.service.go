@@ -36,9 +36,11 @@ type WebhookPayload struct {
 		Completion int `json:"completion"`
 		Total      int `json:"total"`
 	} `json:"tokens"`
-	Cached    bool   `json:"cached"`
-	IP        string `json:"ip"`
-	UserAgent string `json:"userAgent"`
+	Cached              bool    `json:"cached"`
+	IP                  string  `json:"ip"`
+	UserAgent           string  `json:"userAgent"`
+	ProviderID          *int    `json:"providerId,omitempty"`
+	ProviderDefaultModel *string `json:"providerDefaultModel,omitempty"`
 }
 
 // WebhookCallData holds all the information needed to record a webhook call
@@ -57,6 +59,7 @@ type WebhookCallData struct {
 	ErrorMessage    string
 	UserAgent       string
 	IP              string
+	ProviderID      *int
 }
 
 // triggerWebhooks sends webhook notifications for onPromptFinished events
@@ -71,6 +74,7 @@ func triggerWebhooks(
 	ua string,
 	clientIP string,
 	isCachedResponse bool,
+	providerID *int,
 ) {
 	// Use background context to avoid cancellation when request completes
 	backgroundCtx := context.Background()
@@ -94,16 +98,29 @@ func triggerWebhooks(
 
 	// Prepare webhook payload
 	webhookPayload := WebhookPayload{
-		Event:     "onPromptFinished",
-		ProjectID: pj.ID,
-		PromptID:  prompt.ID,
-		UserID:    payload.UserId,
-		Result:    responseResult,
-		Timestamp: endTime.Format(time.RFC3339),
-		Duration:  endTime.Sub(startTime).Milliseconds(),
-		Cached:    isCachedResponse,
-		IP:        clientIP,
-		UserAgent: ua,
+		Event:      "onPromptFinished",
+		ProjectID:  pj.ID,
+		PromptID:   prompt.ID,
+		UserID:     payload.UserId,
+		Result:     responseResult,
+		Timestamp:  endTime.Format(time.RFC3339),
+		Duration:   endTime.Sub(startTime).Milliseconds(),
+		Cached:     isCachedResponse,
+		IP:         clientIP,
+		UserAgent:  ua,
+		ProviderID: providerID,
+	}
+
+	// Fetch provider default model if provider ID is available
+	if providerID != nil {
+		provider, err := service.EntClient.Provider.Get(backgroundCtx, *providerID)
+		if err != nil {
+			logrus.WithError(err).WithField("provider_id", *providerID).Error("Failed to fetch provider for webhook payload")
+		} else {
+			if provider.DefaultModel != "" {
+				webhookPayload.ProviderDefaultModel = &provider.DefaultModel
+			}
+		}
 	}
 
 	webhookPayload.Tokens.Prompt = res.Usage.PromptTokens
@@ -121,12 +138,12 @@ func triggerWebhooks(
 
 	// Send webhook requests
 	for _, webhook := range webhooks {
-		go sendWebhookRequest(backgroundCtx, webhook, payloadBytes, traceID, clientIP)
+		go sendWebhookRequest(backgroundCtx, webhook, payloadBytes, traceID, clientIP, providerID)
 	}
 }
 
 // sendWebhookRequest sends a single webhook request and records the call details
-func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes []byte, traceID string, clientIP string) {
+func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes []byte, traceID string, clientIP string, providerID *int) {
 	startTime := time.Now()
 
 	// Prepare request headers
@@ -154,6 +171,7 @@ func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes 
 			ErrorMessage:    err.Error(),
 			UserAgent:       requestHeaders["User-Agent"],
 			IP:              clientIP,
+			ProviderID:      providerID,
 		})
 		return
 	}
@@ -233,6 +251,7 @@ func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes 
 		ErrorMessage:    errorMessage,
 		UserAgent:       requestHeaders["User-Agent"],
 		IP:              clientIP,
+		ProviderID:      providerID,
 	})
 }
 
@@ -267,6 +286,9 @@ func recordWebhookCall(ctx context.Context, data WebhookCallData) {
 	}
 	if data.IP != "" {
 		call = call.SetIP(data.IP)
+	}
+	if data.ProviderID != nil {
+		call = call.SetProviderID(*data.ProviderID)
 	}
 
 	_, err := call.Save(ctx)

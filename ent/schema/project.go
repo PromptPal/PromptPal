@@ -33,7 +33,7 @@ func (Project) Fields() []ent.Field {
 		field.Float("openAITemperature").Default(1),
 		field.Float("openAITopP").Default(0.9),
 		field.Int("openAIMaxTokens").Default(0),
-		field.Int("providerId").Optional().StorageKey("project_provider"),
+		field.Int("providerId").Optional().Nillable().StorageKey("project_provider"),
 	}
 }
 
