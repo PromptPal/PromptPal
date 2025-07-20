@@ -28,6 +28,7 @@ type Query {
   providers(pagination: PaginationInput!): ProviderList!
 
   # Webhook queries
+  webhook(id: Int!): Webhook!
   webhooks(projectId: Int!, pagination: PaginationInput!): WebhookList!
 }
 

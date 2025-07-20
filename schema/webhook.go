@@ -210,9 +210,35 @@ func (q QueryResolver) DeleteWebhook(ctx context.Context, args deleteWebhookArgs
 	return true, nil
 }
 
+type webhookArgs struct {
+	ID int32
+}
+
 type webhooksArgs struct {
 	ProjectID  int32
 	Pagination paginationInput
+}
+
+func (q QueryResolver) Webhook(ctx context.Context, args webhookArgs) (webhookResponse, error) {
+	ctxValue := ctx.Value(service.GinGraphQLContextKey).(service.GinGraphQLContextType)
+
+	// Get webhook first to check project ownership
+	webhook, err := service.EntClient.Webhook.Get(ctx, int(args.ID))
+	if err != nil {
+		return webhookResponse{}, NewGraphQLHttpError(http.StatusNotFound, err)
+	}
+
+	// Check RBAC permission for viewing webhook in this project
+	projectID := webhook.ProjectID
+	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectView)
+	if err != nil {
+		return webhookResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
+	}
+	if !hasPermission {
+		return webhookResponse{}, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("insufficient permissions to view webhook"))
+	}
+
+	return webhookResponse{w: webhook}, nil
 }
 
 type webhooksResponse struct {
