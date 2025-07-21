@@ -443,7 +443,6 @@ func (s *webhookTestSuite) TestWebhook_UnauthorizedAccess() {
 	// Mock RBAC to return false for unauthorized user viewing, but allow other operations
 	rbac := service.NewMockRBACService(s.T())
 	rbac.On("HasPermission", mock.Anything, unauthorizedUser.ID, mock.Anything, service.PermProjectView).Return(false, nil)
-	rbac.On("HasPermission", mock.Anything, mock.Anything, mock.Anything, service.PermProjectEdit).Return(true, nil)
 	rbacService = rbac
 
 	// Try to get webhook without permissions
