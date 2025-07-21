@@ -367,7 +367,105 @@ func (s *webhookTestSuite) TestDeleteWebhook_NotFound() {
 	assert.Equal(s.T(), http.StatusNotFound, ge.code)
 }
 
+func (s *webhookTestSuite) TestWebhook_Success() {
+	// First create a webhook
+	webhook, err := s.q.CreateWebhook(s.ctx, createWebhookArgs{
+		Data: createWebhookData{
+			Name:      "Single Test Webhook",
+			URL:       "https://example.com/webhook",
+			Event:     EventOnPromptFinished,
+			ProjectID: int32(s.projectID),
+		},
+	})
+	assert.Nil(s.T(), err)
+
+	// Get single webhook by ID
+	result, err := s.q.Webhook(s.ctx, webhookArgs{
+		ID: webhook.ID(),
+	})
+
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), result.w)
+	assert.Equal(s.T(), webhook.ID(), result.ID())
+	assert.Equal(s.T(), "Single Test Webhook", result.Name())
+	assert.Equal(s.T(), "https://example.com/webhook", result.URL())
+	assert.Equal(s.T(), EventOnPromptFinished, result.Event())
+
+	// Clean up
+	service.EntClient.Webhook.DeleteOneID(int(webhook.ID())).ExecX(context.Background())
+}
+
+func (s *webhookTestSuite) TestWebhook_NotFound() {
+	// Try to get non-existent webhook
+	_, err := s.q.Webhook(s.ctx, webhookArgs{
+		ID: 99999,
+	})
+
+	assert.Error(s.T(), err)
+	ge, ok := err.(GraphQLHttpError)
+	assert.True(s.T(), ok)
+	assert.Equal(s.T(), http.StatusNotFound, ge.code)
+}
+
+func (s *webhookTestSuite) TestWebhook_UnauthorizedAccess() {
+	// Create a webhook
+	webhook, err := s.q.CreateWebhook(s.ctx, createWebhookArgs{
+		Data: createWebhookData{
+			Name:      "Unauthorized Test Webhook",
+			URL:       "https://example.com/webhook",
+			Event:     EventOnPromptFinished,
+			ProjectID: int32(s.projectID),
+		},
+	})
+	assert.Nil(s.T(), err)
+
+	// Create another user without permissions
+	testUserName := "unauthorized-user-webhook-single-" + utils.RandStringRunes(8)
+	testUserAddr := "unauthorized-addr-webhook-single-" + utils.RandStringRunes(8)
+	testUserEmail := testUserAddr + "@test-webhook.com"
+
+	unauthorizedUser := service.
+		EntClient.
+		User.
+		Create().
+		SetAddr(testUserAddr).
+		SetName(testUserName).
+		SetLang("en").
+		SetPhone(utils.RandStringRunes(16)).
+		SetLevel(0). // No admin level
+		SetEmail(testUserEmail).
+		SaveX(context.Background())
+
+	unauthorizedCtx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
+		UserID: unauthorizedUser.ID,
+	})
+
+	// Mock RBAC to return false for unauthorized user viewing, but allow other operations
+	rbac := service.NewMockRBACService(s.T())
+	rbac.On("HasPermission", mock.Anything, unauthorizedUser.ID, mock.Anything, service.PermProjectView).Return(false, nil)
+	rbacService = rbac
+
+	// Try to get webhook without permissions
+	_, err = s.q.Webhook(unauthorizedCtx, webhookArgs{
+		ID: webhook.ID(),
+	})
+
+	assert.Error(s.T(), err)
+	ge, ok := err.(GraphQLHttpError)
+	assert.True(s.T(), ok)
+	assert.Equal(s.T(), http.StatusUnauthorized, ge.code)
+
+	// Clean up
+	service.EntClient.Webhook.DeleteOneID(int(webhook.ID())).ExecX(context.Background())
+	service.EntClient.User.DeleteOneID(unauthorizedUser.ID).ExecX(context.Background())
+}
+
 func (s *webhookTestSuite) TestWebhooks_Success() {
+	// Mock RBAC to return true for all operations
+	rbac := service.NewMockRBACService(s.T())
+	rbac.On("HasPermission", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(true, nil)
+	rbacService = rbac
+
 	// First create a webhook
 	webhook, err := s.q.CreateWebhook(s.ctx, createWebhookArgs{
 		Data: createWebhookData{
@@ -434,7 +532,7 @@ func (s *webhookTestSuite) TestWebhooks_UnauthorizedAccess() {
 		UserID: unauthorizedUser.ID,
 	})
 
-	// Mock RBAC to return false for unauthorized user
+	// Mock RBAC to return false for unauthorized user viewing, but allow other operations
 	rbac := service.NewMockRBACService(s.T())
 	rbac.On("HasPermission", mock.Anything, unauthorizedUser.ID, mock.Anything, service.PermProjectView).Return(false, nil)
 	rbacService = rbac
