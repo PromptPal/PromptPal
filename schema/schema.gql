@@ -7,6 +7,7 @@
 #import * from './types/history.gql'
 #import * from './types/provider.gql'
 #import * from './types/webhook.gql'
+#import * from './types/webhook_call.gql'
 
 schema {
   query: Query
