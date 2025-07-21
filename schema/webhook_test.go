@@ -461,6 +461,11 @@ func (s *webhookTestSuite) TestWebhook_UnauthorizedAccess() {
 }
 
 func (s *webhookTestSuite) TestWebhooks_Success() {
+	// Mock RBAC to return true for all operations
+	rbac := service.NewMockRBACService(s.T())
+	rbac.On("HasPermission", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(true, nil)
+	rbacService = rbac
+
 	// First create a webhook
 	webhook, err := s.q.CreateWebhook(s.ctx, createWebhookArgs{
 		Data: createWebhookData{
@@ -530,7 +535,6 @@ func (s *webhookTestSuite) TestWebhooks_UnauthorizedAccess() {
 	// Mock RBAC to return false for unauthorized user viewing, but allow other operations
 	rbac := service.NewMockRBACService(s.T())
 	rbac.On("HasPermission", mock.Anything, unauthorizedUser.ID, mock.Anything, service.PermProjectView).Return(false, nil)
-	rbac.On("HasPermission", mock.Anything, mock.Anything, mock.Anything, service.PermProjectEdit).Return(false, nil)
 	rbacService = rbac
 
 	// Try to list webhooks without permissions
