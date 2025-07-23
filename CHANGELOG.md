@@ -1,5 +1,68 @@
 # Changelog
 
+## [1.16.1](https://github.com/PromptPal/PromptPal/compare/v1.16.0...v1.16.1) (2025-07-21)
+
+
+### Features
+
+* add IP tracking to webhook calls ([fb9a5df](https://github.com/PromptPal/PromptPal/commit/fb9a5df17e6eebf533dbc77f4551f36c60582007))
+* add provider defaultModel to webhook payload ([c636db7](https://github.com/PromptPal/PromptPal/commit/c636db718cccb110c7ea806413dae02136a06233))
+* add test environment configuration file ([302a8dc](https://github.com/PromptPal/PromptPal/commit/302a8dc7c12f9b59b4fe205e0e5ce287d14a94e3))
+* change authentication from username+password to email+password ([6448dd7](https://github.com/PromptPal/PromptPal/commit/6448dd714f972d23bba2b1c2d0e7f37b4c17dcee))
+* change authentication from username+password to email+password ([c2afd74](https://github.com/PromptPal/PromptPal/commit/c2afd743ef6d480a57c84a9bb533aae711dd6853))
+* implement comprehensive webhook call recording ([dcdb0fc](https://github.com/PromptPal/PromptPal/commit/dcdb0fc78b1cb34100c3062b89dc0c1a1373eade))
+* implement createUser GraphQL mutation with admin authorization ([e0fca20](https://github.com/PromptPal/PromptPal/commit/e0fca20be47ff7c40f0ac305ec52abd56e687092))
+* implement createUser GraphQL mutation with admin authorization ([f447a02](https://github.com/PromptPal/PromptPal/commit/f447a0212b0102cbdd28e2eb8729d0f1a12ba0d0))
+* implement mocked RBACService for schema tests ([5ff4365](https://github.com/PromptPal/PromptPal/commit/5ff4365353ccc3feb1f85ec4dcad8f83f868fd48))
+* implement RBAC (Role-Based Access Control) system ([ed10ae4](https://github.com/PromptPal/PromptPal/commit/ed10ae4d6b11b0198cd048ea4a1b8947da078c7f))
+* implement RBAC (Role-Based Access Control) system ([2ace2e6](https://github.com/PromptPal/PromptPal/commit/2ace2e6a0a0a3daf2f5cbd3160ab0d3c72348182)), closes [#110](https://github.com/PromptPal/PromptPal/issues/110)
+* implement RBAC permission checking in GraphQL schema resolvers ([cf66ab0](https://github.com/PromptPal/PromptPal/commit/cf66ab07ab7c937b3061cd0126de3a463ce7ac29))
+* implement RBAC permission checking in GraphQL schema resolvers ([bfcdce9](https://github.com/PromptPal/PromptPal/commit/bfcdce9a259d1161cb723ab841a1fe6001d0906b))
+* implement username/password authentication system ([570365f](https://github.com/PromptPal/PromptPal/commit/570365f5a5f1a3bb625ba50b73b2debb1220500c))
+* implement username/password authentication system ([39d71a3](https://github.com/PromptPal/PromptPal/commit/39d71a3d404fac5df1fd0467caeb53fc576abe9e))
+* implement webhook support for onPromptFinished events ([b40ce79](https://github.com/PromptPal/PromptPal/commit/b40ce79df57a36a196e396fc7c3e07ed08579584))
+* implement webhook support for onPromptFinished events ([74c2aad](https://github.com/PromptPal/PromptPal/commit/74c2aad608b5d2b49b7f91d869d0b338fd041c17))
+* replace hard-coded version with versionCommit in webhook User-Agent ([ac2332d](https://github.com/PromptPal/PromptPal/commit/ac2332dc5cbf067b0379b9c7175e4ad8c812a7e7))
+* **schema:** add webhook call type definitions and import ([31fd872](https://github.com/PromptPal/PromptPal/commit/31fd87227cdc07750ff53c3fe53612c9574f0747))
+* update GraphQL schema to use paginated responses for roles and permissions ([525d482](https://github.com/PromptPal/PromptPal/commit/525d48299c09fba7f699eba38e79c55640cd796e))
+* **webhook:** add separate update payload type and fix resolver ([4e00d2e](https://github.com/PromptPal/PromptPal/commit/4e00d2edf5bba003f7e403864b54ee0899d09b47))
+* **webhook:** add webhook resolver for fetching single webhook ([3eefe67](https://github.com/PromptPal/PromptPal/commit/3eefe679dbfd1600ccc23e79622fb887372e90fe))
+* **webhook:** add webhook resolver for fetching single webhook ([420e8d8](https://github.com/PromptPal/PromptPal/commit/420e8d86882aaee3fd20f72d73313867a10500a9)), closes [#120](https://github.com/PromptPal/PromptPal/issues/120)
+
+
+### Bug Fixes
+
+* add missing RBACServiceInstance global variable ([3fbae73](https://github.com/PromptPal/PromptPal/commit/3fbae73632fc7005a1852e206e6bfc40457c2d50))
+* add safe type assertion for GraphQL context in CreateUser ([9a1e5cd](https://github.com/PromptPal/PromptPal/commit/9a1e5cdcb8b7b2877234745095a6be15f2177e8e))
+* address remaining RBAC implementation issues from code review ([fa06a6a](https://github.com/PromptPal/PromptPal/commit/fa06a6a0520b2b6f4a39116969f3d11c2f8f1089))
+* address webhook implementation review issues ([8dad49c](https://github.com/PromptPal/PromptPal/commit/8dad49ca6620a85fa0056903b58ce3de351bd52f))
+* address webhook implementation security and code quality issues ([cf0de95](https://github.com/PromptPal/PromptPal/commit/cf0de95f94d618fc96bd8a9bd1bf11250749366f))
+* clean up auth implementation and move passwordAuth to mutation ([5c5a325](https://github.com/PromptPal/PromptPal/commit/5c5a32530cdf7713517b4fc93a3975b7a782d325))
+* fix go mod ([5f15cd0](https://github.com/PromptPal/PromptPal/commit/5f15cd0a49eef8ac691047beba57d7b586b056e1))
+* **project:** fix project testcase ([0aafd9c](https://github.com/PromptPal/PromptPal/commit/0aafd9c2eeee112ccb7098dba5ddf922dbdde871))
+* **project:** fix testcase ([e67a2f9](https://github.com/PromptPal/PromptPal/commit/e67a2f950464a05b3aef91afb840a5708878132b))
+* remove duplicate return statements in passwordAuthHandler ([18ca192](https://github.com/PromptPal/PromptPal/commit/18ca19277f1ee4d5c6e11c4175c30bc7f6e075d2))
+* remove duplicate webhook.go file and update function call ([2a9e13b](https://github.com/PromptPal/PromptPal/commit/2a9e13b4fbd866e175193e03d93ad58d9ad3ab3c))
+* remove SetDurationMs and SetIsSuccess calls from webhook service ([ae3e350](https://github.com/PromptPal/PromptPal/commit/ae3e350fcd039faf31309f44d4f9109a2398b8e2))
+* remove unused imports from test files ([291156d](https://github.com/PromptPal/PromptPal/commit/291156d66ff74ff3aaa7db59465eb89cef622254))
+* reorder cleanup operations in test teardown ([10b08e7](https://github.com/PromptPal/PromptPal/commit/10b08e7a8adf3da928b2b550822d9d3d2a8b0ed7))
+* resolve webhook test compilation issues by adding service mocks ([9a0bfd6](https://github.com/PromptPal/PromptPal/commit/9a0bfd633eb739a58b2bcb1c0438dcf2e0ee9b9f))
+* **schema:** update testcase ([ea5c678](https://github.com/PromptPal/PromptPal/commit/ea5c678b821b3eabbccf134d62a92e0eb9cfaa3c))
+* **service:** ignore mock files ([0afda14](https://github.com/PromptPal/PromptPal/commit/0afda148b9d361c7e44f31cc80367a7441d5c1d8))
+* update GraphQL schema to return paginated results for roles and permissions ([e0c65f0](https://github.com/PromptPal/PromptPal/commit/e0c65f09a0fa1cb18f4ccc780735e19a9ceab059))
+* use request context parameter instead of creating custom contexts in webhook service ([08ea000](https://github.com/PromptPal/PromptPal/commit/08ea00093bbf80fa76019b033dbfa50cb4e886b8))
+* **webhook:** correct unauthorized test to return false for PermProjectEdit ([e03a07f](https://github.com/PromptPal/PromptPal/commit/e03a07f63aad2a192b985898007b706fa65a9a64))
+* **webhook:** fix RBAC permission mock expectations in tests ([aca1504](https://github.com/PromptPal/PromptPal/commit/aca1504174676349090792d95948243c3f8e1a8a))
+* **webhook:** fix webhook test ([f7db50b](https://github.com/PromptPal/PromptPal/commit/f7db50b274d041b7ff9b4805def5ce05cea35423))
+* **webhook:** fix webhook testcase ([c68e8ed](https://github.com/PromptPal/PromptPal/commit/c68e8eda165095bd1424104a445720e53a04ecd8))
+* **webhook:** remove incorrect PermProjectEdit mock in unauthorized test ([e5ee5e7](https://github.com/PromptPal/PromptPal/commit/e5ee5e7edcb68d7613be9bad6a332712756be6ff))
+* **webhook:** replace JSON type with String in GraphQL schema ([4136d9a](https://github.com/PromptPal/PromptPal/commit/4136d9a751648d0200ddb36a0f288bbf7cb5659c))
+
+
+### Miscellaneous Chores
+
+* release 1.16.1 ([08afca8](https://github.com/PromptPal/PromptPal/commit/08afca8d2eb3b5a841b5e0b13831bd1e4c6338fe))
+
 ## [1.16.0](https://github.com/PromptPal/PromptPal/compare/v1.15.11...v1.16.0) (2025-07-12)
 
 
