@@ -8,6 +8,7 @@
 #import * from './types/provider.gql'
 #import * from './types/webhook.gql'
 #import * from './types/webhook_call.gql'
+#import * from './types/cost_report.gql'
 
 schema {
   query: Query
@@ -31,6 +32,9 @@ type Query {
   # Webhook queries
   webhook(id: Int!): Webhook!
   webhooks(projectId: Int!, pagination: PaginationInput!): WebhookList!
+
+  # Cost report queries
+  reports(filters: CostReportFilters!): CostReportList!
 }
 
 type Mutation {
