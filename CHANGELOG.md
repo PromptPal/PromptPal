@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.16.2](https://github.com/PromptPal/PromptPal/compare/v1.16.1...v1.16.2) (2025-07-25)
+
+
+### Features
+
+* **api:** add server-provided user ID support for prompt execution ([e952ff6](https://github.com/PromptPal/PromptPal/commit/e952ff6ebb98bd8527c54ff9671c20b863201d57))
+* **auth:** change temporaryTokenValidationResponse.UserId from int to string ([aa35c2c](https://github.com/PromptPal/PromptPal/commit/aa35c2cbc88049c5208f5a9e6e36e358a8669c8c))
+* **auth:** change temporaryTokenValidationResponse.UserId from int to string ([f058afa](https://github.com/PromptPal/PromptPal/commit/f058afafeed355081189e1200be3d5deefc5d9de))
+
+
+### Miscellaneous Chores
+
+* release 1.16.2 ([ee3d7b3](https://github.com/PromptPal/PromptPal/commit/ee3d7b370e655a8f7f7bd47824ae0fc11b401700))
+
 ## [1.16.1](https://github.com/PromptPal/PromptPal/compare/v1.16.0...v1.16.1) (2025-07-21)
 
 
