@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.16.4](https://github.com/PromptPal/PromptPal/compare/v1.16.3...v1.16.4) (2025-07-25)
+
+
+### Features
+
+* standardize User-Agent header format for webhooks ([f1009df](https://github.com/PromptPal/PromptPal/commit/f1009dfa707f64f014661e8fb84a867d4344cd2a))
+* standardize User-Agent header format for webhooks ([cf2465a](https://github.com/PromptPal/PromptPal/commit/cf2465ac52cf8728af6f386110b7f2e6c7483138))
+
+
+### Miscellaneous Chores
+
+* release 1.16.4 ([566cdb0](https://github.com/PromptPal/PromptPal/commit/566cdb0d6b42900d1def935deffdda677f44476a))
+
 ## [1.16.3](https://github.com/PromptPal/PromptPal/compare/v1.16.2...v1.16.3) (2025-07-25)
 
 
