@@ -25,7 +25,7 @@ PromptPal sends the following headers with each webhook request:
 
 ```http
 Content-Type: application/json
-User-Agent: PromptPal-Webhook@{version}
+User-Agent: PromptPal@{version}
 ```
 
 ### Timeout
