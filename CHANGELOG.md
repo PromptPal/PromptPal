@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.3](https://github.com/PromptPal/PromptPal/compare/v1.16.2...v1.16.3) (2025-07-25)
+
+
+### Bug Fixes
+
+* **api:** ensure server_uid is used when client userId is empty in streaming endpoints ([438efdf](https://github.com/PromptPal/PromptPal/commit/438efdf1e358fa29dc9c0a164c434604a1a35daf))
+
 ## [1.16.2](https://github.com/PromptPal/PromptPal/compare/v1.16.1...v1.16.2) (2025-07-25)
 
 
