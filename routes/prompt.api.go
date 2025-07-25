@@ -214,7 +214,7 @@ func apiRunPrompt(c *gin.Context) {
 	pjData, _ := c.Get("pj")
 	payloadData, _ := c.Get("payload")
 
-	serverUid := c.GetInt("server_uid")
+	serverUid := c.GetString("server_uid")
 
 	prompt := promptData.(ent.Prompt)
 	pj := pjData.(ent.Project)
@@ -233,8 +233,8 @@ func apiRunPrompt(c *gin.Context) {
 	}
 
 	requestUid := payload.UserId
-	if payload.UserId == "" && serverUid > 0 {
-		requestUid = fmt.Sprintf("%d", serverUid)
+	if payload.UserId == "" && serverUid != "" {
+		requestUid = serverUid
 	}
 
 	res, err := isomorphicAIService.Chat(c, provider, prompt, payload.Variables, requestUid)

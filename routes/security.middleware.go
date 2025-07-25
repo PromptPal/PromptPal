@@ -11,9 +11,9 @@ import (
 )
 
 type temporaryTokenValidationResponse struct {
-	Limit     int `json:"limit"`
-	Remaining int `json:"remaining"`
-	UserId    int `json:"userId"`
+	Limit     int    `json:"limit"`
+	Remaining int    `json:"remaining"`
+	UserId    string `json:"userId"`
 }
 
 func temporaryTokenValidationMiddleware(c *gin.Context) {
@@ -92,7 +92,7 @@ func temporaryTokenValidationMiddleware(c *gin.Context) {
 		})
 		return
 	}
-	if resp.UserId > 0 {
+	if resp.UserId != "" {
 		c.Set("server_uid", resp.UserId)
 	}
 	c.Next()
