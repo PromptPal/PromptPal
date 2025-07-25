@@ -64,5 +64,5 @@ func startHTTPServer() {
 	if err := server.Shutdown(ctx); err != nil {
 		logrus.Fatalln("Server forced to shutdown:", err)
 	}
-	logrus.Infoln("PromptPal Server exiting")
+	logrus.Infoln("PromptPal Server exiting...")
 }
