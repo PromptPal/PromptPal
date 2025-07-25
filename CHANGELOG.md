@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.5](https://github.com/PromptPal/PromptPal/compare/v1.16.4...v1.16.5) (2025-07-25)
+
+
+### Bug Fixes
+
+* **main:** just make some change ([6b08b5f](https://github.com/PromptPal/PromptPal/commit/6b08b5f7b6c156bdba9b9a77749d9de576836bc2))
+
 ## [1.16.4](https://github.com/PromptPal/PromptPal/compare/v1.16.3...v1.16.4) (2025-07-25)
 
 
