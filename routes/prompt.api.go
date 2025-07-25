@@ -214,6 +214,8 @@ func apiRunPrompt(c *gin.Context) {
 	pjData, _ := c.Get("pj")
 	payloadData, _ := c.Get("payload")
 
+	serverUid := c.GetInt("server_uid")
+
 	prompt := promptData.(ent.Prompt)
 	pj := pjData.(ent.Project)
 	payload := payloadData.(apiRunPromptPayload)
@@ -230,7 +232,12 @@ func apiRunPrompt(c *gin.Context) {
 		return
 	}
 
-	res, err := isomorphicAIService.Chat(c, provider, prompt, payload.Variables, payload.UserId)
+	requestUid := payload.UserId
+	if payload.UserId == "" && serverUid > 0 {
+		requestUid = fmt.Sprintf("%d", serverUid)
+	}
+
+	res, err := isomorphicAIService.Chat(c, provider, prompt, payload.Variables, requestUid)
 	endTime := time.Now()
 
 	defer savePromptCall(
@@ -437,5 +444,5 @@ func savePromptCall(
 	}
 
 	// Trigger webhooks in background
-go triggerWebhooks(context.Background(), pj, prompt, responseResult, res, payload, endTime, startTime, ua, clientIP, isCachedResponse, pj.ProviderId)
+	go triggerWebhooks(context.Background(), pj, prompt, responseResult, res, payload, endTime, startTime, ua, clientIP, isCachedResponse, pj.ProviderId)
 }

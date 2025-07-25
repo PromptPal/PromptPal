@@ -13,6 +13,7 @@ import (
 type temporaryTokenValidationResponse struct {
 	Limit     int `json:"limit"`
 	Remaining int `json:"remaining"`
+	UserId    int `json:"userId"`
 }
 
 func temporaryTokenValidationMiddleware(c *gin.Context) {
@@ -90,6 +91,9 @@ func temporaryTokenValidationMiddleware(c *gin.Context) {
 			ErrorMessage: fmt.Sprintf("Temporary token limit reached: %d", resp.Remaining),
 		})
 		return
+	}
+	if resp.UserId > 0 {
+		c.Set("server_uid", resp.UserId)
 	}
 	c.Next()
 }
