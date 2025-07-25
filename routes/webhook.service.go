@@ -36,10 +36,10 @@ type WebhookPayload struct {
 		Completion int `json:"completion"`
 		Total      int `json:"total"`
 	} `json:"tokens"`
-	Cached              bool    `json:"cached"`
-	IP                  string  `json:"ip"`
-	UserAgent           string  `json:"userAgent"`
-	ProviderID          *int    `json:"providerId,omitempty"`
+	Cached               bool    `json:"cached"`
+	IP                   string  `json:"ip"`
+	UserAgent            string  `json:"userAgent"`
+	ProviderID           *int    `json:"providerId,omitempty"`
 	ProviderDefaultModel *string `json:"providerDefaultModel,omitempty"`
 }
 
@@ -184,7 +184,7 @@ func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes 
 	// Make the HTTP request
 	resp, err := webhookHTTPClient.Do(req)
 	endTime := time.Now()
-	
+
 	var statusCode int
 	var responseHeaders map[string]string
 	var responseBody string
@@ -199,7 +199,7 @@ func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes 
 	} else {
 		defer resp.Body.Close()
 		statusCode = resp.StatusCode
-		
+
 		// Read response headers
 		responseHeaders = make(map[string]string)
 		for key, values := range resp.Header {

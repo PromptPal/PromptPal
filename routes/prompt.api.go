@@ -235,6 +235,7 @@ func apiRunPrompt(c *gin.Context) {
 	requestUid := payload.UserId
 	if payload.UserId == "" && serverUid != "" {
 		requestUid = serverUid
+		payload.UserId = serverUid
 	}
 
 	res, err := isomorphicAIService.Chat(c, provider, prompt, payload.Variables, requestUid)
@@ -290,6 +291,7 @@ func apiRunPromptStream(c *gin.Context) {
 	promptData, _ := c.Get("prompt")
 	pjData, _ := c.Get("pj")
 	payloadData, _ := c.Get("payload")
+	serverUid := c.GetString("server_uid")
 
 	prompt := promptData.(ent.Prompt)
 	pj := pjData.(ent.Project)
@@ -304,7 +306,13 @@ func apiRunPromptStream(c *gin.Context) {
 		return
 	}
 
-	replyStream, err := isomorphicAIService.ChatStream(c, provider, prompt, payload.Variables, payload.UserId)
+	requestUid := payload.UserId
+	if payload.UserId == "" && serverUid != "" {
+		requestUid = serverUid
+		payload.UserId = serverUid
+	}
+
+	replyStream, err := isomorphicAIService.ChatStream(c, provider, prompt, payload.Variables, requestUid)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse{
