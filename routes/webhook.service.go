@@ -149,7 +149,7 @@ func sendWebhookRequest(ctx context.Context, webhook *ent.Webhook, payloadBytes 
 	// Prepare request headers
 	requestHeaders := map[string]string{
 		"Content-Type": "application/json",
-		"User-Agent":   fmt.Sprintf("PromptPal-Webhook@%s", versionCommit),
+		"User-Agent":   fmt.Sprintf("PromptPal@%s", versionCommit),
 	}
 
 	// Create HTTP request
