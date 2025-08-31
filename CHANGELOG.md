@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.7](https://github.com/PromptPal/PromptPal/compare/v1.16.6...v1.16.7) (2025-08-31)
+
+
+### Bug Fixes
+
+* **ci:** skip tests when release is created ([65187be](https://github.com/PromptPal/PromptPal/commit/65187be53b747d610a01d69658e23ce37bce6bc4))
+
 ## [1.16.6](https://github.com/PromptPal/PromptPal/compare/v1.16.5...v1.16.6) (2025-08-31)
 
 
