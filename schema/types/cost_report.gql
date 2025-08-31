@@ -1,0 +1,51 @@
+# Cost report types for aggregated cost data
+
+# Individual cost breakdown item
+type CostBreakdownItem {
+  id: String!
+  name: String!
+  costCents: Float!
+  count: Int!
+}
+
+# Daily cost data point
+type DailyCost {
+  date: String!  # YYYY-MM-DD format
+  costCents: Float!
+  count: Int!
+}
+
+# Monthly cost report with all aggregations
+type MonthlyCostReport {
+  month: String!  # YYYY-MM format
+  userId: String!
+  
+  # Total costs and counts
+  totalCostCents: Float!
+  totalCalls: Int!
+  totalTokens: Int!
+  successfulCalls: Int!
+  cachedCalls: Int!
+  
+  # Cost breakdowns by different dimensions
+  costsByProvider: [CostBreakdownItem!]!
+  costsByProject: [CostBreakdownItem!]!
+  costsByPrompt: [CostBreakdownItem!]!
+  costsByDay: [DailyCost!]!
+  
+  # Metadata
+  createdAt: String!
+  updatedAt: String!
+}
+
+# List of monthly cost reports
+type CostReportList {
+  reports: [MonthlyCostReport!]!
+  count: Int!
+}
+
+# Input for querying cost reports
+input CostReportFilters {
+  from: String!  # YYYY-MM format
+  to: String!    # YYYY-MM format
+}
