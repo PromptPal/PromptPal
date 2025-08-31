@@ -50,8 +50,10 @@ func temporaryTokenValidationMiddleware(c *gin.Context) {
 		})
 		return
 	}
+	reqUserId := c.Request.Header.Get("X-User-Id")
 
 	req.Header.Add("Authorization", tempToken)
+	req.Header.Add("X-User-Id", reqUserId)
 	req.Header.Add("User-Agent", fmt.Sprintf("PromptPal@%s", versionCommit))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
