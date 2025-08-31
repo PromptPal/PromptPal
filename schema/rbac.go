@@ -179,7 +179,6 @@ func (q QueryResolver) Roles(ctx context.Context) (roleListResponse, error) {
 		return roleListResponse{}, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("authentication required"))
 	}
 
-	rbacService := service.NewRBACService(service.EntClient)
 	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
 	if err != nil {
 		return roleListResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
@@ -198,7 +197,7 @@ func (q QueryResolver) Roles(ctx context.Context) (roleListResponse, error) {
 	for i, r := range roles {
 		edges[i] = roleResponse{r: r}
 	}
-	
+
 	return roleListResponse{
 		count: len(roles),
 		edges: edges,
@@ -212,7 +211,6 @@ func (q QueryResolver) Permissions(ctx context.Context) (permissionListResponse,
 		return permissionListResponse{}, NewGraphQLHttpError(http.StatusUnauthorized, errors.New("authentication required"))
 	}
 
-	rbacService := service.NewRBACService(service.EntClient)
 	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
 	if err != nil {
 		return permissionListResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
@@ -231,7 +229,7 @@ func (q QueryResolver) Permissions(ctx context.Context) (permissionListResponse,
 	for i, p := range permissions {
 		edges[i] = permissionResponse{p: p}
 	}
-	
+
 	return permissionListResponse{
 		count: len(permissions),
 		edges: edges,
@@ -269,7 +267,6 @@ func (q QueryResolver) UserProjectRoles(ctx context.Context, args userProjectRol
 		query = query.Where(userprojectrole.ProjectID(projectID))
 
 		// Check if user has permission to view this project's roles
-		rbacService := service.NewRBACService(service.EntClient)
 		hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectView)
 		if err != nil {
 			return nil, NewGraphQLHttpError(http.StatusInternalServerError, err)
@@ -280,7 +277,6 @@ func (q QueryResolver) UserProjectRoles(ctx context.Context, args userProjectRol
 		}
 	} else {
 		// Without project filter, require system admin
-		rbacService := service.NewRBACService(service.EntClient)
 		hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, nil, service.PermSystemAdmin)
 		if err != nil {
 			return nil, NewGraphQLHttpError(http.StatusInternalServerError, err)
@@ -342,7 +338,6 @@ func (q QueryResolver) AssignUserToProject(ctx context.Context, args assignRoleA
 		return assignRoleResponse{success: false, message: &msg}, nil
 	}
 
-	rbacService := service.NewRBACService(service.EntClient)
 	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectAdmin)
 	if err != nil {
 		msg := "permission check failed"
@@ -406,7 +401,6 @@ func (q QueryResolver) RemoveUserFromProject(ctx context.Context, args removeRol
 		return removeRoleResponse{success: false, message: &msg}, nil
 	}
 
-	rbacService := service.NewRBACService(service.EntClient)
 	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, &projectID, service.PermProjectAdmin)
 	if err != nil {
 		msg := "permission check failed"

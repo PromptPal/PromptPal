@@ -116,26 +116,25 @@ func (q QueryResolver) CreateUser(ctx context.Context, args createUserArgs) (cre
 	}
 
 	// Check permissions using RBAC
-	rbacService := service.NewRBACService(service.EntClient)
 	hasPermission, err := rbacService.HasPermission(ctx, ctxValue.UserID, nil, service.PermUserManage)
 	if err != nil {
 		return createUserResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
-	
+
 	// Fallback to legacy permission check for backward compatibility
 	if !hasPermission && currentUser.Level <= 100 {
 		return createUserResponse{}, NewGraphQLHttpError(http.StatusForbidden, errors.New("admin privileges required"))
 	}
 
 	data := args.Data
-	
+
 	// Generate random password
 	passwordService := service.NewPasswordService()
 	plainPassword, err := passwordService.GenerateRandomPassword(12)
 	if err != nil {
 		return createUserResponse{}, NewGraphQLHttpError(http.StatusInternalServerError, err)
 	}
-	
+
 	// Hash the password
 	hashedPassword, err := passwordService.HashPassword(plainPassword)
 	if err != nil {
@@ -148,39 +147,39 @@ func (q QueryResolver) CreateUser(ctx context.Context, args createUserArgs) (cre
 		SetEmail(data.Email).
 		SetPasswordHash(hashedPassword).
 		SetSource("password")
-	
+
 	// Set optional fields
 	if data.Phone != nil {
 		createQuery = createQuery.SetPhone(*data.Phone)
 	} else {
 		createQuery = createQuery.SetPhone("")
 	}
-	
+
 	if data.Lang != nil {
 		createQuery = createQuery.SetLang(*data.Lang)
 	} else {
 		createQuery = createQuery.SetLang("en")
 	}
-	
+
 	if data.Level != nil {
 		createQuery = createQuery.SetLevel(uint8(*data.Level))
 	} else {
 		createQuery = createQuery.SetLevel(1) // Default level
 	}
-	
+
 	if data.Avatar != nil {
 		createQuery = createQuery.SetAvatar(*data.Avatar)
 	} else {
 		createQuery = createQuery.SetAvatar("")
 	}
-	
+
 	if data.Username != nil {
 		createQuery = createQuery.SetUsername(*data.Username)
 	}
-	
+
 	// For addr field, we'll use email as default since it's required
 	createQuery = createQuery.SetAddr(data.Email)
-	
+
 	// Create the user
 	u, err := createQuery.Save(ctx)
 	if err != nil {
