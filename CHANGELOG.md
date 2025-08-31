@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.8](https://github.com/PromptPal/PromptPal/compare/v1.16.7...v1.16.8) (2025-08-31)
+
+
+### Bug Fixes
+
+* **service:** add GPT-5 model pricing to cost map ([542bd02](https://github.com/PromptPal/PromptPal/commit/542bd02bc23d224e7934c94e4e2a91bca9a4a5bb))
+
 ## [1.16.7](https://github.com/PromptPal/PromptPal/compare/v1.16.6...v1.16.7) (2025-08-31)
 
 
