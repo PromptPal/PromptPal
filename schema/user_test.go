@@ -20,6 +20,7 @@ type userTestSuite struct {
 	promptName string
 	promptID   int
 	providerID int
+	rbac       *service.MockRBACService
 }
 
 func (s *userTestSuite) SetupSuite() {
@@ -33,6 +34,7 @@ func (s *userTestSuite) SetupSuite() {
 	rbac := service.NewMockRBACService(s.T())
 	// Configure mock expectations for RBAC permissions
 	rbac.On("HasPermission", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(true, nil)
+	s.rbac = rbac
 	Setup(hs, w3, rbac)
 
 	q := QueryResolver{}
@@ -298,6 +300,17 @@ func (s *userTestSuite) TestCreateUserNonAdmin() {
 	ctx := context.WithValue(context.Background(), service.GinGraphQLContextKey, service.GinGraphQLContextType{
 		UserID: s.user.ID, // Regular user with level 1
 	})
+
+	s.rbac.
+		On("HasPermission",
+			mock.Anything,
+			s.user.ID,
+			mock.Anything,
+			nil,
+			service.PermUserManage,
+		).
+		Return(false, nil).
+		Once()
 
 	// Test should fail for non-admin user
 	result, err := q.CreateUser(ctx, createUserArgs{
