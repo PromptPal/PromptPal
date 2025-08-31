@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.16.6](https://github.com/PromptPal/PromptPal/compare/v1.16.5...v1.16.6) (2025-08-31)
+
+
+### Features
+
+* **ci:** enable npm/pnpm tools and forward user ID in security middleware ([4080de7](https://github.com/PromptPal/PromptPal/commit/4080de7e10f5e49c43720b6de90d1424c226065a))
+
+
+### Miscellaneous Chores
+
+* release 1.16.6 ([0f2785b](https://github.com/PromptPal/PromptPal/commit/0f2785bf371c349157c43e305c83a0919370beb2))
+
 ## [1.16.5](https://github.com/PromptPal/PromptPal/compare/v1.16.4...v1.16.5) (2025-07-25)
 
 
