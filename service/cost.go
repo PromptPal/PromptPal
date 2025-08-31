@@ -104,6 +104,34 @@ func init() {
 				OutputTokenCostInCents: 0.011,
 			},
 		},
+		"gpt-5": {
+			ModelCost{
+				StartFrom:              time.Date(2025, 2, 1, 0, 0, 0, 0, time.UTC),
+				InputTokenCostInCents:  0.000125,
+				OutputTokenCostInCents: 0.001,
+			},
+		},
+		"gpt-5-mini": {
+			ModelCost{
+				StartFrom:              time.Date(2025, 2, 1, 0, 0, 0, 0, time.UTC),
+				InputTokenCostInCents:  0.000025,
+				OutputTokenCostInCents: 0.0002,
+			},
+		},
+		"gpt-5-nano": {
+			ModelCost{
+				StartFrom:              time.Date(2025, 2, 1, 0, 0, 0, 0, time.UTC),
+				InputTokenCostInCents:  0.000005,
+				OutputTokenCostInCents: 0.00004,
+			},
+		},
+		"gpt-5-chat-latest": {
+			ModelCost{
+				StartFrom:              time.Date(2025, 2, 1, 0, 0, 0, 0, time.UTC),
+				InputTokenCostInCents:  0.000125,
+				OutputTokenCostInCents: 0.001,
+			},
+		},
 	}
 }
 
